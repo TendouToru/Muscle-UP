@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Muscle Up | Fitness-Kalender</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="head">
+            <h1 class="headline">Fitness-Kalender</h1>
+            <nav class="nav-top">
+                <a href="{{ url_for('index') }}" class="link">Home</a>
+                <a href="{{ url_for('profile')}}" class="link">Mein Profil</a>
+                <a href="{{ url_for('workout_page') }}" class="link">Workouts</a>
+                <a href="{{ url_for('logout') }}" class="link">Logout</a>
+            </nav>
+        </header>
+
+        <main class="content">
+            {% if workouts %}
+                {% for day in workouts %}
+                    <div class="day-block">
+                        <h3>{{ day.date }}</h3>
+                        {% for exercise in day.exercises %}
+                            <div class="workout-card">
+                                <span>{{ exercise.exercise }}</span>
+                                <ul>
+                                    {% for set in exercise.sets %}
+                                        <li>Gewicht: {{ set.weight }} kg | Wiederholungen: {{ set.reps }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <form action="{{ url_for('delete_workout_from_calendar', workout_id=exercise['id']) }}" method="post" >
+                                    <button type="submit" class="delete-btn">Löschen</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Keine Workouts gefunden.</p>
+            {% endif %}
+        </main>
+
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
+</body>
+</html>

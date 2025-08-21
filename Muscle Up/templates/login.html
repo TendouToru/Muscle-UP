@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Muscle Up | Login</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="head">
+            <h1 class="headline">Login</h1>
+            <nav class="nav-top">
+                <a href="{{ url_for('index') }}" class="link">Home</a>
+                <a href="{{ url_for('register') }}" class="link">Registrieren</a>
+            </nav>
+        </header>
+
+        <main class="content">
+            <form method="POST" class="form-login">
+                <label>Benutzername:</label>
+                <input type="text" name="username" placeholder="Benutzername" required>
+
+                <label>Passwort:</label>
+                <input type="password" name="password" placeholder="Passwort" required>
+
+                <button type="submit">Einloggen</button>
+            </form>
+        </main>
+
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
+</body>
+</html>

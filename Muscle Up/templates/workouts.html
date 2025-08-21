@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Muscle Up | Workout</title>
+</head>
+<body>
+<div class="wrapper">
+    <header class="head">
+        <h1 class="headline">Workouts</h1>
+        <nav class="nav-top">
+            <a href="{{ url_for('index') }}" class="link">Home</a>
+            <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
+            <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness-Kalender</a>
+            <a href="{{ url_for('logout') }}" class="link">Logout</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        <form id="exercise-form" class="form-login">
+            <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
+            <button type="submit">Übung starten</button>
+        </form>
+
+        <div id="exercise-container" style="display:none;">
+            <h2 id="current-exercise"></h2>
+            <form id="set-form" class="form-login">
+                <input type="number" id="weight" placeholder="Gewicht (kg)" required>
+                <input type="number" id="reps" placeholder="Wiederholungen" required>
+                <button type="submit">Satz hinzufügen</button>
+            </form>
+            <ul id="sets-list"></ul>
+            <button id="finish-exercise">Übung beenden</button>
+            
+        </div>
+
+        <div id="workout-overview">
+            <h3>Heutige Übungen</h3>
+            <div id="completed-exercises">
+                {% for exercise in today_workouts %}
+                <div class="completed-exercise">
+                    <h4>{{ exercise.exercise }}</h4>
+                    <ul>
+                        {% for s in exercise.sets %}
+                        <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
+                        {% endfor %}
+                    </ul>
+                    <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                        <button type="submit">Löschen</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+    </footer>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    let currentExercise = null;
+    let currentSets = [];
+
+    const exerciseForm = document.getElementById("exercise-form");
+    const setForm = document.getElementById("set-form");
+    const exerciseContainer = document.getElementById("exercise-container");
+    const currentExerciseTitle = document.getElementById("current-exercise");
+    const setsList = document.getElementById("sets-list");
+
+    exerciseForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        currentExercise = document.getElementById("exercise-name").value.trim();
+        if (!currentExercise) return;
+        currentExerciseTitle.textContent = currentExercise;
+        exerciseContainer.style.display = "block";
+        setsList.innerHTML = "";
+        currentSets = [];
+        exerciseForm.reset();
+    });
+
+    setForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const weight = document.getElementById("weight").value;
+        const reps = document.getElementById("reps").value;
+        if (!weight || !reps) return;
+
+        const setObj = { weight, reps };
+        currentSets.push(setObj);
+
+        const li = document.createElement("li");
+        li.textContent = `Gewicht: ${weight} kg | Wiederholungen: ${reps}`;
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Löschen";
+        delBtn.onclick = () => {
+            setsList.removeChild(li);
+            currentSets = currentSets.filter(s => s !== setObj);
+        };
+        li.appendChild(delBtn);
+        setsList.appendChild(li);
+
+        setForm.reset();
+    });
+
+// workouts.html
+document.getElementById("finish-exercise").addEventListener("click", () => {
+    if (!currentExercise || currentSets.length === 0) return;
+
+    const workoutData = {
+        exercise_name: currentExercise,
+        sets: currentSets
+    };
+
+    fetch('/workout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(workoutData)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            console.error('Fehler beim Speichern des Workouts.');
+        }
+    })
+    .catch(error => {
+        console.error('Netzwerkfehler:', error);
+    });
+});
+        // Optional: Absenden an Backend via Fetch (nicht implementiert)
+        currentExercise = null;
+        currentSets = [];
+        exerciseContainer.style.display = "none";
+    });
+
+</script>
+</body>
+</html>

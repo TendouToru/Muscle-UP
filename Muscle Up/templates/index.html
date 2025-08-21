@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Muscle Up | Start</title>
+</head>
+<body>
+<header class="head">
+    <div class="nav-bar">
+        <!-- Links: Logo -->
+        <h1 class="headline">Muscle Up</h1>
+
+        <!-- Mitte: Navigation (nur Desktop) -->
+
+
+        <!-- Rechts: Userbereich / Login -->
+        {% if 'user_id' in session %}
+        <div class="nav-user">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    <img src="{{ url_for('static', filename='default.png.png') }}" 
+                         alt="Profil" class="profile-pic">
+                </button>
+                <div class="dropdown-content">
+                    <span class="username">{{ session['username'] }}</span>
+                    <a href="{{ url_for('profile') }}">Mein Profil</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <nav class="nav-top">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Registrieren</a>
+        </nav>
+        {% endif %}
+
+        <!-- Hamburger Button (nur Mobile) -->
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+    </div>
+
+    <!-- Mobile Menü -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('workout_page') }}">Workouts</a>
+        <a href="{{ url_for('fitness_kalendar') }}">Kalender</a>
+
+        {% if 'user_id' in session %}
+            <a href="{{ url_for('profile') }}">Mein Profil</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Registrieren</a>
+        {% endif %}
+    </nav>
+</header>
+
+
+
+    <main class="content">
+        <p>Willkommen bei Muscle Up! Verfolge deine Fitness-Fortschritte und werde zum Sigma 💪</p>
+    </main>
+
+    <footer>
+        &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+    </footer>
+</body>
+
+<script>
+function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+}
+</script>
+
+</html>

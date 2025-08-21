@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Muscle Up | Profil</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="head">
+            <h1 class="headline">Mein Profil</h1>
+            <nav class="nav-top">
+                <a href="{{ url_for('index') }}" class="link">Home</a>
+                <a href="{{ url_for('workout_page') }}" class="link">Workouts</a>
+                <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness-Kalender</a>
+                <a href="{{ url_for('logout') }}" class="link">Logout</a>
+            </nav>
+        </header>
+
+        <main class="content">
+            <h2>Willkommen, {{ username}}!</h2>
+            <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten.</p>
+
+            <!-- Profil-Daten -->
+            <section class="profile-card">
+                <h3>Meine Daten</h3>
+                <form method="post" class="form-profile">
+                    <label>Körpergewicht (kg):</label>
+                    <input type="number" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
+
+                    <label>Größe (cm):</label>
+                    <input type="number" step="1" name="height" value="{{ profile.height or '' }}">
+
+                    <button type="submit">Speichern</button>
+                </form>
+            </section>
+
+          <!-- Stats -->
+            <section class="stats-card">
+                <h3>Meine Stats</h3>
+
+                <p>Level: <strong>{{ level }}</strong></p>
+                <p>XP: <strong>{{ stats.xp_total if stats else 0 }}</strong> / <strong>{{ xp_for_next }}</strong></p>
+
+                <div class="xp-bar" style="background-color: #ddd; width: 100%; height: 20px; border-radius: 10px; overflow: hidden;">
+                    <div class="xp-fill" style="background-color: #4caf50; width: {{ (progress*100)|round(1) }}%; height: 100%;"></div>
+                </div>
+
+                <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
+
+                <div class="attributes">
+                    <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
+                    <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
+                    <div class="attr"><span>🧠 Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
+                </div>
+            </section>
+
+        </main>
+
+
+
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
+</body>
+</html>
