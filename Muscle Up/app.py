@@ -1,9 +1,15 @@
+# app.py
+
+import os
+import psycopg2
+import psycopg2.extras # Wichtig für Wörterbuch-Cursor
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
-import sqlite3, hashlib, json, secrets
+import hashlib, json, secrets
 from datetime import datetime, timedelta
+import sqlite3
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
 # --- XP-Funktionen
 def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add"):
@@ -11,17 +17,20 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     Berechnet XP und ändert die Stärke basierend auf der Aktion ('add' oder 'deduct').
     """
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Verwende DictCursor für den Zugriff auf Spaltennamen
     try:
-        row = conn.execute(
-            "SELECT attr_strength FROM user_stats WHERE user_id=?",
+        cursor.execute(
+            "SELECT attr_strength FROM user_stats WHERE user_id=%s",
             (user_id,)
-        ).fetchone()
+        )
+        row = cursor.fetchone()
         current_strength = row["attr_strength"] if row else 0
 
-        profile = conn.execute(
-            "SELECT bodyweight FROM user_profile WHERE user_id=?",
+        cursor.execute(
+            "SELECT bodyweight FROM user_profile WHERE user_id=%s",
             (user_id,)
-        ).fetchone()
+        )
+        profile = cursor.fetchone()
         bodyweight = profile["bodyweight"] if profile and profile["bodyweight"] else 0
 
         total_xp = 0
@@ -32,26 +41,25 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
                 try:
                     weight = float(s.get("weight", 0) or 0)
                 except (ValueError, TypeError):
-                    continue 
+                    continue
 
-                total_xp += 5  
+                total_xp += 5
                 if bodyweight > 0 and weight >= bodyweight:
                     total_xp += weight // 10
                     strength_change += 2
                 else:
                     total_xp += weight // 5
                     strength_change += 1
-        
-        # Aktualisiere die Stärke basierend auf der Aktion
+
         if action == "add":
             new_strength = current_strength + strength_change
         elif action == "deduct":
             new_strength = max(0, current_strength - strength_change)
         else:
-            new_strength = current_strength 
+            new_strength = current_strength
 
-        conn.execute(
-            "UPDATE user_stats SET attr_strength=? WHERE user_id=?",
+        cursor.execute(
+            "UPDATE user_stats SET attr_strength=%s WHERE user_id=%s",
             (new_strength, user_id)
         )
         conn.commit()
@@ -65,14 +73,14 @@ def calculate_level_and_progress(xp_total: int):
     base_xp = 100
     factor = 1.5
     xp_for_next = base_xp
-    
+
     # Temporäre Variable, um xp_total nicht zu ändern
     temp_xp = xp_total
 
     while temp_xp >= xp_for_next:
         temp_xp -= xp_for_next
         level += 1
-        xp_for_next = int(xp_for_next * factor) 
+        xp_for_next = int(xp_for_next * factor)
         factor += 0.005
 
     while not xp_for_next % 10 == 0:
@@ -84,11 +92,13 @@ def calculate_level_and_progress(xp_total: int):
 # Stärke Funktionen
 def staerke(user_id: int):
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        kraft_db = conn.execute(
-            "SELECT attr_strength, streak_days FROM user_stats WHERE user_id=?",
+        cursor.execute(
+            "SELECT attr_strength, streak_days FROM user_stats WHERE user_id=%s",
             (user_id,)
-        ).fetchone()
+        )
+        kraft_db = cursor.fetchone()
         if not kraft_db:
             return 0
         base_strength = kraft_db["attr_strength"] or 0
@@ -101,26 +111,26 @@ def staerke(user_id: int):
 # Streak Funktionen
 def update_streak(user_id: int):
     conn = get_db()
+    cursor = conn.cursor()
     try:
         today = datetime.now().date()
         
-        # Holen Sie sich das Datum des letzten Workouts
-        last_workout = conn.execute(
-            "SELECT date FROM workouts WHERE user_id=? ORDER BY date DESC LIMIT 1 OFFSET 1",
+        cursor.execute(
+            "SELECT date FROM workouts WHERE user_id=%s ORDER BY date DESC LIMIT 1 OFFSET 1",
             (user_id,)
-        ).fetchone()
+        )
+        last_workout = cursor.fetchone()
 
         if not last_workout:
-            # Erster Workout-Tag
-            conn.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = ?", (user_id,))
+            cursor.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = %s", (user_id,))
         else:
-            last_date = datetime.strptime(last_workout["date"], "%Y-%m-%d").date()
+            last_date = datetime.strptime(last_workout[0], "%Y-%m-%d").date()
             yesterday = today - timedelta(days=1)
             
             if last_date == yesterday:
-                conn.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = ?", (user_id,))
+                cursor.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = %s", (user_id,))
             else:
-                conn.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = ?", (user_id,))
+                cursor.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = %s", (user_id,))
 
         conn.commit()
     finally:
@@ -128,45 +138,56 @@ def update_streak(user_id: int):
 
 # --- Hilfsfunktion für DB ---
 def get_db():
-    conn = sqlite3.connect("users.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        return conn
+    except KeyError:
+        print("DATABASE_URL Umgebungsvariable nicht gefunden. Verwende SQLite.")
+        conn = sqlite3.connect("users.db")
+        conn.row_factory = sqlite3.Row
+        return conn
 
 def init_db():
     conn = get_db()
-    # Profil
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS user_profile (
-        user_id INTEGER PRIMARY KEY,
-        bodyweight REAL,
-        height REAL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    )
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
     """)
-    conn.execute("""
-    INSERT INTO user_profile (user_id)
-    SELECT id FROM users
-    WHERE id NOT IN (SELECT user_id FROM user_profile)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_profile (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            bodyweight REAL,
+            height REAL
+        )
     """)
-
-    # Stats
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS user_stats (
-        user_id INTEGER PRIMARY KEY,
-        xp_total INTEGER DEFAULT 0,
-        streak_days INTEGER DEFAULT 0,
-        attr_strength INTEGER DEFAULT 0,
-        attr_endurance INTEGER DEFAULT 0,
-        attr_intelligence INTEGER DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    )
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_stats (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            xp_total INTEGER DEFAULT 0,
+            streak_days INTEGER DEFAULT 0,
+            attr_strength INTEGER DEFAULT 0,
+            attr_endurance INTEGER DEFAULT 0,
+            attr_intelligence INTEGER DEFAULT 0
+        )
     """)
-    conn.execute("""
-    INSERT INTO user_stats (user_id)
-    SELECT id FROM users
-    WHERE id NOT IN (SELECT user_id FROM user_stats)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS workouts (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            exercise TEXT,
+            sets JSONB,
+            date TEXT
+        )
     """)
+    
     conn.commit()
+    cursor.close()
+    conn.close()
 
 # --- Homepage ---
 @app.route("/")
@@ -184,7 +205,9 @@ def login():
         username = request.form["username"]
         password = hashlib.sha256(request.form["password"].encode()).hexdigest()
         conn = get_db()
-        user = conn.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password)).fetchone()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
+        user = cursor.fetchone()
         if user:
             session["user_id"] = user["id"]
             session["username"] = user["username"]
@@ -211,21 +234,21 @@ def register():
         else:
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
             conn = get_db()
-            existing_user = conn.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+            existing_user = cursor.fetchone()
             if existing_user:
                 error = "Der Benutzername ist bereits vergeben."
             else:
-                # User anlegen
-                conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
-                user_id = conn.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()["id"]
+                cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id", (username, hashed_password))
+                user_id = cursor.fetchone()[0]
 
-                # Profil & Stats mit Default-Werten anlegen
-                conn.execute("INSERT INTO user_profile (user_id, bodyweight, height) VALUES (?, ?, ?)",
-                             (user_id, 0, 0))
-                conn.execute("""INSERT INTO user_stats (
+                cursor.execute("INSERT INTO user_profile (user_id, bodyweight, height) VALUES (%s, %s, %s)",
+                               (user_id, 0, 0))
+                cursor.execute("""INSERT INTO user_stats (
                                      user_id, xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
-                                 ) VALUES (?, ?, ?, ?, ?, ?)""",
-                             (user_id, 0, 0, 0, 0, 0))
+                                 ) VALUES (%s, %s, %s, %s, %s, %s)""",
+                               (user_id, 0, 0, 0, 0, 0))
                 conn.commit()
                 return redirect(url_for("login"))
     return render_template("register.html", error=error)
@@ -237,52 +260,56 @@ def profile():
         return redirect(url_for("login"))
 
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     kraft = staerke(session["user_id"])
-    # POST: Profilwerte speichern
+    
     if request.method == "POST":
-        bodyweight = request.form.get("bodyweight")
-        height = request.form.get("height")
-
-        # Sicherstellen, dass Werte nicht leer sind
-        bodyweight_val =  0
-        height_val =  0
+        bodyweight_str = request.form.get("bodyweight")
+        height_str = request.form.get("height")
+        
+        bodyweight_val = 0
+        height_val = 0
 
         try:
-            if bodyweight:
-                bodyweight_val = float(bodyweight)
-            if height:
-                height_val = float(height)
+            if bodyweight_str:
+                bodyweight_val = float(bodyweight_str)
+            if height_str:
+                height_val = float(height_str)
         except ValueError:
+            flash("Körpergewicht und Körpergröße müssen gültige Zahlen sein.", "error")
             return redirect(url_for("profile"))
 
         try:
-            conn.execute("""
+            cursor.execute("""
                 UPDATE user_profile
-                SET bodyweight=?, height=?
-                WHERE user_id=?
+                SET bodyweight=%s, height=%s
+                WHERE user_id=%s
             """, (bodyweight_val, height_val, session["user_id"]))
             conn.commit()
-        except sqlite3.Error as e:
-            flash("Fehler {e}","error")
+            flash("Profil erfolgreich aktualisiert!", "success")
+        except psycopg2.Error as e:
+            flash(f"Fehler {e}","error")
         finally:
             conn.close()
-
+        
         return redirect(url_for("profile"))
 
-    # GET: Profil laden
-    profile = conn.execute("""
-        SELECT * FROM user_profile WHERE user_id=?
-    """, (session["user_id"],)).fetchone()
+    cursor.execute("""
+        SELECT * FROM user_profile WHERE user_id=%s
+    """, (session["user_id"],))
+    profile = cursor.fetchone()
 
-    stats = conn.execute("""
+    cursor.execute("""
         SELECT xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
-        FROM user_stats WHERE user_id=?
-    """, (session["user_id"],)).fetchone()
+        FROM user_stats WHERE user_id=%s
+    """, (session["user_id"],))
+    stats = cursor.fetchone()
 
     if stats:
         level, progress, xp_for_next, xp_remaining = calculate_level_and_progress(stats["xp_total"])
     else:
         level, progress, xp_for_next, xp_remaining = 1, 0, 100, 0
+    conn.close()
 
     return render_template("profile.html",
                            profile=profile,
@@ -292,9 +319,6 @@ def profile():
                            progress=progress,
                            xp_for_next=xp_for_next,
                            username=session["username"])
-
-
-
 
 # --- Logout ---
 @app.route("/logout")
@@ -310,6 +334,7 @@ def workout_page():
 
     today = datetime.now().strftime("%Y-%m-%d")
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     if request.method == "POST":
         data = request.get_json()
@@ -322,16 +347,16 @@ def workout_page():
             return jsonify({"error": "Fehlende Daten"}), 400
 
         try:
-            # XP berechnen und Stärke updaten
             xp_gained = calculate_xp_and_strength(session["user_id"], [{"exercise": exercise_name, "sets": sets}], "add")
-            conn.execute(
-                "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (?, ?, ?, ?)",
+            
+            cursor.execute(
+                "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
                 (session["user_id"], exercise_name, json.dumps(sets), today)
             )
-            conn.execute("""
+            cursor.execute("""
                 UPDATE user_stats
-                SET xp_total = xp_total + ?
-                WHERE user_id = ?
+                SET xp_total = xp_total + %s
+                WHERE user_id = %s
             """, (xp_gained, session["user_id"]))
             conn.commit()
             
@@ -344,23 +369,29 @@ def workout_page():
         finally:
             conn.close()
 
-    # Workouts für heute laden
-    rows = conn.execute(
-        "SELECT * FROM workouts WHERE user_id=? AND date=?",
+    cursor.execute(
+        "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
         (session["user_id"], today)
-    ).fetchall()
+    )
+    rows = cursor.fetchall()
 
     today_workouts = []
     for row in rows:
         sets_data = row["sets"]
-        if not isinstance(sets_data, str):
-            sets_data = "[]"
-        today_workouts.append({
-            "id": row["id"],
-            "exercise": row["exercise"],
-            "sets": json.loads(sets_data)
-        })
+        if isinstance(sets_data, dict):
+            today_workouts.append({
+                "id": row["id"],
+                "exercise": row["exercise"],
+                "sets": sets_data
+            })
+        else:
+            today_workouts.append({
+                "id": row["id"],
+                "exercise": row["exercise"],
+                "sets": json.loads(sets_data)
+            })
 
+    conn.close()
     return render_template("workouts.html", today_workouts=today_workouts)
 
 # --- Workout löschen ---
@@ -370,26 +401,26 @@ def delete_workout(workout_id):
         return redirect(url_for("login"))
 
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        workout = conn.execute(
-            "SELECT * FROM workouts WHERE id=? AND user_id=?",
+        cursor.execute(
+            "SELECT * FROM workouts WHERE id=%s AND user_id=%s",
             (workout_id, session["user_id"])
-        ).fetchone()
+        )
+        workout = cursor.fetchone()
 
         if workout:
-            exercises = [{"exercise": workout["exercise"], "sets": json.loads(workout["sets"])}]
+            exercises = [{"exercise": workout["exercise"], "sets": workout["sets"]}]
 
-            # XP und Stärke abziehen
             xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
             
-            conn.execute("""
+            cursor.execute("""
                 UPDATE user_stats
-                SET xp_total = MAX(xp_total - ?, 0)
-                WHERE user_id = ?
+                SET xp_total = GREATEST(xp_total - %s, 0)
+                WHERE user_id = %s
             """, (xp_to_deduct, session["user_id"]))
 
-            # Workout löschen
-            conn.execute("DELETE FROM workouts WHERE id=? AND user_id=?", (workout_id, session["user_id"]))
+            cursor.execute("DELETE FROM workouts WHERE id=%s AND user_id=%s", (workout_id, session["user_id"]))
             conn.commit()
 
             update_streak(session["user_id"])
@@ -413,10 +444,13 @@ def fitness_kalendar():
         return redirect(url_for("login"))
 
     conn = get_db()
-    rows = conn.execute(
-        "SELECT * FROM workouts WHERE user_id=? ORDER BY date DESC",
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        "SELECT * FROM workouts WHERE user_id=%s ORDER BY date DESC",
         (session["user_id"],)
-    ).fetchall()
+    )
+    rows = cursor.fetchall()
+    conn.close()
 
     grouped_workouts = []
     temp_dict = {}
@@ -426,13 +460,11 @@ def fitness_kalendar():
         display_date = d.strftime("%d.%m.%Y")
 
         sets_data = row["sets"]
-        if not isinstance(sets_data, str):
-            sets_data = "[]"
 
         workout_item = {
             "id": row["id"],
             "exercise": row["exercise"],
-            "sets": json.loads(sets_data)
+            "sets": sets_data
         }
 
         if display_date not in temp_dict:
@@ -454,25 +486,26 @@ def delete_workout_from_calendar(workout_id):
         return redirect(url_for("login"))
 
     conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        workout = conn.execute(
-            "SELECT * FROM workouts WHERE id=? AND user_id=?",
+        cursor.execute(
+            "SELECT * FROM workouts WHERE id=%s AND user_id=%s",
             (workout_id, session["user_id"])
-        ).fetchone()
+        )
+        workout = cursor.fetchone()
 
         if workout:
-            exercises = [{"exercise": workout["exercise"], "sets": json.loads(workout["sets"])}]
+            exercises = [{"exercise": workout["exercise"], "sets": workout["sets"]}]
             
-            # XP und Stärke abziehen
             xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
 
-            conn.execute("""
+            cursor.execute("""
                 UPDATE user_stats
-                SET xp_total = MAX(xp_total - ?, 0)
-                WHERE user_id = ?
+                SET xp_total = GREATEST(xp_total - %s, 0)
+                WHERE user_id = %s
             """, (xp_to_deduct, session["user_id"]))
 
-            conn.execute("DELETE FROM workouts WHERE id=? AND user_id=?", (workout_id, session["user_id"]))
+            cursor.execute("DELETE FROM workouts WHERE id=%s AND user_id=%s", (workout_id, session["user_id"]))
             conn.commit()
             update_streak(session["user_id"])
             
@@ -487,20 +520,7 @@ def delete_workout_from_calendar(workout_id):
 
     return redirect(url_for("fitness_kalendar"))
 
+
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
-    conn = sqlite3.connect("users.db")
-    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS workouts (
-            id INTEGER PRIMARY KEY,
-            user_id INTEGER,
-            exercise TEXT,
-            sets TEXT,
-            date TEXT,
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        )
-    """)
-    conn.close()
-    init_db()
     app.run(debug=True)
