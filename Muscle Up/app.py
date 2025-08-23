@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 import hashlib, json, secrets
 from datetime import datetime, timedelta
 import sqlite3
+import pytz
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
@@ -121,7 +122,7 @@ def update_streak(user_id: int):
         current_streak = 0
         if workout_dates:
             last_date = datetime.strptime(workout_dates[0][0], "%Y-%m-%d").date()
-            today = datetime.now().date()
+            today = datetime.now(pytz.utc).date()
             
             # Starten Sie den Streak, wenn der letzte Trainingstag entweder heute oder gestern war
             if last_date == today or last_date == today - timedelta(days=1):
@@ -180,6 +181,45 @@ def restday(user_id:int):
             cursor.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = %s", (user_id,))
         
         conn.commit()
+    finally:
+        conn.close()
+
+#-- Ranks
+def calculate_rank():
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute(
+            "SELECT xp_total FROM user_stats WHERE user_id=%s",
+            (user_id,)
+        )
+        stats = cursor.fetchone()
+
+        if stats:
+            level, _, _, _ = calculate_level_and_progress(stats["xp_total"])
+        else:
+            return 0
+        
+        if level <= 5:
+            return 1
+        elif 5 < level <= 10:
+            return 2
+        elif 10 < level <= 15:
+            return 3
+        elif 15 < level <= 20:
+            return 4
+        elif 20 < level <= 25:
+            return 5
+        elif 25 < level <= 30:
+            return 6
+        elif 30 < level <= 35:
+            return 7
+        elif 35 < level <= 40:
+            return 8
+        elif 40 < level <= 45:
+            return 9
+        elif 45 < level <= 50:
+            return 10
     finally:
         conn.close()
         
@@ -310,6 +350,7 @@ def profile():
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     kraft = staerke(session["user_id"])
     ruhe = check_restday(session["user_id"])
+    rank = calculate_rank()
     
     if request.method == "POST":
         bodyweight_str = request.form.get("bodyweight")
@@ -365,6 +406,7 @@ def profile():
                            level=level,
                            kraft=kraft,
                            ruhe=ruhe,
+                           rank=rank,
                            progress=progress,
                            xp_for_next=xp_for_next,
                            username=session["username"])
@@ -381,7 +423,7 @@ def workout_page():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
     conn = get_db()
     ruhe = check_restday(session["user_id"])
 
@@ -535,16 +577,34 @@ def post_restday():
         return redirect(url_for("login"))
 
     conn = get_db()
-    cursor = conn.cursor()
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
 
     try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(
+            "SELECT EXISTS(SELECT 1 FROM workouts WHERE user_id=%s AND date=%s AND exercise='Restday')",
+            (session["user_id"], today)
+        )
+        restday_exists = cursor.fetchone()[0]
+
+        if restday_exists:
+            flash("Du hast für heute bereits einen Ruhetag eingetragen.", "error")
+            return redirect(url_for("workout_page"))
+
         if check_restday(session["user_id"]):
             # Füge einen Workout-Eintrag für den Ruhetag hinzu
-            cursor.execute(
-                "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
-                (session["user_id"], "Restday", "[]", today)
-            )
+            if isinstance(conn.cursor(), psycopg2.extensions.cursor):
+                cursor.execute(
+                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
+                    (session["user_id"], "Restday", "[]", today)
+                )
+            else:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (?, ?, ?, ?)",
+                    (session["user_id"], "Restday", "[]", today)
+                )
+
             conn.commit()
             
             # Aktualisiere den Streak
@@ -561,7 +621,6 @@ def post_restday():
         return redirect(url_for("workout_page"))
     finally:
         conn.close()
-
 
 # --- Fitness-Kalender ---
 @app.route('/fitness-kalendar')
