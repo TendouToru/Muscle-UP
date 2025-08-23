@@ -153,7 +153,6 @@ def check_restday(user_id:int):
             streak = 0
             restday_available = False
 
-        conn.commit()
         return restday_available
     finally:
         conn.close()
@@ -592,6 +591,7 @@ def post_restday():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
