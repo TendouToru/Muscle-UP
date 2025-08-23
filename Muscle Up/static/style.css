@@ -420,7 +420,7 @@ footer {
     cursor: pointer;
 }
 
-#pfp{
+.pfp{
     position: absolute;
     top: 15px;
     right: 15px;
@@ -529,6 +529,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
