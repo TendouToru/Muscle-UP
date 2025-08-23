@@ -69,7 +69,7 @@
 
             <!-- Profil-Daten -->
             <section class="profile-card">
-                <img src="{{url_for('static', filename='default.png.png')}}" id="pfp">
+                <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
                 <h3>Meine Daten</h3>
                 <form method="post" class="form-profile">
                     <label>Körpergewicht (kg):</label>
@@ -84,6 +84,28 @@
 
           <!-- Stats -->
             <section class="stats-card">
+                {%if rank == 1 %}
+                    <img src="{{url_for('static', filename='ranks/1.jpg')}}" class="pfp">
+                {%elif rank == 2 %}
+                    <img src="{{url_for('static', filename='ranks/2.jpg')}}" class="pfp">
+                {%elif rank == 3 %}
+                    <img src="{{url_for('static', filename='ranks/3.jpg')}}" class="pfp">
+                {%elif rank == 4 %}
+                    <img src="{{url_for('static', filename='ranks/4.jpg')}}" class="pfp">
+                {%elif rank == 5 %}
+                    <img src="{{url_for('static', filename='ranks/5.jpg')}}" class="pfp">
+                {%elif rank == 6 %}
+                    <img src="{{url_for('static', filename='ranks/6.jpg')}}" class="pfp">
+                {%elif rank == 7 %}
+                    <img src="{{url_for('static', filename='ranks/7.jpg')}}" class="pfp">
+                {%elif rank == 8 %}
+                    <img src="{{url_for('static', filename='ranks/8.jpg')}}" class="pfp">
+                {%elif rank == 9 %}
+                    <img src="{{url_for('static', filename='ranks/9.jpg')}}" class="pfp">
+                {%elif rank == 10 %}
+                    <img src="{{url_for('static', filename='ranks/10.jpg')}}" class="pfp">
+                {%endif%}
+                
                 <h3>Meine Stats</h3>
 
                 <p>Level: <strong>{{ level }}</strong></p>
@@ -127,5 +149,6 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
