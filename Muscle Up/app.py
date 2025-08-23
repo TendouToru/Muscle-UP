@@ -141,9 +141,10 @@ def check_restday(user_id:int):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        result = cursor.execute(
+        cursor.execute(
             "SELECT streak_days FROM user_stats WHERE user_id=%s", (user_id,)
-        ).fetchone()
+        )
+        result = cursor.fetchone()
 
         if result:
             streak = result["streak_days"]
@@ -591,5 +592,6 @@ def post_restday():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
