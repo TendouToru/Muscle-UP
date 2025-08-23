@@ -136,6 +136,33 @@ def update_streak(user_id: int):
     finally:
         conn.close()
 
+# -- Restday
+def check_restday(user_id:int):
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        streak = cursor.execute(
+            "SELECT streak_days FROM user_stats WHERE user_id=%s", (user_id,)
+        ).fetchone()["streak_days"]
+
+        restday_available = streak >= 2  
+
+        conn.commit()
+        return restday_available
+    finally:
+        conn.close()
+
+def restday(user_id:int):
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        if check_restday(session["user_id"]) == True:
+            cursor.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = %s", (user_id,))
+        
+        conn.commit()
+    finally:
+        conn.close()
+        
 # --- Hilfsfunktion für DB ---
 def get_db():
     try:
@@ -335,6 +362,7 @@ def workout_page():
     today = datetime.now().strftime("%Y-%m-%d")
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    ruhe = check_restday(session["user_id"])
 
     if request.method == "POST":
         data = request.get_json()
@@ -392,7 +420,7 @@ def workout_page():
             })
 
     conn.close()
-    return render_template("workouts.html", today_workouts=today_workouts)
+    return render_template("workouts.html", today_workouts=today_workouts, ruhe=ruhe)
 
 # --- Workout löschen ---
 @app.route("/delete_workout/<int:workout_id>", methods=["POST"])
@@ -520,7 +548,42 @@ def delete_workout_from_calendar(workout_id):
 
     return redirect(url_for("fitness_kalendar"))
 
+# --- Restday verarbeiten ---
+@app.route("/restday", methods=["POST"])
+def post_restday():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    try:
+        if check_restday(session["user_id"]):
+            # Füge einen Workout-Eintrag für den Ruhetag hinzu
+            cursor.execute(
+                "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
+                (session["user_id"], "Restday", "[]", today)
+            )
+            conn.commit()
+            
+            # Aktualisiere den Streak
+            restday(session["user_id"])
+            flash("Ruhetag eingetragen. Dein Streak wird fortgesetzt.", "success")
+        else:
+            flash("Ein Ruhetag ist erst nach mindestens 2 Trainingstagen am Stück möglich.", "error")
+
+        return redirect(url_for("workout_page"))
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"Fehler beim Eintragen des Ruhetags: {str(e)}", "error")
+        return redirect(url_for("workout_page"))
+    finally:
+        conn.close()
+
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
