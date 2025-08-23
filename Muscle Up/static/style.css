@@ -151,6 +151,12 @@ button:hover {
     color: var(--background);
 }
 
+#rest-btn{
+    background-color: #4caf50;
+    width: 350px;
+    font-size: large;
+}
+
 /* Footer */
 footer {
     background-color: #2c2c3f;
@@ -331,6 +337,7 @@ footer {
 
 /* Profil Card */
 .profile-card, .stats-card {
+    position: relative;
     background-color: #2c2c3f;
     padding: 1.5rem;
     border-radius: 12px;
@@ -411,6 +418,17 @@ footer {
     object-fit: cover;
     border: 2px solid var(--secondary);
     cursor: pointer;
+}
+
+#pfp{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--secondary);
 }
 
 /* Dropdown Menü */
@@ -511,5 +529,6 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
