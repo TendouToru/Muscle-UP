@@ -185,7 +185,7 @@ def restday(user_id:int):
         conn.close()
 
 #-- Ranks
-def calculate_rank():
+def calculate_rank(user_id:int):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
@@ -673,3 +673,4 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
