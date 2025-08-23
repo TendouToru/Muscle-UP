@@ -350,7 +350,7 @@ def profile():
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     kraft = staerke(session["user_id"])
     ruhe = check_restday(session["user_id"])
-    rank = calculate_rank()
+    rank = calculate_rank(session["user_id"])
     
     if request.method == "POST":
         bodyweight_str = request.form.get("bodyweight")
@@ -673,4 +673,5 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
