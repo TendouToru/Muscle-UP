@@ -64,32 +64,38 @@
         </header>
 
         <main class="content">
-            {% if workouts %}
-                {% for day in workouts %}
-                    <div class="day-block">
-                        <h3>{{ day.date }}</h3>
-                        {% for exercise in day.exercises %}
-                            <div class="workout-card">
-                                <span>{{ exercise.exercise }}</span>
-                                <ul>
-                                    {% for set in exercise.sets %}
-                                        <li>Gewicht: {{ set.weight }} kg | Wiederholungen: {{ set.reps }}</li>
-                                    {% endfor %}
-                                </ul>
-                                {% else %}
-                                    <p>Du hast einen Restday gemacht. 😌</p>
-                                {% endif %}
-                                <form action="{{ url_for('delete_workout_from_calendar', workout_id=exercise['id']) }}" method="post" >
-                                    <button type="submit" class="delete-btn">Löschen</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    </div>
+    {% if workouts %}
+        {% for day in workouts %}
+            <div class="day-block">
+                <h3>{{ day.date }}</h3>
+                {% for exercise in day.exercises %}
+                    {% if exercise.exercise == "Restday" %}
+                        <div class="workout-card">
+                            <p>Du hast einen Restday gemacht. 😌</p>
+                            <form action="{{ url_for('delete_workout_from_calendar', workout_id=exercise['id']) }}" method="post">
+                                <button type="submit" class="delete-btn">Löschen</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="workout-card">
+                            <span>{{ exercise.exercise }}</span>
+                            <ul>
+                                {% for set in exercise.sets %}
+                                    <li>Gewicht: {{ set.weight }} kg | Wiederholungen: {{ set.reps }}</li>
+                                {% endfor %}
+                            </ul>
+                            <form action="{{ url_for('delete_workout_from_calendar', workout_id=exercise['id']) }}" method="post">
+                                <button type="submit" class="delete-btn">Löschen</button>
+                            </form>
+                        </div>
+                    {% endif %}
                 {% endfor %}
-            {% else %}
-                <p>Keine Workouts gefunden.</p>
-            {% endif %}
-        </main>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Keine Workouts gefunden.</p>
+    {% endif %}
+</main>
 
         <footer>
             &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
@@ -103,5 +109,6 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
