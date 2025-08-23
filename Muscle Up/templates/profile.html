@@ -92,7 +92,15 @@
                     <div class="xp-fill" style="background-color: #4caf50; width: {{ (progress*100)|round(1) }}%; height: 100%;"></div>
                 </div>
 
-                <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
+                {% if stats.streak_days == 1 %}
+                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
+                {% else %}
+                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
+                {% endif %}
+
+                {%if ruhe == True%}
+                    <p>Restday Verfügbar ✅</p>
+                {%endif%}
 
                 <div class="attributes">
                     <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
@@ -118,3 +126,4 @@ function toggleMenu() {
 }
 </script>
 </html>
+
