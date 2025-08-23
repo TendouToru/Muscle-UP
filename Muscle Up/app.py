@@ -139,13 +139,18 @@ def update_streak(user_id: int):
 # -- Restday
 def check_restday(user_id:int):
     conn = get_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        streak = cursor.execute(
+        result = cursor.execute(
             "SELECT streak_days FROM user_stats WHERE user_id=%s", (user_id,)
-        ).fetchone()["streak_days"]
+        ).fetchone()
 
-        restday_available = streak >= 2  
+        if result:
+            streak = result["streak_days"]
+            restday_available = streak >= 2
+        else:
+            streak = 0
+            restday_available = False
 
         conn.commit()
         return restday_available
@@ -586,4 +591,5 @@ def post_restday():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
