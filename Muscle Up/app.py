@@ -1,12 +1,10 @@
-# app.py
-
 import os
 import psycopg2
 import psycopg2.extras # Wichtig für Wörterbuch-Cursor
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 import hashlib, json, secrets
 from datetime import datetime, timedelta
-
+import sqlite3
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
@@ -113,28 +111,44 @@ def update_streak(user_id: int):
     conn = get_db()
     cursor = conn.cursor()
     try:
-        today = datetime.now().date()
-        
+        # Hole alle einzigartigen, sortierten Workout-Daten für den Benutzer
         cursor.execute(
-            "SELECT date FROM workouts WHERE user_id=%s ORDER BY date DESC LIMIT 1 OFFSET 1",
+            "SELECT DISTINCT date FROM workouts WHERE user_id=%s ORDER BY date DESC",
             (user_id,)
         )
-        last_workout = cursor.fetchone()
-
-        if not last_workout:
-            cursor.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = %s", (user_id,))
-        else:
-            last_date = datetime.strptime(last_workout[0], "%Y-%m-%d").date()
-            yesterday = today - timedelta(days=1)
+        workout_dates = cursor.fetchall()
+        
+        current_streak = 0
+        if workout_dates:
+            last_date = datetime.strptime(workout_dates[0][0], "%Y-%m-%d").date()
+            today = datetime.now().date()
             
-            if last_date == yesterday:
-                cursor.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = %s", (user_id,))
-            else:
-                cursor.execute("UPDATE user_stats SET streak_days = 1 WHERE user_id = %s", (user_id,))
+            # Starten Sie den Streak, wenn der letzte Trainingstag entweder heute oder gestern war
+            if last_date == today or last_date == today - timedelta(days=1):
+                current_streak = 1
+                
+                # Gehe die Daten in umgekehrter Reihenfolge durch und zähle aufeinanderfolgende Tage
+                for i in range(1, len(workout_dates)):
+                    current_date = datetime.strptime(workout_dates[i][0], "%Y-%m-%d").date()
+                    previous_date = datetime.strptime(workout_dates[i-1][0], "%Y-%m-%d").date()
+                    
+                    if current_date == previous_date - timedelta(days=1):
+                        current_streak += 1
+                    else:
+                        break # Die Streak-Kette ist unterbrochen
 
+        # Aktualisiere den Streak-Wert in der Datenbank
+        cursor.execute(
+            "UPDATE user_stats SET streak_days = %s WHERE user_id = %s",
+            (current_streak, user_id)
+        )
         conn.commit()
+    except Exception as e:
+        print(f"Fehler beim Aktualisieren des Streaks: {e}")
+        conn.rollback()
     finally:
         conn.close()
+
 
 # -- Restday
 def check_restday(user_id:int):
@@ -153,6 +167,7 @@ def check_restday(user_id:int):
             streak = 0
             restday_available = False
 
+        conn.commit()
         return restday_available
     finally:
         conn.close()
@@ -278,8 +293,8 @@ def register():
                 cursor.execute("INSERT INTO user_profile (user_id, bodyweight, height) VALUES (%s, %s, %s)",
                                (user_id, 0, 0))
                 cursor.execute("""INSERT INTO user_stats (
-                                     user_id, xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
-                                 ) VALUES (%s, %s, %s, %s, %s, %s)""",
+                                   user_id, xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
+                               ) VALUES (%s, %s, %s, %s, %s, %s)""",
                                (user_id, 0, 0, 0, 0, 0))
                 conn.commit()
                 return redirect(url_for("login"))
@@ -418,15 +433,20 @@ def workout_page():
     try:
         if isinstance(conn.cursor(), psycopg2.extensions.cursor):
             cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute(
+                "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
+                (session["user_id"], today)
+            )
         else:
+            # Für SQLite
             cursor = conn.cursor()
-            
-        cursor.execute(
-            "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
-            (session["user_id"], today)
-        )
+            cursor.execute(
+                "SELECT * FROM workouts WHERE user_id=? AND date=?",
+                (session["user_id"], today)
+            )
         
         rows = cursor.fetchall()
+
         today_workouts = []
         for row in rows:
             sets_data = row["sets"]
@@ -452,9 +472,9 @@ def workout_page():
 
     return render_template("workouts.html", today_workouts=today_workouts, ruhe=ruhe)
 
-# --- Workout löschen ---
-@app.route("/delete_workout/<int:workout_id>", methods=["POST"])
-def delete_workout(workout_id):
+
+# --- Zentrale Funktion zum Löschen von Workouts ---
+def _delete_workout_and_update_stats(workout_id, redirect_url):
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -469,6 +489,10 @@ def delete_workout(workout_id):
 
         if workout:
             exercises = [{"exercise": workout["exercise"], "sets": workout["sets"]}]
+            
+            # Korrigiere: json.loads nur für Strings aus SQLite
+            if isinstance(workout["sets"], str):
+                exercises = [{"exercise": workout["exercise"], "sets": json.loads(workout["sets"])}]
 
             xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
             
@@ -480,9 +504,9 @@ def delete_workout(workout_id):
 
             cursor.execute("DELETE FROM workouts WHERE id=%s AND user_id=%s", (workout_id, session["user_id"]))
             conn.commit()
-
+            
             update_streak(session["user_id"])
-
+            
             flash(f"Workout gelöscht! {xp_to_deduct} XP wurden abgezogen.", "success")
         else:
             flash("Workout nicht gefunden.", "error")
@@ -492,91 +516,17 @@ def delete_workout(workout_id):
     finally:
         conn.close()
     
-    return redirect(url_for("workout_page"))
+    return redirect(url_for(redirect_url))
 
+# --- Workout löschen (von der Workout-Seite) ---
+@app.route("/delete_workout/<int:workout_id>", methods=["POST"])
+def delete_workout(workout_id):
+    return _delete_workout_and_update_stats(workout_id, "workout_page")
 
-# --- Fitness-Kalender ---
-@app.route('/fitness-kalendar')
-def fitness_kalendar():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    conn = get_db()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        "SELECT * FROM workouts WHERE user_id=%s ORDER BY date DESC",
-        (session["user_id"],)
-    )
-    rows = cursor.fetchall()
-    conn.close()
-
-    grouped_workouts = []
-    temp_dict = {}
-
-    for row in rows:
-        d = datetime.strptime(row["date"], "%Y-%m-%d")
-        display_date = d.strftime("%d.%m.%Y")
-
-        sets_data = row["sets"]
-
-        workout_item = {
-            "id": row["id"],
-            "exercise": row["exercise"],
-            "sets": sets_data
-        }
-
-        if display_date not in temp_dict:
-            temp_dict[display_date] = {
-                "date": display_date,
-                "exercises": [workout_item]
-            }
-        else:
-            temp_dict[display_date]["exercises"].append(workout_item)
-
-    grouped_workouts = sorted(temp_dict.values(), key=lambda x: datetime.strptime(x["date"], "%d.%m.%Y"), reverse=True)
-
-    return render_template("fitness-kalendar.html", workouts=grouped_workouts)
-
-#Löschen im Kalendar
-@app.route("/delete_workout_calendar/<int:workout_id>", methods=["POST"])
+# --- Workout löschen (vom Kalender) ---
+@app.route("/delete_workout_from_calendar/<int:workout_id>", methods=["POST"])
 def delete_workout_from_calendar(workout_id):
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    conn = get_db()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    try:
-        cursor.execute(
-            "SELECT * FROM workouts WHERE id=%s AND user_id=%s",
-            (workout_id, session["user_id"])
-        )
-        workout = cursor.fetchone()
-
-        if workout:
-            exercises = [{"exercise": workout["exercise"], "sets": workout["sets"]}]
-            
-            xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
-
-            cursor.execute("""
-                UPDATE user_stats
-                SET xp_total = GREATEST(xp_total - %s, 0)
-                WHERE user_id = %s
-            """, (xp_to_deduct, session["user_id"]))
-
-            cursor.execute("DELETE FROM workouts WHERE id=%s AND user_id=%s", (workout_id, session["user_id"]))
-            conn.commit()
-            update_streak(session["user_id"])
-            
-            flash(f"Workout gelöscht! {xp_to_deduct} XP wurden abgezogen.", "success")
-        else:
-            flash("Workout nicht gefunden.", "error")
-    except Exception as e:
-        conn.rollback()
-        flash(f"Ein Fehler ist aufgetreten: {str(e)}", "error")
-    finally:
-        conn.close()
-
-    return redirect(url_for("fitness_kalendar"))
+    return _delete_workout_and_update_stats(workout_id, "fitness_kalendar")
 
 # --- Restday verarbeiten ---
 @app.route("/restday", methods=["POST"])
@@ -613,13 +563,54 @@ def post_restday():
         conn.close()
 
 
+# --- Fitness-Kalender ---
+@app.route('/fitness-kalendar')
+def fitness_kalendar():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        "SELECT * FROM workouts WHERE user_id=%s ORDER BY date DESC",
+        (session["user_id"],)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    grouped_workouts = []
+    temp_dict = {}
+
+    for row in rows:
+        d = datetime.strptime(row["date"], "%Y-%m-%d")
+        display_date = d.strftime("%d.%m.%Y")
+
+        sets_data = row["sets"]
+        
+        # Korrigiere: json.loads nur für Strings aus SQLite
+        if isinstance(sets_data, str):
+            sets_content = json.loads(sets_data)
+        else:
+            sets_content = sets_data
+
+        workout_item = {
+            "id": row["id"],
+            "exercise": row["exercise"],
+            "sets": sets_content
+        }
+
+        if display_date not in temp_dict:
+            temp_dict[display_date] = {
+                "date": display_date,
+                "exercises": [workout_item]
+            }
+        else:
+            temp_dict[display_date]["exercises"].append(workout_item)
+
+    grouped_workouts = sorted(temp_dict.values(), key=lambda x: datetime.strptime(x["date"], "%d.%m.%Y"), reverse=True)
+
+    return render_template("fitness-kalendar.html", workouts=grouped_workouts)
+
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
