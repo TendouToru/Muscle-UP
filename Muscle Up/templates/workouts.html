@@ -68,6 +68,11 @@
             <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
             <button type="submit">Übung starten</button>
         </form>
+        {% if ruhe == True %}
+                <form method="post" action="{{ url_for('post_restday') }}">
+                    <button type="submit" id="rest-btn">Restday</button>
+                </form>
+            {% endif %}
 
         <div id="exercise-container" style="display:none;">
             <h2 id="current-exercise"></h2>
@@ -193,3 +198,4 @@ function toggleMenu() {
 }
 </script>
 </html>
+
