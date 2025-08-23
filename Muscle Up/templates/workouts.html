@@ -11,56 +11,51 @@
 <div class="wrapper">
     <header class="head">
         <h1 class="headline">Workouts</h1>
-<div class="nav-bar">
-        <!-- Links: Logo -->
-        <h1 class="headline">Muscle Up</h1>
+        <div class="nav-bar">
+            <h1 class="headline">Muscle Up</h1>
 
-        <!-- Mitte: Navigation (nur Desktop) -->
-                <nav class="nav-top">
-                    <a href="{{ url_for('index') }}" class="link">Home</a>
+            <nav class="nav-top">
+                <a href="{{ url_for('index') }}" class="link">Home</a>
                 <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
                 <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
-                </nav>
+            </nav>
 
-        <!-- Rechts: Userbereich / Login -->
-        {% if 'user_id' in session %}
-        <div class="nav-user">
-            <div class="dropdown">
-                <button class="dropbtn">
-                    <img src="{{ url_for('static', filename='default.png.png') }}" 
-                         alt="Profil" class="profile-pic">
-                </button>
-                <div class="dropdown-content">
-                    <span class="username">{{ session['username'] }}</span>
-                    <a href="{{ url_for('profile') }}">Mein Profil</a>
-                    <a href="{{ url_for('logout') }}">Logout</a>
+            {% if 'user_id' in session %}
+            <div class="nav-user">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        <img src="{{ url_for('static', filename='default.png.png') }}" 
+                             alt="Profil" class="profile-pic">
+                    </button>
+                    <div class="dropdown-content">
+                        <span class="username">{{ session['username'] }}</span>
+                        <a href="{{ url_for('profile') }}">Mein Profil</a>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
                 </div>
             </div>
+            {% else %}
+            <nav class="nav-top">
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Registrieren</a>
+            </nav>
+            {% endif %}
+
+            <button class="hamburger" onclick="toggleMenu()">☰</button>
         </div>
-        {% else %}
-        <nav class="nav-top">
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
+
+        <nav class="mobile-menu" id="mobileMenu">
+            <a href="{{ url_for('index') }}">Start</a>
+            <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+
+            {% if 'user_id' in session %}
+                <a href="{{ url_for('profile') }}">Mein Profil</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Registrieren</a>
+            {% endif %}
         </nav>
-        {% endif %}
-
-        <!-- Hamburger Button (nur Mobile) -->
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-    </div>
-
-    <!-- Mobile Menü -->
-    <nav class="mobile-menu" id="mobileMenu">
-        <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
-
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('profile') }}">Mein Profil</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        {% endif %}
-    </nav>
     </header>
 
     <main class="content">
@@ -69,10 +64,10 @@
             <button type="submit">Übung starten</button>
         </form>
         {% if ruhe == True %}
-                <form method="post" action="{{ url_for('post_restday') }}">
-                    <button type="submit" id="rest-btn">Restday</button>
-                </form>
-            {% endif %}
+            <form method="post" action="{{ url_for('post_restday') }}">
+                <button type="submit" id="rest-btn">Restday</button>
+            </form>
+        {% endif %}
 
         <div id="exercise-container" style="display:none;">
             <h2 id="current-exercise"></h2>
@@ -83,7 +78,6 @@
             </form>
             <ul id="sets-list"></ul>
             <button id="finish-exercise">Übung beenden</button>
-            
         </div>
 
         <div id="workout-overview">
@@ -112,90 +106,86 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    let currentExercise = null;
-    let currentSets = [];
+    document.addEventListener("DOMContentLoaded", () => {
+        let currentExercise = null;
+        let currentSets = [];
 
-    const exerciseForm = document.getElementById("exercise-form");
-    const setForm = document.getElementById("set-form");
-    const exerciseContainer = document.getElementById("exercise-container");
-    const currentExerciseTitle = document.getElementById("current-exercise");
-    const setsList = document.getElementById("sets-list");
+        const exerciseForm = document.getElementById("exercise-form");
+        const setForm = document.getElementById("set-form");
+        const exerciseContainer = document.getElementById("exercise-container");
+        const currentExerciseTitle = document.getElementById("current-exercise");
+        const setsList = document.getElementById("sets-list");
 
-    exerciseForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        currentExercise = document.getElementById("exercise-name").value.trim();
-        if (!currentExercise) return;
-        currentExerciseTitle.textContent = currentExercise;
-        exerciseContainer.style.display = "block";
-        setsList.innerHTML = "";
-        currentSets = [];
-        exerciseForm.reset();
+        exerciseForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            currentExercise = document.getElementById("exercise-name").value.trim();
+            if (!currentExercise) return;
+            currentExerciseTitle.textContent = currentExercise;
+            exerciseContainer.style.display = "block";
+            setsList.innerHTML = "";
+            currentSets = [];
+            exerciseForm.reset();
+        });
+
+        setForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const weight = document.getElementById("weight").value;
+            const reps = document.getElementById("reps").value;
+            if (!weight || !reps) return;
+
+            const setObj = { weight, reps };
+            currentSets.push(setObj);
+
+            const li = document.createElement("li");
+            li.textContent = `Gewicht: ${weight} kg | Wiederholungen: ${reps}`;
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "Löschen";
+            delBtn.onclick = () => {
+                setsList.removeChild(li);
+                currentSets = currentSets.filter(s => s !== setObj);
+            };
+            li.appendChild(delBtn);
+            setsList.appendChild(li);
+
+            setForm.reset();
+        });
+
+        document.getElementById("finish-exercise").addEventListener("click", () => {
+            if (!currentExercise || currentSets.length === 0) return;
+
+            const workoutData = {
+                exercise_name: currentExercise,
+                sets: currentSets
+            };
+
+            fetch('/workout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(workoutData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Zurücksetzen des Zustands nur bei Erfolg
+                    currentExercise = null;
+                    currentSets = [];
+                    exerciseContainer.style.display = "none";
+                    window.location.reload();
+                } else {
+                    console.error('Fehler beim Speichern des Workouts.');
+                }
+            })
+            .catch(error => {
+                console.error('Netzwerkfehler:', error);
+            });
+        });
     });
 
-    setForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const weight = document.getElementById("weight").value;
-        const reps = document.getElementById("reps").value;
-        if (!weight || !reps) return;
-
-        const setObj = { weight, reps };
-        currentSets.push(setObj);
-
-        const li = document.createElement("li");
-        li.textContent = `Gewicht: ${weight} kg | Wiederholungen: ${reps}`;
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Löschen";
-        delBtn.onclick = () => {
-            setsList.removeChild(li);
-            currentSets = currentSets.filter(s => s !== setObj);
-        };
-        li.appendChild(delBtn);
-        setsList.appendChild(li);
-
-        setForm.reset();
-    });
-
-// workouts.html
-document.getElementById("finish-exercise").addEventListener("click", () => {
-    if (!currentExercise || currentSets.length === 0) return;
-
-    const workoutData = {
-        exercise_name: currentExercise,
-        sets: currentSets
-    };
-
-    fetch('/workout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(workoutData)
-    })
-    .then(response => {
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            console.error('Fehler beim Speichern des Workouts.');
-        }
-    })
-    .catch(error => {
-        console.error('Netzwerkfehler:', error);
-    });
-});
-        // Optional: Absenden an Backend via Fetch (nicht implementiert)
-        currentExercise = null;
-        currentSets = [];
-        exerciseContainer.style.display = "none";
-    });
-
+    function toggleMenu() {
+        const menu = document.getElementById("mobileMenu");
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
 </script>
 </body>
-<script>
-function toggleMenu() {
-    const menu = document.getElementById("mobileMenu");
-    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-}
-</script>
 </html>
-
