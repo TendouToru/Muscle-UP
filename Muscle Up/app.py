@@ -294,6 +294,7 @@ def profile():
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     kraft = staerke(session["user_id"])
+    ruhe = check_restday(session["user_id"])
     
     if request.method == "POST":
         bodyweight_str = request.form.get("bodyweight")
@@ -348,6 +349,7 @@ def profile():
                            stats=stats,
                            level=level,
                            kraft=kraft,
+                           ruhe=ruhe,
                            progress=progress,
                            xp_for_next=xp_for_next,
                            username=session["username"])
@@ -614,6 +616,7 @@ def post_restday():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
