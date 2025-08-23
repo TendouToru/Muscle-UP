@@ -366,9 +366,9 @@ def workout_page():
 
     today = datetime.now().strftime("%Y-%m-%d")
     conn = get_db()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     ruhe = check_restday(session["user_id"])
 
+    # Logik für POST-Anfragen
     if request.method == "POST":
         data = request.get_json()
         if not data:
@@ -382,10 +382,20 @@ def workout_page():
         try:
             xp_gained = calculate_xp_and_strength(session["user_id"], [{"exercise": exercise_name, "sets": sets}], "add")
             
-            cursor.execute(
-                "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
-                (session["user_id"], exercise_name, json.dumps(sets), today)
-            )
+            # Überprüfe, ob die Verbindung ein psycopg2- oder sqlite3-Cursor ist
+            if isinstance(conn.cursor(), psycopg2.extensions.cursor):
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                cursor.execute(
+                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
+                    (session["user_id"], exercise_name, json.dumps(sets), today)
+                )
+            else:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (?, ?, ?, ?)",
+                    (session["user_id"], exercise_name, json.dumps(sets), today)
+                )
+            
             cursor.execute("""
                 UPDATE user_stats
                 SET xp_total = xp_total + %s
@@ -402,29 +412,42 @@ def workout_page():
         finally:
             conn.close()
 
-    cursor.execute(
-        "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
-        (session["user_id"], today)
-    )
-    rows = cursor.fetchall()
-
-    today_workouts = []
-    for row in rows:
-        sets_data = row["sets"]
-        if isinstance(sets_data, dict):
-            today_workouts.append({
-                "id": row["id"],
-                "exercise": row["exercise"],
-                "sets": sets_data
-            })
+    # Logik für GET-Anfragen (Seite anzeigen)
+    try:
+        if isinstance(conn.cursor(), psycopg2.extensions.cursor):
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         else:
+            cursor = conn.cursor()
+            
+        cursor.execute(
+            "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
+            (session["user_id"], today)
+        )
+        
+        rows = cursor.fetchall()
+        today_workouts = []
+        for row in rows:
+            sets_data = row["sets"]
+            
+            # Korrigierte Logik: json.loads nur für Strings aus SQLite verwenden
+            if isinstance(sets_data, str):
+                sets_content = json.loads(sets_data)
+            else:
+                # PostgreSQL liefert bereits ein Python-Objekt (list oder dict)
+                sets_content = sets_data
+
             today_workouts.append({
                 "id": row["id"],
                 "exercise": row["exercise"],
-                "sets": json.loads(sets_data)
+                "sets": sets_content
             })
 
-    conn.close()
+    except Exception as e:
+        flash(f"Ein Fehler ist aufgetreten: {e}", "error")
+        today_workouts = []
+    finally:
+        conn.close()
+
     return render_template("workouts.html", today_workouts=today_workouts, ruhe=ruhe)
 
 # --- Workout löschen ---
@@ -591,6 +614,7 @@ def post_restday():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
