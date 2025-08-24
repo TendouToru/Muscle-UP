@@ -272,7 +272,6 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert(result.message + ' XP erhalten: ' + result.xp_gained);
                     window.location.reload(); 
                 } else {
                     alert('Fehler: ' + result.error);
@@ -314,7 +313,6 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert(result.message + ' XP erhalten: ' + result.xp_gained);
                     window.location.reload();
                 } else {
                     alert('Fehler: ' + result.error);
@@ -331,6 +329,7 @@
 </script>
 </body>
 </html>
+
 
 
 
