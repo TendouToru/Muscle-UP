@@ -1,6 +1,6 @@
 import os
 import psycopg2
-import psycopg2.extras # Wichtig für Wörterbuch-Cursor
+import psycopg2.extras
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 from collections import defaultdict
 import hashlib, json, secrets, math
@@ -17,7 +17,7 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     Berechnet XP und ändert die Stärke basierend auf der Aktion ('add' oder 'deduct').
     """
     conn = get_db()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Verwende DictCursor für den Zugriff auf Spaltennamen
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
         cursor.execute(
             "SELECT attr_strength FROM user_stats WHERE user_id=%s",
@@ -68,7 +68,7 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     finally:
         conn.close()
 
-def calculate_xp_and_endurance(user_id: int, cardio_date: dict, action="add"):
+def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
@@ -80,7 +80,7 @@ def calculate_xp_and_endurance(user_id: int, cardio_date: dict, action="add"):
         current_strength = row["attr_strength"]
         current_iq = row["attr_intelligence"]
 
-        duration_in_min = float(cardio_date.get("duration",0) or 0)
+        duration_in_min = float(cardio_data.get("duration",0) or 0)
         duration_in_h = math.ceil(duration_in_min / 60)
         total_xp = 0
         endurance_change = 0
@@ -351,7 +351,8 @@ def init_db():
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
             exercise TEXT,
             sets JSONB,
-            date TEXT
+            date TEXT,
+            type TEXT
         )
     """)
     
@@ -530,14 +531,14 @@ def workout_page():
             if isinstance(conn.cursor(), psycopg2.extensions.cursor):
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
-                    (session["user_id"], exercise_name, json.dumps(sets), today)
+                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
+                    (session["user_id"], exercise_name, json.dumps(sets), today, 'strength')
                 )
             else:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (?, ?, ?, ?)",
-                    (session["user_id"], exercise_name, json.dumps(sets), today)
+                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (?, ?, ?, ?, ?)",
+                    (session["user_id"], exercise_name, json.dumps(sets), today, 'strength')
                 )
             
             cursor.execute("""
@@ -558,19 +559,11 @@ def workout_page():
 
     # Logik für GET-Anfragen (Seite anzeigen)
     try:
-        if isinstance(conn.cursor(), psycopg2.extensions.cursor):
-            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cursor.execute(
-                "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
-                (session["user_id"], today)
-            )
-        else:
-            # Für SQLite
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM workouts WHERE user_id=? AND date=?",
-                (session["user_id"], today)
-            )
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(
+            "SELECT * FROM workouts WHERE user_id=%s AND date=%s",
+            (session["user_id"], today)
+        )
         
         rows = cursor.fetchall()
 
@@ -580,19 +573,19 @@ def workout_page():
         for row in rows:
             sets_data = row["sets"]
             
-            #  json.loads nur für Strings aus SQLite verwenden
             if isinstance(sets_data, str):
                 sets_content = json.loads(sets_data)
             else:
                 sets_content = sets_data
 
-            workout_item.append({
+            workout_item = {
                 "id": row["id"],
                 "exercise": row["exercise"],
-                "sets": sets_content
-            })
+                "sets": sets_content,
+                "type": row.get("type", 'strength')
+            }
 
-            if workout_item["exercise"] in ["Laufen", "Schwimmen", "Spielsport"]:
+            if workout_item["type"] == "cardio":
                 today_cardio_workouts.append(workout_item)
             else:
                 today_workouts.append(workout_item)
@@ -600,6 +593,7 @@ def workout_page():
     except Exception as e:
         flash(f"Ein Fehler ist aufgetreten: {e}", "error")
         today_workouts = []
+        today_cardio_workouts = []
     finally:
         conn.close()
 
@@ -626,7 +620,6 @@ def add_cardio_workout():
         distance = data.get("distance")
         if distance is None:
             return jsonify({"error": "Distanz fehlt"}), 400
-        # Ändere die Schlüsselnamen zu 'duration' und 'distance', wie von fitness_kalendar erwartet.
         sets_data = {"duration": duration, "distance": distance}
     elif workout_type == "Spielsport":
         sportart = data.get("sportart")
@@ -642,7 +635,6 @@ def add_cardio_workout():
     try:
         xp_gained = calculate_xp_and_endurance(session["user_id"], data, "add")
 
-        # Fügen Sie 'type' in die SQL-Abfrage ein, um Cardio-Workouts zu identifizieren
         cursor.execute(
             "INSERT INTO workouts (user_id, exercise, type, sets, date) VALUES (%s, %s, %s, %s, %s)",
             (session["user_id"], exercise_name, 'cardio', json.dumps(sets_data), today)
@@ -679,16 +671,15 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
         workout = cursor.fetchone()
 
         if workout:
-            # Korrigiere: json.loads nur für Strings aus SQLite
             sets_data = workout["sets"]
             if isinstance(sets_data, str):
                 sets_data = json.loads(sets_data)
             
 
-            is_cardio = isinstance(sets_data, dict) and any(key in sets_data for key in ["dauer", "strecke", "sportart"])
+            is_cardio = workout.get("type") == "cardio"
             
             if is_cardio:
-                data = {"type": workout["exercise"], "duration": sets_data.get("dauer"), "distance": sets_data.get("strecke"), "sportart": sets_data.get("sportart")}
+                data = {"type": workout["exercise"], "duration": sets_data.get("duration"), "distance": sets_data.get("distance"), "sportart": sets_data.get("sportart")}
                 xp_to_deduct = calculate_xp_and_endurance(session["user_id"], data, "deduct")
             else:
                 exercises = [{"exercise": workout["exercise"], "sets": sets_data}]
@@ -748,22 +739,20 @@ def post_restday():
             return redirect(url_for("workout_page"))
 
         if check_restday(session["user_id"]):
-            # Füge einen Workout-Eintrag für den Ruhetag hinzu
             if isinstance(conn.cursor(), psycopg2.extensions.cursor):
                 cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
-                    (session["user_id"], "Restday", "[]", today)
+                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
+                    (session["user_id"], "Restday", json.dumps([]), today, 'restday')
                 )
             else:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (?, ?, ?, ?)",
-                    (session["user_id"], "Restday", "[]", today)
+                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (?, ?, ?, ?, ?)",
+                    (session["user_id"], "Restday", json.dumps([]), today, 'restday')
                 )
 
             conn.commit()
             
-            # Aktualisiere den Streak
             restday(session["user_id"])
             flash("Ruhetag eingetragen. Dein Streak wird fortgesetzt.", "success")
         else:
@@ -812,15 +801,15 @@ def fitness_kalendar():
         workout_item = {
             "id": row["id"],
             "exercise": row["exercise"],
-            "type": row["type"],
+            "type": row.get("type", 'strength')
         }
         
         # Unterscheiden Sie zwischen Cardio und Krafttraining für die Anzeige
-        if row["type"] == "cardio":
+        if workout_item["type"] == "cardio":
             workout_item["duration"] = sets_content.get("duration")
             workout_item["distance"] = sets_content.get("distance")
             workout_item["sportart"] = sets_content.get("sportart")
-        else: 
+        else:
             workout_item["sets"] = sets_content
             
         grouped_workouts[display_date].append(workout_item)
@@ -832,12 +821,5 @@ def fitness_kalendar():
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True)
-
-
-
-
-
-
-
-
