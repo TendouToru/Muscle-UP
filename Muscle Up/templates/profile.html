@@ -18,7 +18,7 @@
         <!-- Mitte: Navigation (nur Desktop) -->
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
-                <a href="{{ url_for('workout_page') }}" class="link">Kraft Training</a>
+                <a href="{{ url_for('workout_page') }}" class="link">Training</a>
                 <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
                 </nav>
 
@@ -50,7 +50,7 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Kraft Training</a>
+        <a href="{{ url_for('workout_page') }}">Training</a>
         <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
 
         {% if 'user_id' in session %}
@@ -78,7 +78,7 @@
                     <label>Größe (cm):</label>
                     <input type="number" step="1" name="height" value="{{ profile.height or '' }}">
 
-                    <button type="submit">Speichern</button>
+                    <button type="submit" class="button">Speichern</button>
                 </form>
             </section>
 
@@ -149,6 +149,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
