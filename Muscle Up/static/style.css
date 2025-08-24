@@ -264,7 +264,7 @@ footer {
 ------------------------- */
 
 .container{
-    /*display: none;*/
+    display: none;
     background-color: var(--accent-dark);
     padding: 20px;
     border-radius: 12px;
@@ -586,4 +586,5 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
