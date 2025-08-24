@@ -281,6 +281,39 @@ footer {
     text-decoration: underline;
 }
 
+/* Cardio Container */
+.cardio-dash {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cardio-card {
+    flex: 1;
+    padding: 1.2rem;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--secondary);
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+
+.cardio-card:hover {
+    background-color: var(--accent-dark);
+    color: var(--primary);
+    transform: translateY(-3px);
+}
+
+.cardio-form {
+    display: none; /* Standardmäßig unsichtbar */
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
 
 
 /* Cardio Container */
@@ -586,5 +619,6 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
