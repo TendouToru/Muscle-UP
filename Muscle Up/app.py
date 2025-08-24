@@ -5,7 +5,6 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 from collections import defaultdict
 import hashlib, json, secrets, math
 from datetime import datetime, timedelta
-import sqlite3
 import pytz
 
 app = Flask(__name__)
@@ -87,16 +86,16 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
         strength_change = 0
         iq_change = 0
 
-        if cardio_data["type"] == "Laufen":
+        if cardio_data.get("type") == "Laufen":
             distance_km = float(cardio_data.get("distance", 0) or 0)
-            total_xp += distance_km * 10 - duration_in_min 
+            total_xp += distance_km * 10 - duration_in_min
             endurance_change += math.ceil(distance_km // 5 + duration_in_h)
-        elif cardio_data["type"] == "Schwimmen":
+        elif cardio_data.get("type") == "Schwimmen":
             distance_km = float(cardio_data.get("distance", 0) or 0)
-            total_xp += distance_km * 10  - duration_in_h
-            endurance_change += int(distance_km + duration_in_h) *2
-            strength_change += int(distance_km + duration_in_h) *2
-        elif cardio_data["type"] == "Spielsport":
+            total_xp += distance_km * 10 - duration_in_h
+            endurance_change += int(distance_km + duration_in_h) * 2
+            strength_change += int(distance_km + duration_in_h) * 2
+        elif cardio_data.get("type") == "Spielsport":
             total_xp += duration_in_min // 5
             endurance_change += duration_in_h
             strength_change += duration_in_h
@@ -145,7 +144,7 @@ def calculate_level_and_progress(xp_total: int):
         factor += 0.005
 
     while not xp_for_next % 10 == 0:
-        xp_for_next +=1
+        xp_for_next += 1
 
     progress = temp_xp / xp_for_next if xp_for_next > 0 else 0
     return level, progress, int(xp_for_next), temp_xp
@@ -182,7 +181,7 @@ def ausdauer(user_id: int):
         return ausdauer
     finally:
         conn.close()
-        
+
 # Streak Funktionen
 def update_streak(user_id: int):
     conn = get_db()
@@ -262,7 +261,7 @@ def restday(user_id:int):
     try:
         if check_restday(session["user_id"]) == True:
             cursor.execute("UPDATE user_stats SET streak_days = streak_days + 1 WHERE user_id = %s", (user_id,))
-        
+    
         conn.commit()
     finally:
         conn.close()
@@ -308,14 +307,8 @@ def calculate_rank(user_id:int):
         
 # --- Hilfsfunktion für DB ---
 def get_db():
-    try:
-        conn = psycopg2.connect(os.environ['DATABASE_URL'])
-        return conn
-    except KeyError:
-        print("DATABASE_URL Umgebungsvariable nicht gefunden. Verwende SQLite.")
-        conn = sqlite3.connect("users.db")
-        conn.row_factory = sqlite3.Row
-        return conn
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    return conn
 
 def init_db():
     conn = get_db()
@@ -417,7 +410,7 @@ def register():
                 cursor.execute("INSERT INTO user_profile (user_id, bodyweight, height) VALUES (%s, %s, %s)",
                                (user_id, 0, 0))
                 cursor.execute("""INSERT INTO user_stats (
-                                   user_id, xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
+                                     user_id, xp_total, streak_days, attr_strength, attr_endurance, attr_intelligence
                                ) VALUES (%s, %s, %s, %s, %s, %s)""",
                                (user_id, 0, 0, 0, 0, 0))
                 conn.commit()
@@ -528,18 +521,11 @@ def workout_page():
             xp_gained = calculate_xp_and_strength(session["user_id"], [{"exercise": exercise_name, "sets": sets}], "add")
             
             # Überprüfe, ob die Verbindung ein psycopg2- oder sqlite3-Cursor ist
-            if isinstance(conn.cursor(), psycopg2.extensions.cursor):
-                cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
-                    (session["user_id"], exercise_name, json.dumps(sets), today, 'strength')
-                )
-            else:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (?, ?, ?, ?, ?)",
-                    (session["user_id"], exercise_name, json.dumps(sets), today, 'strength')
-                )
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute(
+                "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
+                (session["user_id"], exercise_name, json.dumps(sets), today, 'strength')
+            )
             
             cursor.execute("""
                 UPDATE user_stats
@@ -620,12 +606,12 @@ def add_cardio_workout():
         distance = data.get("distance")
         if distance is None:
             return jsonify({"error": "Distanz fehlt"}), 400
-        sets_data = {"duration": duration, "distance": distance}
+        sets_data = {"type": workout_type, "duration": duration, "distance": distance}
     elif workout_type == "Spielsport":
         sportart = data.get("sportart")
         if sportart is None:
             return jsonify({"error": "Sportart fehlt"}), 400
-        sets_data = {"duration": duration, "sportart": sportart}
+        sets_data = {"type": workout_type, "duration": duration, "sportart": sportart}
         exercise_name = sportart
     else:
         return jsonify({"error": "Ungültiger Workout-Typ"}), 400
@@ -633,7 +619,7 @@ def add_cardio_workout():
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        xp_gained = calculate_xp_and_endurance(session["user_id"], data, "add")
+        xp_gained = calculate_xp_and_endurance(session["user_id"], sets_data, "add")
 
         cursor.execute(
             "INSERT INTO workouts (user_id, exercise, type, sets, date) VALUES (%s, %s, %s, %s, %s)",
@@ -675,12 +661,10 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
             if isinstance(sets_data, str):
                 sets_data = json.loads(sets_data)
             
-
             is_cardio = workout.get("type") == "cardio"
             
             if is_cardio:
-                data = {"type": workout["exercise"], "duration": sets_data.get("duration"), "distance": sets_data.get("distance"), "sportart": sets_data.get("sportart")}
-                xp_to_deduct = calculate_xp_and_endurance(session["user_id"], data, "deduct")
+                xp_to_deduct = calculate_xp_and_endurance(session["user_id"], sets_data, "deduct")
             else:
                 exercises = [{"exercise": workout["exercise"], "sets": sets_data}]
                 xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
@@ -739,18 +723,10 @@ def post_restday():
             return redirect(url_for("workout_page"))
 
         if check_restday(session["user_id"]):
-            if isinstance(conn.cursor(), psycopg2.extensions.cursor):
-                cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
-                    (session["user_id"], "Restday", json.dumps([]), today, 'restday')
-                )
-            else:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (?, ?, ?, ?, ?)",
-                    (session["user_id"], "Restday", json.dumps([]), today, 'restday')
-                )
-
+            cursor.execute(
+                "INSERT INTO workouts (user_id, exercise, sets, date, type) VALUES (%s, %s, %s, %s, %s)",
+                (session["user_id"], "Restday", json.dumps([]), today, 'restday')
+            )
             conn.commit()
             
             restday(session["user_id"])
@@ -794,7 +770,7 @@ def fitness_kalendar():
             try:
                 sets_content = json.loads(sets_data)
             except json.JSONDecodeError:
-                sets_content = {}  # Fallback bei fehlerhaften Daten
+                sets_content = {}
         else:
             sets_content = sets_data
 
@@ -804,7 +780,6 @@ def fitness_kalendar():
             "type": row.get("type", 'strength')
         }
         
-        # Unterscheiden Sie zwischen Cardio und Krafttraining für die Anzeige
         if workout_item["type"] == "cardio":
             workout_item["duration"] = sets_content.get("duration")
             workout_item["distance"] = sets_content.get("distance")
@@ -814,7 +789,6 @@ def fitness_kalendar():
             
         grouped_workouts[display_date].append(workout_item)
     
-    # Sortieren Sie die gruppierten Workouts nach Datum, absteigend
     sorted_workouts = sorted(grouped_workouts.items(), key=lambda item: datetime.strptime(item[0], "%d.%m.%Y"), reverse=True)
 
     return render_template("fitness-kalendar.html", workouts=dict(sorted_workouts))
