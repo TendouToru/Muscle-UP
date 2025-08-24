@@ -10,28 +10,77 @@
     <div class="wrapper">
         <header class="head">
             <h1 class="headline">Login</h1>
+            <div class="nav-bar">
+        <!-- Links: Logo -->
+        <h1 class="headline">Muscle Up</h1>
+
+        <!-- Mitte: Navigation (nur Desktop) -->
+
+
+        <!-- Rechts: Userbereich / Login -->
+        {% if 'user_id' in session %}
+        <div class="nav-user">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    <img src="{{ url_for('static', filename='default.png.png') }}" 
+                         alt="Profil" class="profile-pic">
+                </button>
+                <div class="dropdown-content">
+                    <span class="username">{{ session['username'] }}</span>
+                    <a href="{{ url_for('profile') }}">Mein Profil</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <nav class="nav-top">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Registrieren</a>
+        </nav>
+        {% endif %}
+
+        <!-- Hamburger Button (nur Mobile) -->
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+    </div>
+
+    <!-- Mobile Menü -->
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('workout_page') }}">Training</a>
+        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+
+        {% if 'user_id' in session %}
+            <a href="{{ url_for('profile') }}">Mein Profil</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Registrieren</a>
+        {% endif %}
+    </nav>
         </header>
 
         <main class="content">
-            <div class="form-card">
-                <h2 class="form-title">Login</h2>
-                <form method="post" action="{{ url_for('login') }}" class="form-login">
-                    {% if error %}
-                    <p>{{ error }}</p>
-                    {% endif %}
-                    <label for="username">Benutzername</label>
-                    <input type="text" id="username" name="username" required>
-                    <label for="password">Passwort</label>
-                    <input type="password" id="password" name="password" required>
-                    <button type="submit">Einloggen</button>
-                </form>
-                <p>Noch kein Konto? <a href="{{ url_for('register') }}">Registrieren</a></p>
-            </div>
-        </main>
-    </div>
+            <form method="POST" class="form-login">
+                <label>Benutzername:</label>
+                <input type="text" name="username" placeholder="Benutzername" required>
 
-    <footer>
-        &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
-    </footer>
+                <label>Passwort:</label>
+                <input type="password" name="password" placeholder="Passwort" required>
+
+                <button type="submit" class="button">Einloggen</button>
+            </form>
+        </main>
+
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
 </body>
+<script>
+function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+}
+</script>
 </html>
+
