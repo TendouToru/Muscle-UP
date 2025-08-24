@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Muscle Up | Fitness-Kalender</title>
+    <title>Muscle Up | Fitness Kalender</title>
 </head>
 <body>
     <div class="wrapper">
         <header class="head">
-            <h1 class="headline">Fitness-Kalender</h1>
+            <h1 class="headline">Fitness Kalender</h1>
 <div class="nav-bar">
         <!-- Links: Logo -->
         <h1 class="headline">Muscle Up</h1>
@@ -19,7 +19,7 @@
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
                     <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
-                    <a href="{{ url_for('workout_page') }}" class="link">Kraft Training</a>
+                    <a href="{{ url_for('workout_page') }}" class="link">Training</a>
                 </nav>
 
         <!-- Rechts: Userbereich / Login -->
@@ -51,7 +51,7 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Kraft Training</a>
+        <a href="{{ url_for('workout_page') }}">Training</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
@@ -109,6 +109,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
