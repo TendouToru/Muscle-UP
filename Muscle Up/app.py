@@ -2,7 +2,7 @@ import os
 import psycopg2
 import psycopg2.extras # Wichtig für Wörterbuch-Cursor
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
-import hashlib, json, secrets
+import hashlib, json, secrets, math
 from datetime import datetime, timedelta
 import sqlite3
 import pytz
@@ -67,6 +67,67 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     finally:
         conn.close()
 
+def calculate_xp_and_endurance(user_id: int, cardio_date: dict, action="add"):
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT attr_endurance, attr_strength, attr_intelligence FROM user_stats WHERE user_id=%s",(user_id,))
+        row = cursor.fetchone()
+        if not row:
+            return 0
+        current_endurance = row["attr_endurance"]
+        current_strength = row["attr_strength"]
+        current_iq = row["attr_intelligence"]
+
+        duration_in_min = float(cardio_date.get("duration",0) or 0)
+        duration_in_h = math.ceil(duration_in_min / 60)
+        total_xp = 0
+        endurance_change = 0
+        strength_change = 0
+        iq_change = 0
+
+        if cardio_data["type"] == "Laufen":
+            distance_km = float(cardio_data.get("distance", 0) or 0)
+            total_xp += distance_km * 10 - duration_in_min 
+            endurance_change += math.ceil(distance_km // 5 + duration_in_h)
+        elif cardio_data["type"] == "Schwimmen":
+            distance_km = float(cardio_data.get("distance", 0) or 0)
+            total_xp += distance_km * 10  - duration_in_h
+            endurance_change += int(distance_km + duration_in_h) *2
+            strength_change += int(distance_km + duration_in_h) *2
+        elif cardio_data["type"] == "Spielsport":
+            total_xp += duration_in_min // 5
+            endurance_change += duration_in_h
+            strength_change += duration_in_h
+            iq_change += duration_in_h
+
+        #Methode
+        if action == "add":
+            endurance_new = current_endurance + endurance_change
+            strength_new = current_strength + strength_change
+            iq_new = current_iq + iq_change
+        elif action == "deduct":
+            endurance_new = max(0, current_endurance - endurance_change)
+            strength_new = max(0, current_strength - strength_change)
+            iq_new = max(0, current_iq - iq_change)
+        else:
+            endurance_new = current_endurance
+            strength_new = current_strength
+            iq_new = current_iq
+
+        cursor.execute("""
+            UPDATE user_stats
+            SET attr_endurance = %s, attr_strength = %s, attr_intelligence = %s
+            WHERE user_id=%s
+        """, (endurance_new, strength_new, iq_new, user_id))
+
+        conn.commit()
+        return total_xp
+    finally:
+        cursor.close()
+        conn.close()
+
+
 def calculate_level_and_progress(xp_total: int):
     level = 1
     base_xp = 100
@@ -93,10 +154,7 @@ def staerke(user_id: int):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        cursor.execute(
-            "SELECT attr_strength, streak_days FROM user_stats WHERE user_id=%s",
-            (user_id,)
-        )
+        cursor.execute("SELECT attr_strength, streak_days FROM user_stats WHERE user_id=%s", (user_id,))
         kraft_db = cursor.fetchone()
         if not kraft_db:
             return 0
@@ -107,6 +165,23 @@ def staerke(user_id: int):
     finally:
         conn.close()
 
+# Ausdauer Funktionen
+def ausdauer(user_id: int):
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute(
+            "SELECT attr_endurance, streak_days FROM user_stats WHERE user_id=%s",(user_id,))
+        ausdauer_db = cursor.fetchone()
+        if not ausdauer_db:
+            return 0
+        base_endurance = ausdauer_db["attr_endurance"] or 0
+        streak = ausdauer_db["streak_days"] or 0
+        ausdauer = base_endurance + (streak * 2)
+        return ausdauer
+    finally:
+        conn.close()
+        
 # Streak Funktionen
 def update_streak(user_id: int):
     conn = get_db()
@@ -356,6 +431,7 @@ def profile():
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     kraft = staerke(session["user_id"])
+    ausdauerr = ausdauer(session["user_id"])
     ruhe = check_restday(session["user_id"])
     rank = calculate_rank(session["user_id"])
     
@@ -412,6 +488,7 @@ def profile():
                            stats=stats,
                            level=level,
                            kraft=kraft,
+                           ausdauer=ausdauerr
                            ruhe=ruhe,
                            rank=rank,
                            progress=progress,
@@ -497,21 +574,27 @@ def workout_page():
         rows = cursor.fetchall()
 
         today_workouts = []
+        today_cardio_workouts = []
+        
         for row in rows:
             sets_data = row["sets"]
             
-            # Korrigierte Logik: json.loads nur für Strings aus SQLite verwenden
+            #  json.loads nur für Strings aus SQLite verwenden
             if isinstance(sets_data, str):
                 sets_content = json.loads(sets_data)
             else:
-                # PostgreSQL liefert bereits ein Python-Objekt (list oder dict)
                 sets_content = sets_data
 
-            today_workouts.append({
+            workout_item.append({
                 "id": row["id"],
                 "exercise": row["exercise"],
                 "sets": sets_content
             })
+
+            if workout_item["exercise"] in ["Laufen", "Schwimmen", "Spielsport"]:
+                today_cardio_workouts.append(workout_item)
+            else:
+                today_workouts.append(workout_item)
 
     except Exception as e:
         flash(f"Ein Fehler ist aufgetreten: {e}", "error")
@@ -519,7 +602,60 @@ def workout_page():
     finally:
         conn.close()
 
-    return render_template("workouts.html", today_workouts=today_workouts, ruhe=ruhe)
+    return render_template("workouts.html", today_workouts=today_workouts, today_cardio_workouts=today_cardio_workouts, ruhe=ruhe)
+
+# --- Cardio Route ---
+@app.route('/add_cardio_workout', methods=['POST'])
+def add_cardio_workout():
+    if "user_id" not in session:
+        return jsonify({"error": "Nicht angemeldet"}), 401
+
+    data = request.get_json()
+    if not data or "type" not in data or "duration" not in data:
+        return jsonify({"error": "Fehlende Daten"}), 400
+
+    workout_type = data.get("type")
+    duration = data.get("duration")
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
+
+    sets_data = {}
+    if workout_type in ["Laufen", "Schwimmen"]:
+        distance = data.get("distance")
+        if distance is None:
+            return jsonify({"error": "Distanz fehlt"}), 400
+        sets_data = {"dauer": duration, "strecke": distance}
+    elif workout_type == "Spielsport":
+        sportart = data.get("sportart")
+        if sportart is None:
+            return jsonify({"error": "Sportart fehlt"}), 400
+        sets_data = {"dauer": duration, "sportart": sportart}
+    else:
+        return jsonify({"error": "Ungültiger Workout-Typ"}), 400
+    
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        xp_gained = calculate_xp_and_endurance(session["user_id"], data, "add")
+
+        cursor.execute(
+            "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
+            (session["user_id"], workout_type, json.dumps(sets_data), today)
+        )
+        cursor.execute(
+            "UPDATE user_stats SET xp_total = xp_total + %s WHERE user_id = %s",
+            (xp_gained, session["user_id"])
+        )
+        conn.commit()
+
+        update_streak(session["user_id"])
+        
+        return jsonify({"message": "Kardio-Workout erfolgreich hinzugefügt!", "xp_gained": xp_gained}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # --- Zentrale Funktion zum Löschen von Workouts ---
@@ -537,14 +673,21 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
         workout = cursor.fetchone()
 
         if workout:
-            exercises = [{"exercise": workout["exercise"], "sets": workout["sets"]}]
-            
             # Korrigiere: json.loads nur für Strings aus SQLite
-            if isinstance(workout["sets"], str):
-                exercises = [{"exercise": workout["exercise"], "sets": json.loads(workout["sets"])}]
-
-            xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
+            sets_data = workout["sets"]
+            if isinstance(sets_data, str):
+                sets_data = json.loads(sets_data)
             
+
+            is_cardio = isinstance(sets_data, dict) and any(key in sets_data for key in ["dauer", "strecke", "sportart"])
+            
+            if is_cardio:
+                data = {"type": workout["exercise"], "duration": sets_data.get("dauer"), "distance": sets_data.get("strecke"), "sportart": sets_data.get("sportart")}
+                xp_to_deduct = calculate_xp_and_endurance(session["user_id"], data, "deduct")
+            else:
+                exercises = [{"exercise": workout["exercise"], "sets": sets_data}]
+                xp_to_deduct = calculate_xp_and_strength(session["user_id"], exercises, "deduct")
+
             cursor.execute("""
                 UPDATE user_stats
                 SET xp_total = GREATEST(xp_total - %s, 0)
@@ -556,7 +699,7 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
             
             update_streak(session["user_id"])
             
-            flash(f"Workout gelöscht! {xp_to_deduct} XP wurden abgezogen.", "success")
+            flash(f"Workout gelöscht! {int(xp_to_deduct)} XP wurden abgezogen.", "success")
         else:
             flash("Workout nicht gefunden.", "error")
     except Exception as e:
@@ -680,6 +823,7 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
