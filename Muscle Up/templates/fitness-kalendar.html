@@ -19,7 +19,7 @@
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
                     <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
-                    <a href="{{ url_for('workout_page') }}" class="link">Kraft-Training</a>
+                    <a href="{{ url_for('workout_page') }}" class="link">Kraft Training</a>
                 </nav>
 
         <!-- Rechts: Userbereich / Login -->
@@ -51,7 +51,7 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Kraft-Training</a>
+        <a href="{{ url_for('workout_page') }}">Kraft Training</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
@@ -109,6 +109,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
