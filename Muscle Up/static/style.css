@@ -263,6 +263,12 @@ footer {
    Workouts Styling
 ------------------------- */
 
+.container{
+    display: none;
+}
+
+/* Cardio Container */
+
 /* Übungscontainer */
 #exercise-container {
     background-color: var(--card-bg);
@@ -564,6 +570,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
