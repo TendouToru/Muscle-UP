@@ -61,7 +61,7 @@
 
         <main class="content">
             <section class="workout-calendar">
-                {% for date, workouts in workouts_by_date.items() %}
+                {% for date, workouts in workouts.items() %}
                 <div class="day-block">
                     <h3>{{ date }}</h3>
                     {% for workout in workouts %}
@@ -106,3 +106,4 @@
 </script>
 </body>
 </html>
+
