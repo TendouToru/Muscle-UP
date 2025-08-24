@@ -46,7 +46,7 @@ nav {
     margin: 1rem auto;
     border-radius: 10px;
     display: flex;
-    flex-wrap: wrap;            /* neue Zeile, wenn zu viele Items */
+    flex-wrap: wrap;            
     justify-content: center;    
     gap: 15px;                  
 }
@@ -185,7 +185,7 @@ footer {
 
 /* Einzelnes Workout als "Karte" */
 .workout-card {
-    background-color:var(--card-bg);
+    background-color: var(--card-bg);
     padding: 12px 15px;
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
@@ -327,10 +327,12 @@ footer {
 
 .day-block {
     background-color: var(--card-bg);
+    width: 100%;
+    max-width: 600px;
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* rot sieht auch cool aus */
 }
 
 .day-block h3 {
@@ -348,10 +350,6 @@ footer {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 100%;
     max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
 }
 
 /* Formular fürs Profil */
@@ -385,7 +383,7 @@ footer {
 .xp-fill {
     height: 100%;
     background-color: var(--success);
-    width: 0; /* wird per Inline-Style gesetzt */
+    width: 0; 
     transition: width 0.5s ease;
 }
 
@@ -436,11 +434,6 @@ footer {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--secondary);
-    margin-bottom: 1rem;
-}
-
-.stats-card .pfp{
-    margin-bottom: 1rem;
 }
 
 /* Dropdown Menü */
@@ -461,7 +454,7 @@ footer {
     position: absolute;
     top: 45px;
     right: 0;
-    background-color: var(--card-bg);
+    background-color: #2c2c3f;
     min-width: 150px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -513,7 +506,7 @@ footer {
 .mobile-menu {
     display: none;
     flex-direction: column;
-    background: var(--card-bg);
+    background: #2c2c3f;
     padding: 1rem;
     gap: 10px;
 }
@@ -541,4 +534,6 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
+
 
