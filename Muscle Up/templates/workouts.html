@@ -5,12 +5,12 @@
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Muscle Up | Workout</title>
+    <title>Muscle Up | Training</title>
 </head>
 <body>
 <div class="wrapper">
     <header class="head">
-        <h1 class="headline">Kraft Training</h1>
+        <h1 class="headline">Training</h1>
         <div class="nav-bar">
             <h1 class="headline">Muscle Up</h1>
 
@@ -59,43 +59,55 @@
     </header>
 
     <main class="content">
-        <form id="exercise-form" class="form-login">
-            <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
-            <button type="submit">Übung starten</button>
-        </form>
-        {% if ruhe == True %}
-            <form method="post" action="{{ url_for('post_restday') }}">
-                <button type="submit" id="rest-btn">Restday</button>
-            </form>
-        {% endif %}
-
-        <div id="exercise-container" style="display:none;">
-            <h2 id="current-exercise"></h2>
-            <form id="set-form" class="form-login">
-                <input type="number" id="weight" placeholder="Gewicht (kg)" required>
-                <input type="number" id="reps" placeholder="Wiederholungen" required>
-                <button type="submit">Satz hinzufügen</button>
-            </form>
-            <ul id="sets-list"></ul>
-            <button id="finish-exercise">Übung beenden</button>
+        <div id="btn-row">
+            <button id="kraft-training-btn">Kraft Training</button>
+            <button id="cardio-btn">Cardio</button>
         </div>
+        
+        <!--Cardio-->
+        <div id="cardio">
 
-        <div id="workout-overview">
-            <h3>Heutige Übungen</h3>
-            <div id="completed-exercises">
-                {% for exercise in today_workouts %}
-                <div class="completed-exercise">
-                    <h4>{{ exercise.exercise }}</h4>
-                    <ul>
-                        {% for s in exercise.sets %}
-                        <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
-                        {% endfor %}
-                    </ul>
-                    <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
-                        <button type="submit">Löschen</button>
-                    </form>
+        </div>
+        <!--Kraft Training-->
+        <div id="kraft-training">
+            <form id="exercise-form" class="form-login">
+                <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
+                <button type="submit">Übung starten</button>
+            </form>
+            {% if ruhe == True %}
+                <form method="post" action="{{ url_for('post_restday') }}">
+                    <button type="submit" id="rest-btn" class="button">Restday</button>
+                </form>
+            {% endif %}
+    
+            <div id="exercise-container" style="display:none;">
+                <h2 id="current-exercise"></h2>
+                <form id="set-form" class="form-login">
+                    <input type="number" id="weight" placeholder="Gewicht (kg)" required>
+                    <input type="number" id="reps" placeholder="Wiederholungen" required>
+                    <button type="submit" class="button">Satz hinzufügen</button>
+                </form>
+                <ul id="sets-list"></ul>
+                <button id="finish-exercise" class="button">Übung beenden</button>
+            </div>
+    
+            <div id="workout-overview">
+                <h3>Heutige Übungen</h3>
+                <div id="completed-exercises">
+                    {% for exercise in today_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ exercise.exercise }}</h4>
+                        <ul>
+                            {% for s in exercise.sets %}
+                            <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
     </main>
@@ -106,6 +118,16 @@
 </div>
 
 <script>
+    document.getElementById("kraft-training-btn").addEventListener("click", () => {
+    document.getElementById("kraft-training").style.display = "block";
+    document.getElementById("cardio").style.display = "none";
+});
+
+document.getElementById("cardio-btn").addEventListener("click", () => {
+    document.getElementById("kraft-training").style.display = "none";
+    document.getElementById("cardio").style.display = "block";
+});
+    
     document.addEventListener("DOMContentLoaded", () => {
         let currentExercise = null;
         let currentSets = [];
@@ -189,4 +211,5 @@
 </script>
 </body>
 </html>
+
 
