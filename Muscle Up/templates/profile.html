@@ -18,8 +18,8 @@
         <!-- Mitte: Navigation (nur Desktop) -->
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
-                <a href="{{ url_for('workout_page') }}" class="link">Kraft-Training</a>
-                <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness-Kalender</a>
+                <a href="{{ url_for('workout_page') }}" class="link">Kraft Training</a>
+                <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
                 </nav>
 
         <!-- Rechts: Userbereich / Login -->
@@ -50,8 +50,8 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Workouts</a>
-        <a href="{{ url_for('fitness_kalendar') }}">Kalender</a>
+        <a href="{{ url_for('workout_page') }}">Kraft Training</a>
+        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
@@ -149,6 +149,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
