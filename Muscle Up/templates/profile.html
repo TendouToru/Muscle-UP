@@ -84,6 +84,7 @@
 
           <!-- Stats -->
             <section class="stats-card">
+                <h3>Meine Stats</h3>
                 {%if rank == 1 %}
                     <img src="{{url_for('static', filename='ranks/1.jpg')}}" class="pfp">
                 {%elif rank == 2 %}
@@ -105,8 +106,7 @@
                 {%elif rank == 10 %}
                     <img src="{{url_for('static', filename='ranks/10.jpg')}}" class="pfp">
                 {%endif%}
-                
-                <h3>Meine Stats</h3>
+
 
                 <p>Level: <strong>{{ level }}</strong></p>
                 <p>XP: <strong>{{ stats.xp_total if stats else 0 }}</strong> / <strong>{{ xp_for_next }}</strong></p>
@@ -149,6 +149,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
