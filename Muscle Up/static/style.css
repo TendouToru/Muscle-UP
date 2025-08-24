@@ -186,7 +186,8 @@ main.content {
 }
 
 #cardio-btn:hover, #kraft-training-btn:hover{
-    color: var(--primary);
+    color: var(--text);
+    background-color: var(--primary);
 }
 
 /* Footer */
@@ -563,6 +564,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
