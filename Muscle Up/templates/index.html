@@ -9,13 +9,15 @@
 <body>
 <header class="head">
     <div class="nav-bar">
-        <!-- Links: Logo -->
         <h1 class="headline">Muscle Up</h1>
 
-        <!-- Mitte: Navigation (nur Desktop) -->
+        <nav class="nav-top">
+            <a href="{{ url_for('index') }}">Start</a>
+            <a href="{{ url_for('workout_page') }}">Training</a>
+            <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+        </nav>
 
 
-        <!-- Rechts: Userbereich / Login -->
         {% if 'user_id' in session %}
         <div class="nav-user">
             <div class="dropdown">
@@ -37,11 +39,9 @@
         </nav>
         {% endif %}
 
-        <!-- Hamburger Button (nur Mobile) -->
         <button class="hamburger" onclick="toggleMenu()">☰</button>
     </div>
 
-    <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
         <a href="{{ url_for('workout_page') }}">Training</a>
@@ -76,6 +76,3 @@ function toggleMenu() {
 </script>
 
 </html>
-
-
-
