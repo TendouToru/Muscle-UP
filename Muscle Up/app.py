@@ -488,7 +488,7 @@ def profile():
                            stats=stats,
                            level=level,
                            kraft=kraft,
-                           ausdauer=ausdauerr
+                           ausdauer=ausdauerr,
                            ruhe=ruhe,
                            rank=rank,
                            progress=progress,
@@ -823,6 +823,7 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
