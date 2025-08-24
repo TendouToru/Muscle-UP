@@ -2,6 +2,7 @@ import os
 import psycopg2
 import psycopg2.extras # Wichtig für Wörterbuch-Cursor
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
+from collections import defaultdict
 import hashlib, json, secrets, math
 from datetime import datetime, timedelta
 import sqlite3
@@ -816,13 +817,21 @@ def fitness_kalendar():
         else:
             temp_dict[display_date]["exercises"].append(workout_item)
 
-    grouped_workouts = sorted(temp_dict.values(), key=lambda x: datetime.strptime(x["date"], "%d.%m.%Y"), reverse=True)
+        grouped_workouts = defaultdict(list)
+    for workout in all_workouts:
+        workout_date = workout.date.strftime('%Y-%m-%d')
+        grouped_workouts[workout_date].append(workout)
+    
+    # Sortieren Sie die Workouts nach Datum
+    grouped_workouts = sorted(grouped_workouts.items(), key=lambda item: item[0], reverse=True)
+
 
     return render_template("fitness-kalendar.html", workouts=grouped_workouts)
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
