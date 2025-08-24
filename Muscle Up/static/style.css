@@ -137,7 +137,7 @@ main.content {
 }
 
 /* Buttons */
-button {
+.button {
     background-color: var(--primary);
     color: var(--text);
     border: none;
@@ -149,7 +149,7 @@ button {
     margin-top: 1rem;
 }
 
-button:hover {
+.button:hover {
     background-color: var(--secondary);
     color: var(--background);
 }
@@ -158,6 +158,35 @@ button:hover {
     background-color: var(--success);
     width: 350px;
     font-size: large;
+}
+
+#btn-row{
+    
+    max-width: 400px;
+    background-color: var(--accent-dark);
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    padding: 10px 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+#cardio-btn, #kraft-training-btn{
+    color: var(--secondary);
+    background-color: var(--card-bg);
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    margin: 0;
+}
+
+#cardio-btn:hover, #kraft-training-btn:hover{
+    color: var(--primary);
 }
 
 /* Footer */
@@ -534,6 +563,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
