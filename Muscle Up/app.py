@@ -788,49 +788,47 @@ def fitness_kalendar():
     rows = cursor.fetchall()
     conn.close()
 
-    grouped_workouts = []
-    temp_dict = {}
+    # Verwenden Sie ein defaultdict, um Workouts nach Datum zu gruppieren
+    grouped_workouts = defaultdict(list)
 
     for row in rows:
-        d = datetime.strptime(row["date"], "%Y-%m-%d")
-        display_date = d.strftime("%d.%m.%Y")
-
-        sets_data = row["sets"]
+        workout_date = datetime.strptime(row["date"], "%Y-%m-%d")
+        display_date = workout_date.strftime("%d.%m.%Y")
         
-        # Korrigiere: json.loads nur für Strings aus SQLite
+        sets_data = row["sets"]
         if isinstance(sets_data, str):
-            sets_content = json.loads(sets_data)
+            try:
+                sets_content = json.loads(sets_data)
+            except json.JSONDecodeError:
+                sets_content = {}  # Fallback bei fehlerhaften Daten
         else:
             sets_content = sets_data
 
         workout_item = {
             "id": row["id"],
             "exercise": row["exercise"],
-            "sets": sets_content
+            "type": row["type"],
         }
-
-        if display_date not in temp_dict:
-            temp_dict[display_date] = {
-                "date": display_date,
-                "exercises": [workout_item]
-            }
-        else:
-            temp_dict[display_date]["exercises"].append(workout_item)
-
-        grouped_workouts = defaultdict(list)
-    for workout in all_workouts:
-        workout_date = workout.date.strftime('%Y-%m-%d')
-        grouped_workouts[workout_date].append(workout)
+        
+        # Unterscheiden Sie zwischen Cardio und Krafttraining für die Anzeige
+        if row["type"] == "cardio":
+            workout_item["duration"] = sets_content.get("duration")
+            workout_item["distance"] = sets_content.get("distance")
+            workout_item["sportart"] = sets_content.get("sportart")
+        else: 
+            workout_item["sets"] = sets_content
+            
+        grouped_workouts[display_date].append(workout_item)
     
-    # Sortieren Sie die Workouts nach Datum
-    grouped_workouts = sorted(grouped_workouts.items(), key=lambda item: item[0], reverse=True)
+    # Sortieren Sie die gruppierten Workouts nach Datum, absteigend
+    sorted_workouts = sorted(grouped_workouts.items(), key=lambda item: datetime.strptime(item[0], "%d.%m.%Y"), reverse=True)
 
-
-    return render_template("fitness-kalendar.html", workouts=grouped_workouts)
+    return render_template("fitness-kalendar.html", workouts=dict(sorted_workouts))
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
