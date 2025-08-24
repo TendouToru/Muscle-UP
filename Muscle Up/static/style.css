@@ -259,128 +259,11 @@ footer {
     }
 }
 
-/* -------------------------
-   Workouts Styling
-------------------------- */
+/* ------------------------- Workouts Styling ------------------------- */
 
-.container{
-    display: none;
-}
-
-/* Cardio Container */
-
-/* Übungscontainer */
-#exercise-container {
-    background-color: var(--card-bg);
-    padding: 1rem;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 400px;
-    margin: 1rem 0;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-#exercise-container h2 {
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-/* Satzliste */
-#sets-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-}
-
-#sets-list li {
+.container {
     background-color: var(--accent-dark);
-    margin-bottom: 0.5rem;
-    padding: 0.5rem 0.8rem;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--text);
-}
-
-#sets-list li button {
-    background-color: var(--primary);
-    color: var(--text);
-    border: none;
-    border-radius: 4px;
-    padding: 2px 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: 0.2s;
-}
-
-#sets-list li button:hover {
-    background-color: var(--secondary);
-    color: var(--background);
-}
-
-/* Abgeschlossene Übungen */
-.completed-exercise {
-    background-color: var(--card-bg);
-    border-left: 4px solid var(--primary);
-    margin-bottom: 1rem;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
-}
-
-.completed-exercise h4 {
-    margin: 0 0 0.5rem 0;
-    color: var(--secondary);
-}
-
-.completed-exercise ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.completed-exercise ul li {
-    background-color: var(--accent-dark);
-    margin-bottom: 0.3rem;
-    padding: 0.4rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    display: flex;
-    justify-content: space-between;
-}
-
-/* Übersicht chronologisch */
-#workout-overview {
-    margin-top: 2rem;
-    width: 100%;
-    max-width: 400px;
-}
-#workout-overview h3 {
-    text-align: center;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-}
-
-.day-block {
-    background-color: var(--card-bg);
-    width: 100%;
-    max-width: 600px;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* rot sieht auch cool aus */
-}
-
-.day-block h3 {
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-}
-
-/* Profil Card */
-.profile-card, .stats-card {
-    position: relative;
-    background-color: var(--card-bg);
-    padding: 1.5rem;
+    padding: 20px;
     border-radius: 12px;
     margin: 1rem 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -388,191 +271,142 @@ footer {
     max-width: 500px;
 }
 
-/* Formular fürs Profil */
-.form-profile {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.container-header {
+    color: var(--primary);
+    text-align: center;
+    margin-top: 0;
+    text-decoration: underline;
 }
 
-.form-profile input {
+.workout-item {
     padding: 10px;
-    border-radius: 6px;
-    border: none;
-    background: var(--accent-dark);
-    color: var(--text);
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
-.form-profile button {
+.workout-item .workout-name {
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.workout-item .workout-sets {
+    margin-top: 5px;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* ------------------------- Profil Styling ------------------------- */
+.profile-container {
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.profile-container .profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    margin-bottom: 15px;
+}
+
+.profile-container h2 {
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.profile-container p {
+    margin: 0;
+}
+
+.profile-info {
+    margin-top: 20px;
+}
+
+.profile-info h3 {
+    color: var(--secondary);
+    margin-top: 20px;
+    text-decoration: underline;
+}
+
+.profile-info ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
     margin-top: 10px;
 }
 
-/* XP-Bar */
-.xp-bar {
-    width: 100%;
-    height: 20px;
-    background-color: #ddd;
-    border-radius: 10px;
-    overflow: hidden;
+.profile-info ul li {
+    background-color: var(--accent-dark);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
 
-.xp-fill {
+/* XP-Bar */
+.xp-bar-container {
+    width: 100%;
+    background-color: var(--accent-dark);
+    border-radius: 15px;
+    margin: 15px 0;
+    overflow: hidden;
+    position: relative;
+    height: 25px;
+}
+
+.xp-bar {
     height: 100%;
     background-color: var(--success);
-    width: 0; 
-    transition: width 0.5s ease;
+    border-radius: 15px;
+    transition: width 0.5s ease-in-out;
 }
 
-/* Attribute Anzeige */
-.attributes {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 1rem;
-}
-
-.attr {
-    background: var(--accent-dark);
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-}
-
-/* Login/Register */
-.nav-top{
-    display: flex;
-    margin-right: 5rem;
-}
-
-/* Profil Dropdown */
-.nav-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--secondary);
-    cursor: pointer;
-}
-
-.pfp{
+.xp-text {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--secondary);
-}
-
-/* Dropdown Menü */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropbtn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background-color: #2c2c3f;
-    min-width: 150px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    display: block;
-    padding: 10px;
+    width: 100%;
+    text-align: center;
     color: var(--text);
-    text-decoration: none;
-    transition: background 0.2s;
-}
-
-.dropdown-content a:hover {
-    background-color: var(--primary);
-    color: var(--text);
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.username {
-    color: var(--secondary);
     font-weight: bold;
-    display: block;
-    margin-top: 5px;
+    line-height: 25px;
 }
 
-/* Header-Layout wie Twitch */
-.nav-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ------------------------- Login/Register Styling ------------------------- */
+.form-card {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 400px;
+    margin: 2rem auto;
+    text-align: center;
 }
 
-/* Hamburger Standard verstecken */
-.hamburger {
-    display: none;
-    font-size: 1.8rem;
-    background: none;
-    border: none;
+.form-card .form-title {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-decoration: underline;
+}
+
+.form-card p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.form-card a {
     color: var(--secondary);
-    cursor: pointer;
-}
-
-/* Mobile Menü */
-.mobile-menu {
-    display: none;
-    flex-direction: column;
-    background: #2c2c3f;
-    padding: 1rem;
-    gap: 10px;
-}
-
-.mobile-menu a {
     text-decoration: none;
-    color: var(--secondary);
-    padding: 8px;
-    border-radius: 5px;
-    transition: 0.3s;
+    font-weight: bold;
 }
 
-.mobile-menu a:hover {
-    background: var(--primary);
-    color: var(--text);
+.form-card a:hover {
+    text-decoration: underline;
 }
-
-/* ---- Responsive ---- */
-@media (max-width: 768px) {
-    .nav-center, .nav-top, .nav-user {
-        display: none; /* Desktop-Nav ausblenden */
-    }
-
-    .hamburger {
-        display: block; /* Hamburger anzeigen */
-    }
-}
-
-
-
-
-
-
