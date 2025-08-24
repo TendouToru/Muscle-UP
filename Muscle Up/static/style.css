@@ -1,4 +1,4 @@
-:root {
+:root{
     --background: #1e1e2f;
     --primary: #e74c3c;
     --secondary: #f1c40f;
@@ -9,16 +9,15 @@
 }
 
 /* Grundlayout */
-body {
+body{
     background-color: var(--background);
     color: var(--text);
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    line-height: 1.6;
 }
 
-.wrapper {
+.wrapper{
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -26,11 +25,10 @@ body {
 
 /* Kopfzeile */
 header.head {
-    background-color: var(--card-bg);
+    background-color: var(--background);
     border-bottom: 2px solid var(--primary);
     padding: 1rem 2rem;
-    position: relative;
-    z-index: 10;
+    text-align: center;
 }
 
 header.head .headline {
@@ -38,6 +36,7 @@ header.head .headline {
     font-size: 2rem;
     color: var(--primary);
     letter-spacing: 1px;
+    text-decoration: underline;
 }
 
 /* Navigation */
@@ -47,10 +46,11 @@ nav {
     margin: 1rem auto;
     border-radius: 10px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
+    flex-wrap: wrap;            
+    justify-content: center;    
+    gap: 15px;                  
 }
+
 
 nav .link {
     display: block;
@@ -103,8 +103,6 @@ nav .link:hover {
     border: none;
     border-radius: 6px;
     font-size: 16px;
-    background-color: var(--accent-dark);
-    color: var(--text);
 }
 
 .form-login button {
@@ -124,7 +122,7 @@ nav .link:hover {
     color: var(--background);
 }
 
-.form-login label {
+.form-login label{
     text-decoration: underline;
     color: var(--text);
 }
@@ -149,8 +147,6 @@ main.content {
     font-weight: bold;
     transition: all 0.2s;
     margin-top: 1rem;
-    text-decoration: none;
-    text-align: center;
 }
 
 .button:hover {
@@ -158,25 +154,26 @@ main.content {
     color: var(--background);
 }
 
-#rest-btn {
+#rest-btn{
     background-color: var(--success);
     width: 350px;
     font-size: large;
 }
 
-#btn-row {
+#btn-row{
+    
     max-width: 400px;
     background-color: var(--accent-dark);
     margin-bottom: 1rem;
     border-radius: 10px;
     padding: 10px 10px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     display: flex;
     gap: 12px;
     justify-content: center;
 }
 
-#cardio-btn, #kraft-training-btn {
+#cardio-btn, #kraft-training-btn{
     color: var(--secondary);
     background-color: var(--card-bg);
     border: none;
@@ -188,7 +185,7 @@ main.content {
     margin: 0;
 }
 
-#cardio-btn:hover, #kraft-training-btn:hover {
+#cardio-btn:hover, #kraft-training-btn:hover{
     color: var(--text);
     background-color: var(--primary);
 }
@@ -200,7 +197,6 @@ footer {
     text-align: center;
     padding: 1rem;
     border-top: 2px solid var(--primary);
-    margin-top: auto;
 }
 
 /* Workout-Kalender */
@@ -222,7 +218,7 @@ footer {
     background-color: var(--card-bg);
     padding: 12px 15px;
     border-radius: 10px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -264,15 +260,16 @@ footer {
 }
 
 /* -------------------------
-    Workouts Styling
+   Workouts Styling
 ------------------------- */
 
-.container {
+.container{
+    /*display: none;*/
     background-color: var(--accent-dark);
     padding: 20px;
     border-radius: 12px;
-    margin: 1rem auto; /* Wichtig: Zentriert den Container */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 100%;
     max-width: 500px;
 }
@@ -284,60 +281,9 @@ footer {
     text-decoration: underline;
 }
 
-/* Cardio Styling */
-.cardio-dash {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 1.5rem;
-}
 
-.cardio-card {
-    background-color: var(--card-bg);
-    color: var(--secondary);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-align: center;
-}
 
-.cardio-card:hover {
-    background-color: var(--primary);
-    color: var(--text);
-    transform: translateY(-3px);
-}
-
-.cardio-form {
-    display: none;
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    margin-top: 1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.cardio-form input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--accent-dark);
-    border-radius: 6px;
-    background-color: var(--background);
-    color: var(--text);
-    margin-bottom: 10px;
-}
-
-.cardio-form button {
-    width: 100%;
-}
-
-.cardio-header {
-    color: var(--secondary);
-    text-align: center;
-    margin-bottom: 1rem;
-}
+/* Cardio Container */
 
 /* Übungscontainer */
 #exercise-container {
@@ -346,8 +292,8 @@ footer {
     border-radius: 10px;
     width: 100%;
     max-width: 400px;
-    margin: 1rem auto; /* Wichtig: Zentriert den Container */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 #exercise-container h2 {
@@ -397,8 +343,6 @@ footer {
     margin-bottom: 1rem;
     padding: 0.8rem 1rem;
     border-radius: 6px;
-    display: flex;
-    flex-direction: column;
 }
 
 .completed-exercise h4 {
@@ -421,28 +365,12 @@ footer {
     justify-content: space-between;
 }
 
-.completed-exercise p {
-    margin: 5px 0;
-}
-
-.completed-exercise form {
-    margin-top: 10px;
-    align-self: flex-end;
-}
-
-.completed-exercise .button {
-    margin-top: 0;
-}
-
-
 /* Übersicht chronologisch */
 #workout-overview {
     margin-top: 2rem;
     width: 100%;
     max-width: 400px;
-    margin: 2rem auto; /* Wichtig: Zentriert den Container */
 }
-
 #workout-overview h3 {
     text-align: center;
     color: var(--primary);
@@ -456,7 +384,7 @@ footer {
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* rot sieht auch cool aus */
 }
 
 .day-block h3 {
@@ -470,8 +398,8 @@ footer {
     background-color: var(--card-bg);
     padding: 1.5rem;
     border-radius: 12px;
-    margin: 1rem auto; /* Wichtig: Zentriert den Container */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 100%;
     max-width: 500px;
 }
@@ -507,7 +435,7 @@ footer {
 .xp-fill {
     height: 100%;
     background-color: var(--success);
-    width: 0;
+    width: 0; 
     transition: width 0.5s ease;
 }
 
@@ -528,7 +456,7 @@ footer {
 }
 
 /* Login/Register */
-.nav-top {
+.nav-top{
     display: flex;
     margin-right: 5rem;
 }
@@ -549,7 +477,7 @@ footer {
     cursor: pointer;
 }
 
-.pfp {
+.pfp{
     position: absolute;
     top: 15px;
     right: 15px;
@@ -581,7 +509,7 @@ footer {
     background-color: #2c2c3f;
     min-width: 150px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     z-index: 1;
 }
 
@@ -650,24 +578,12 @@ footer {
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .nav-top, .nav-user {
+    .nav-center, .nav-top, .nav-user {
         display: none; /* Desktop-Nav ausblenden */
-    }
-
-    .nav-bar {
-        justify-content: center;
-    }
-
-    .headline {
-        margin: 0 auto;
     }
 
     .hamburger {
         display: block; /* Hamburger anzeigen */
     }
-
-    header.head .nav-bar {
-        justify-content: space-between;
-        align-items: center;
-    }
 }
+
