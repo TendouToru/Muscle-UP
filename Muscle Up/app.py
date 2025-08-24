@@ -161,9 +161,16 @@ def check_restday(user_id:int):
         )
         result = cursor.fetchone()
 
+        today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
+        cursor.execute(
+            "SELECT EXISTS(SELECT 1 FROM workouts WHERE user_id=%s AND date=%s AND exercise='Restday')",
+            (session["user_id"], today)
+        )
+        restday_exists = cursor.fetchone()[0]
+
         if result:
             streak = result["streak_days"]
-            restday_available = streak >= 2
+            restday_available = streak >= 2 and not restday_exists
         else:
             streak = 0
             restday_available = False
@@ -673,5 +680,6 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
