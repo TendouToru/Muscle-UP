@@ -620,16 +620,20 @@ def add_cardio_workout():
     today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
 
     sets_data = {}
+    exercise_name = workout_type
+
     if workout_type in ["Laufen", "Schwimmen"]:
         distance = data.get("distance")
         if distance is None:
             return jsonify({"error": "Distanz fehlt"}), 400
-        sets_data = {"dauer": duration, "strecke": distance}
+        # Ändere die Schlüsselnamen zu 'duration' und 'distance', wie von fitness_kalendar erwartet.
+        sets_data = {"duration": duration, "distance": distance}
     elif workout_type == "Spielsport":
         sportart = data.get("sportart")
         if sportart is None:
             return jsonify({"error": "Sportart fehlt"}), 400
-        sets_data = {"dauer": duration, "sportart": sportart}
+        sets_data = {"duration": duration, "sportart": sportart}
+        exercise_name = sportart
     else:
         return jsonify({"error": "Ungültiger Workout-Typ"}), 400
     
@@ -638,9 +642,10 @@ def add_cardio_workout():
     try:
         xp_gained = calculate_xp_and_endurance(session["user_id"], data, "add")
 
+        # Fügen Sie 'type' in die SQL-Abfrage ein, um Cardio-Workouts zu identifizieren
         cursor.execute(
-            "INSERT INTO workouts (user_id, exercise, sets, date) VALUES (%s, %s, %s, %s)",
-            (session["user_id"], workout_type, json.dumps(sets_data), today)
+            "INSERT INTO workouts (user_id, exercise, type, sets, date) VALUES (%s, %s, %s, %s, %s)",
+            (session["user_id"], exercise_name, 'cardio', json.dumps(sets_data), today)
         )
         cursor.execute(
             "UPDATE user_stats SET xp_total = xp_total + %s WHERE user_id = %s",
@@ -828,6 +833,7 @@ def fitness_kalendar():
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
