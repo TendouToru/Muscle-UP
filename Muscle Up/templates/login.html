@@ -46,7 +46,7 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Kraft Training</a>
+        <a href="{{ url_for('workout_page') }}">Training</a>
         <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
 
         {% if 'user_id' in session %}
@@ -67,7 +67,7 @@
                 <label>Passwort:</label>
                 <input type="password" name="password" placeholder="Passwort" required>
 
-                <button type="submit">Einloggen</button>
+                <button type="submit" class="button">Einloggen</button>
             </form>
         </main>
 
@@ -83,4 +83,5 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
