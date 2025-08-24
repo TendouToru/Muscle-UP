@@ -3,6 +3,9 @@
     --primary: #e74c3c;
     --secondary: #f1c40f;
     --text: #ecf0f1;
+    --success: #4caf50;
+    --card-bg: #2c2c3f;
+    --accent-dark: #3a3a55;
 }
 
 /* Grundlayout */
@@ -38,7 +41,7 @@ header.head .headline {
 
 /* Navigation */
 nav {
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     padding: 1rem 2rem;
     margin: 1rem auto;
     border-radius: 10px;
@@ -152,14 +155,14 @@ button:hover {
 }
 
 #rest-btn{
-    background-color: #4caf50;
+    background-color: var(--success);
     width: 350px;
     font-size: large;
 }
 
 /* Footer */
 footer {
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     color: var(--text);
     text-align: center;
     padding: 1rem;
@@ -182,7 +185,7 @@ footer {
 
 /* Einzelnes Workout als "Karte" */
 .workout-card {
-    background-color: #2c2c3f;
+    background-color:var(--card-bg);
     padding: 12px 15px;
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
@@ -232,7 +235,7 @@ footer {
 
 /* Übungscontainer */
 #exercise-container {
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     padding: 1rem;
     border-radius: 10px;
     width: 100%;
@@ -255,7 +258,7 @@ footer {
 }
 
 #sets-list li {
-    background-color: #3a3a55;
+    background-color: var(--accent-dark);
     margin-bottom: 0.5rem;
     padding: 0.5rem 0.8rem;
     border-radius: 5px;
@@ -283,7 +286,7 @@ footer {
 
 /* Abgeschlossene Übungen */
 .completed-exercise {
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     border-left: 4px solid var(--primary);
     margin-bottom: 1rem;
     padding: 0.8rem 1rem;
@@ -301,7 +304,7 @@ footer {
 }
 
 .completed-exercise ul li {
-    background-color: #3a3a55;
+    background-color: var(--accent-dark);
     margin-bottom: 0.3rem;
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
@@ -323,7 +326,7 @@ footer {
 }
 
 .day-block {
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 1rem;
@@ -338,13 +341,17 @@ footer {
 /* Profil Card */
 .profile-card, .stats-card {
     position: relative;
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     padding: 1.5rem;
     border-radius: 12px;
     margin: 1rem 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 100%;
     max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
 }
 
 /* Formular fürs Profil */
@@ -358,7 +365,7 @@ footer {
     padding: 10px;
     border-radius: 6px;
     border: none;
-    background: #3a3a55;
+    background: var(--accent-dark);
     color: var(--text);
 }
 
@@ -377,7 +384,7 @@ footer {
 
 .xp-fill {
     height: 100%;
-    background-color: #4caf50;
+    background-color: var(--success);
     width: 0; /* wird per Inline-Style gesetzt */
     transition: width 0.5s ease;
 }
@@ -391,7 +398,7 @@ footer {
 }
 
 .attr {
-    background: #3a3a55;
+    background: var(--accent-dark);
     padding: 8px 12px;
     border-radius: 6px;
     display: flex;
@@ -421,14 +428,16 @@ footer {
 }
 
 .pfp{
-    position: absolute;
-    top: 15px;
-    right: 15px;
     width: 70px;
     height: 70px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--secondary);
+    margin-bottom: 1rem;
+}
+
+.stats-card .pfp{
+    margin-bottom: 1rem;
 }
 
 /* Dropdown Menü */
@@ -449,7 +458,7 @@ footer {
     position: absolute;
     top: 45px;
     right: 0;
-    background-color: #2c2c3f;
+    background-color: var(--card-bg);
     min-width: 150px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -501,7 +510,7 @@ footer {
 .mobile-menu {
     display: none;
     flex-direction: column;
-    background: #2c2c3f;
+    background: var(--card-bg);
     padding: 1rem;
     gap: 10px;
 }
@@ -529,6 +538,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
