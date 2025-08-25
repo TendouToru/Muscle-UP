@@ -69,8 +69,8 @@
 
             <!-- Profil-Daten -->
             <section class="profile-card">
-                <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
                 <h3>Meine Daten</h3>
+                <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
                 <form method="post" class="form-profile">
                     <label>Körpergewicht (kg):</label>
                     <input type="number" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
@@ -109,7 +109,7 @@
 
 
                 <p>Level: <strong>{{ level }}</strong>  |  Rang: <strong>{{rank}}</strong></p>
-                <p>XP: <strong>{{ stats.xp_total if stats else 0 }}</strong> / <strong>{{ xp_for_next }}</strong></p>
+                <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
 
                 <div class="xp-bar" style="background-color: #ddd; width: 100%; height: 20px; border-radius: 10px; overflow: hidden;">
                     <div class="xp-fill" style="background-color: #4caf50; width: {{ (progress*100)|round(1) }}%; height: 100%;"></div>
@@ -149,6 +149,7 @@ function toggleMenu() {
 }
 </script>
 </html>
+
 
 
 
