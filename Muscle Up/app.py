@@ -758,7 +758,6 @@ def fitness_kalendar():
     rows = cursor.fetchall()
     conn.close()
 
-    # Verwenden Sie ein defaultdict, um Workouts nach Datum zu gruppieren
     grouped_workouts = defaultdict(list)
 
     for row in rows:
@@ -774,6 +773,10 @@ def fitness_kalendar():
         else:
             sets_content = sets_data
 
+        workout_type = row.get("type")
+        if not workout_type:
+            workout_type = "strength"
+            
         workout_item = {
             "id": row["id"],
             "exercise": row["exercise"],
@@ -797,3 +800,4 @@ def fitness_kalendar():
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+
