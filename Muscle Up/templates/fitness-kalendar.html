@@ -64,32 +64,34 @@
                 {% for date, workouts in workouts.items() %}
                 <div class="day-block">
                     <h3>{{ date }}</h3>
-                    {% for workout in workouts %}
+                   {% for workout in workouts %}
                     <div class="workout-card">
-                        {% if workout.type == "Kraft" %}
-                            <strong>Krafttraining: {{ workout.exercise }}</strong>
-                            <ul>
-                                {% for s in workout.sets %}
-                                    <li>Gewicht: {{ s.weight }}kg | Wiederholungen: {{ s.reps }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% elif workout.type == "Cardio" %}
-                            <strong>Cardio: {{ workout.exercise }}</strong>
-                            <p>Dauer: {{ workout.sets.dauer }}min
-                            {% if workout.sets.strecke %}
-                                | Strecke: {{ workout.sets.strecke }}km
+                            {% if workout.type == "strength" %}
+                                <strong>Krafttraining: {{ workout.exercise }}</strong>
+                                <ul>
+                                    {% for s in workout.sets %}
+                                        <li>Gewicht: {{ s.weight }}kg | Wiederholungen: {{ s.reps }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% elif workout.type == "cardio" %}
+                                <strong>Cardio: {{ workout.exercise }}</strong>
+                                <p>Dauer: {{ workout.duration }}min
+                                {% if workout.distance %}
+                                    | Strecke: {{ workout.distance }}km
+                                {% endif %}
+                                {% if workout.sportart %}
+                                    | Sportart: {{ workout.sportart }}
+                                {% endif %}
+                                </p>
+                            {% elif workout.type == "restday" %}
+                                <strong>Ruhetag</strong>
                             {% endif %}
-                            {% if workout.sets.sportart %}
-                                | Sportart: {{ workout.sets.sportart }}
-                            {% endif %}
-                            </p>
-                        {% endif %}
-                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
-                            <button type="submit" class="delete-btn">Löschen</button>
-                        </form>
+                            <form method="post" action="{{ url_for('delete_workout_from_calendar', workout_id=workout.id) }}">
+                                <button type="submit" class="delete-btn">Löschen</button>
+                            </form>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
                 {% endfor %}
             </section>
         </main>
@@ -106,4 +108,5 @@
 </script>
 </body>
 </html>
+
 
