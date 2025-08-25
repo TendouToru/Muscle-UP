@@ -107,9 +107,9 @@
                     {% for workout in today_cardio_workouts %}
                     <div class="completed-exercise">
                         <h4>{{ workout.exercise }}</h4>
-                        <p>Dauer: {{ workout.sets.dauer }}min
+                        <p>Dauer: {{ workout.sets.duration }}min
                         {% if workout.sets.strecke %}
-                            | Strecke: {{ workout.sets.strecke }}km
+                            | Strecke: {{ workout.sets.distance }}km
                         {% endif %}
                         {% if workout.sets.sportart %}
                             | Sportart: {{ workout.sets.sportart }}
@@ -132,12 +132,13 @@
             <form id="exercise-form" class="form-login">
                 <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
                 <button type="submit" class="button">Übung starten</button>
+                {% if ruhe == True %}
+                    <form method="post" action="{{ url_for('post_restday') }}">
+                        <button type="submit" id="rest-btn" class="button">Restday</button>
+                    </form>
+                {% endif %}
             </form>
-            {% if ruhe == True %}
-                <form method="post" action="{{ url_for('post_restday') }}">
-                    <button type="submit" id="rest-btn" class="button">Restday</button>
-                </form>
-            {% endif %}
+            
     
             <div id="exercise-container" style="display:none;">
                 <h2 id="current-exercise"></h2>
@@ -329,6 +330,7 @@
 </script>
 </body>
 </html>
+
 
 
 
