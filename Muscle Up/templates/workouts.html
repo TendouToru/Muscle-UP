@@ -131,7 +131,7 @@
             <h3 class="container-header">Kraft Training</h3>
             <form id="exercise-form" class="form-login">
                 <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
-                <button type="submit">Übung starten</button>
+                <button type="submit" class="button">Übung starten</button>
             </form>
             {% if ruhe == True %}
                 <form method="post" action="{{ url_for('post_restday') }}">
@@ -329,6 +329,7 @@
 </script>
 </body>
 </html>
+
 
 
 
