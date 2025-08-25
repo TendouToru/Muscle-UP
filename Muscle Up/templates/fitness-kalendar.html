@@ -60,12 +60,13 @@
         </header>
 
         <main class="content">
-            <section class="workout-calendar">
+           <section class="workout-calendar">
                 {% for date, workouts in workouts.items() %}
                 <div class="day-block">
                     <h3>{{ date }}</h3>
-                   {% for workout in workouts %}
+                    {% for workout in workouts %}
                     <div class="workout-card">
+                        <div class="workout-details">
                             {% if workout.type == "strength" %}
                                 <strong>Krafttraining: {{ workout.exercise }}</strong>
                                 <ul>
@@ -86,12 +87,13 @@
                             {% elif workout.type == "restday" %}
                                 <strong>Ruhetag</strong>
                             {% endif %}
-                            <form method="post" action="{{ url_for('delete_workout_from_calendar', workout_id=workout.id) }}">
-                                <button type="submit" class="delete-btn">Löschen</button>
-                            </form>
                         </div>
-                        {% endfor %}
+                        <form method="post" action="{{ url_for('delete_workout_from_calendar', workout_id=workout.id) }}">
+                            <button type="submit" class="delete-btn">Löschen</button>
+                        </form>
                     </div>
+                    {% endfor %}
+                </div>
                 {% endfor %}
             </section>
         </main>
@@ -108,5 +110,6 @@
 </script>
 </body>
 </html>
+
 
 
