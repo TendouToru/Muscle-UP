@@ -486,6 +486,7 @@ def profile():
                            rank=rank,
                            progress=progress,
                            xp_for_next=xp_for_next,
+                           xp_remaining=xp_remaining,
                            username=session["username"])
 
 # --- Logout ---
@@ -798,5 +799,6 @@ def fitness_kalendar():
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+
 
 
