@@ -131,23 +131,21 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
 def calculate_level_and_progress(xp_total: int):
     level = 1
     base_xp = 100
-    factor = 1.5
-    xp_for_next = base_xp
+    xp_required_for_level = base_xp
 
-    # Temporäre Variable, um xp_total nicht zu ändern
-    temp_xp = xp_total
-
-    while temp_xp >= xp_for_next:
-        temp_xp -= xp_for_next
+    while xp_total >= xp_required_for_level:
+        xp_total -= xp_required_for_level
         level += 1
-        xp_for_next = int(xp_for_next * factor)
-        factor += 0.005
+        xp_required_for_level = int(xp_required_for_level * 1.5)
 
-    while not xp_for_next % 10 == 0:
-        xp_for_next += 1
+    while xp_required_for_level % 10 != 0:
+        xp_required_for_level += 1
 
-    progress = temp_xp / xp_for_next if xp_for_next > 0 else 0
-    return level, progress, int(xp_for_next), temp_xp
+    xp_for_next = xp_required_for_level
+    progress = xp_total / xp_for_next if xp_for_next > 0 else 0
+    xp_remaining_in_level = xp_total
+    
+    return level, progress, int(xp_for_next), xp_remaining_in_level
 
 # Stärke Funktionen
 def staerke(user_id: int):
@@ -800,4 +798,5 @@ def fitness_kalendar():
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+
 
