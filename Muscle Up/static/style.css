@@ -105,7 +105,7 @@ nav .link:hover {
     font-size: 16px;
 }
 
-.form-login button {
+.form-login .button {
     padding: 10px;
     background-color: var(--primary);
     color: var(--text);
@@ -117,10 +117,6 @@ nav .link:hover {
     transition: 0.3s;
 }
 
-.form-login button:hover {
-    background-color: var(--secondary);
-    color: var(--background);
-}
 
 .form-login label{
     text-decoration: underline;
@@ -156,7 +152,6 @@ main.content {
 
 #rest-btn{
     background-color: var(--success);
-    width: 350px;
     font-size: large;
 }
 
@@ -265,13 +260,6 @@ footer {
 
 .container{
     display: none;
-    background-color: var(--accent-dark);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 1rem 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 500px;
 }
 
 .container-header {
@@ -314,9 +302,6 @@ footer {
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
 }
-
-
-/* Cardio Container */
 
 /* Übungscontainer */
 #exercise-container {
@@ -619,6 +604,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
