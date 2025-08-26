@@ -336,7 +336,7 @@ footer {
     width: 100%;
     max-width: 400px;
 }
-#workout-overview h3 {
+#workout-overview h3, .cardio-overview h3 {
     text-align: center;
     color: var(--primary);
     margin-bottom: 0.5rem;
@@ -480,6 +480,10 @@ footer {
 @media (max-width: 768px) {
     .nav-center, .nav-top, .nav-user {
         display: none; /* Desktop-Nav ausblenden */
+    }
+
+    .mobile-menu.active{
+        display: block;
     }
 
     .hamburger {
