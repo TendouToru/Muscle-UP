@@ -42,6 +42,7 @@ nav .link:hover {
     gap: 20px;
     margin-bottom: 20px;
     margin-left: 75px;
+    margin-right: 5rem;
 }
 
 .nav-top a {
