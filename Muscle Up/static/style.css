@@ -458,7 +458,7 @@ footer {
 .mobile-menu {
     display: none;
     flex-direction: column;
-    background: #2c2c3f;
+    background: var(--card-bg);
     padding: 1rem;
     gap: 10px;
 }
