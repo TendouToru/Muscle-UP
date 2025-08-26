@@ -156,8 +156,24 @@ main.content {
     font-size: large;
 }
 
+/* Löschen-Button */
+.delete-btn {
+    background-color: var(--primary);
+    color: var(--text);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: var(--secondary);
+    color: var(--background);
+}
+
 #btn-row{
-    
     max-width: 400px;
     background-color: var(--accent-dark);
     margin-bottom: 1rem;
@@ -203,12 +219,6 @@ footer {
     gap: 20px;
 }
 
-.day-block h3 {
-    color: var(--primary);
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-}
-
 /* Einzelnes Workout als "Karte" */
 .workout-card {
     background-color: var(--card-bg);
@@ -223,22 +233,7 @@ footer {
     margin-bottom: 5px;
 }
 
-/* Löschen-Button */
-.delete-btn {
-    background-color: var(--primary);
-    color: var(--text);
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: 0.2s;
-}
 
-.workout-card .delete-btn:hover {
-    background-color: var(--secondary);
-    color: var(--background);
-}
 
 /* Mobil-Optimierung */
 @media (max-width: 480px) {
@@ -402,13 +397,16 @@ footer {
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 1rem;
+    margin: 1rem auto;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* rot sieht auch cool aus */
 }
 
 .day-block h3 {
     color: var(--primary);
     margin-bottom: 0.5rem;
+    font-size: 1.2rem;
 }
+
 
 /* Profil Card */
 .profile-card, .stats-card {
@@ -608,6 +606,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
