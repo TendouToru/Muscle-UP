@@ -94,7 +94,8 @@ nav .link:hover {
     background-color: var(--card-bg);
     flex-direction: column;
     gap: 12px;
-    max-width: 350px;
+    padding: 12px 15px;
+    max-width: 400px;
     width: 100%;
     margin: 0 auto;
 }
@@ -310,7 +311,7 @@ footer {
 
 #exercise-container h2 {
     color: var(--primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-align: center;
 }
 
@@ -350,7 +351,6 @@ footer {
 
 /* Abgeschlossene Übungen */
 .completed-exercise {
-    display:none;
     background-color: var(--card-bg);
     border-left: 4px solid var(--primary);
     margin-bottom: 1rem;
@@ -606,6 +606,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
