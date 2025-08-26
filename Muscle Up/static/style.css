@@ -59,18 +59,6 @@ header.head .headline {
     font-size: 16px;
 }
 
-.form-login .button {
-    padding: 10px;
-    background-color: var(--primary);
-    color: var(--text);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
 
 .form-login label{
     text-decoration: underline;
@@ -97,6 +85,8 @@ main.content {
     font-weight: bold;
     transition: all 0.2s;
     margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
 }
 
 .button:hover {
@@ -107,6 +97,7 @@ main.content {
 #rest-btn{
     background-color: var(--success);
     font-size: large;
+    width: 400px;
 }
 
 /* Löschen-Button */
@@ -208,13 +199,21 @@ footer {
 
 .container{
     display: none;
+    background-color: var(--card-bg);
 }
 
 .container-header {
     color: var(--primary);
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 2rem;
     text-decoration: underline;
+    font-size: 2rem;
+}
+
+.overview{
+    display: flex;
+    margin: 0;
+    gap: 50px;
 }
 
 /* Cardio Container */
@@ -249,6 +248,7 @@ footer {
     background-color: var(--card-bg);
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    flex-direction: column;
 }
 
 /* Übungscontainer */
@@ -257,7 +257,7 @@ footer {
     padding: 1rem;
     border-radius: 10px;
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 

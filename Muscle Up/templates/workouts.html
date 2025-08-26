@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
     <title>Muscle Up | Training</title>
 </head>
 <body>
@@ -102,27 +103,7 @@
                     <button type="submit" class="button">Speichern</button>
                 </form>
             </div>
-            <div id="cardio-overview">
-                <h3>Heutige Cardio-Übungen</h3>
-                <div id="completed-cardio-exercises">
-                    {% for workout in today_cardio_workouts %}
-                    <div class="completed-exercise">
-                        <h4>{{ workout.exercise }}</h4>
-                        <p>Dauer: {{ workout.sets.duration }}min
-                        {% if workout.sets.strecke %}
-                            | Strecke: {{ workout.sets.distance }}km
-                        {% endif %}
-                        {% if workout.sets.sportart %}
-                            | Sportart: {{ workout.sets.sportart }}
-                        {% endif %}
-                        </p>
-                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
-                            <button type="submit" class="delete-btn">Löschen</button>
-                        </form>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+
         </div>
 
     
@@ -145,8 +126,10 @@
                 <ul id="sets-list"></ul>
                 <button id="finish-exercise" class="button">Übung beenden</button>
             </div>
-    
-            <div id="workout-overview">
+
+        </div>
+       <div class="overview"></div>
+        <div id="workout-overview">
                 <h3>Heutige Übungen</h3>
                 <div id="completed-exercises">
                     {% for exercise in today_workouts %}
@@ -159,6 +142,28 @@
                         </ul>
                         <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
                             <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+                <div id="cardio-overview">
+                <h3>Heutige Cardio-Übungen</h3>
+                <div id="completed-cardio-exercises">
+                    {% for workout in today_cardio_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ workout.exercise }}</h4>
+                        <p>Dauer: {{ workout.sets.duration }}min
+                        {% if workout.sets.strecke %}
+                            | Strecke: {{ workout.sets.distance }}km
+                        {% endif %}
+                        {% if workout.sets.sportart %}
+                            | Sportart: {{ workout.sets.sportart }}
+                        {% endif %}
+                        </p>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
+                            <button type="submit" class="delete-btn">Löschen</button>
                         </form>
                     </div>
                     {% endfor %}
