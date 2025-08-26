@@ -95,7 +95,7 @@ nav .link:hover {
     flex-direction: column;
     gap: 12px;
     max-width: 350px;
-    width: 90%;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -608,6 +608,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
