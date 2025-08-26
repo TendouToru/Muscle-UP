@@ -91,6 +91,7 @@ nav .link:hover {
 /* Formulare (Login, Register, Workout hinzufügen) */
 .form-login {
     display: flex;
+    background-color: var(--card-bg);
     flex-direction: column;
     gap: 12px;
     max-width: 350px;
@@ -211,7 +212,7 @@ footer {
 /* Einzelnes Workout als "Karte" */
 .workout-card {
     background-color: var(--card-bg);
-    padding: 12px 15px;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     display: flex;
@@ -223,7 +224,7 @@ footer {
 }
 
 /* Löschen-Button */
-.workout-card .delete-btn {
+.delete-btn {
     background-color: var(--primary);
     color: var(--text);
     border: none;
@@ -232,7 +233,6 @@ footer {
     cursor: pointer;
     font-size: 0.85rem;
     transition: 0.2s;
-    margin-left: 20px;
 }
 
 .workout-card .delete-btn:hover {
@@ -608,6 +608,7 @@ footer {
         display: block; /* Hamburger anzeigen */
     }
 }
+
 
 
 
