@@ -478,12 +478,12 @@ footer {
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .nav-center, .nav-top, .nav-user {
+     .nav-top, .nav-user {
         display: none; /* Desktop-Nav ausblenden */
     }
 
     .mobile-menu.active{
-        display: block;
+        display: flex;
     }
 
     .hamburger {
