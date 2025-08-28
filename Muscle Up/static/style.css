@@ -86,7 +86,6 @@ main.content {
 .button {
     background-color: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
     color: var(--text);
-    border: none;
     padding: 12px 24px;
     border-radius: 8px;
     border-color: var(--secondary);
@@ -187,6 +186,10 @@ footer {
     flex-wrap: wrap;
     font-size: 0.95rem;
     margin-bottom: 5px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 
@@ -265,6 +268,11 @@ footer {
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     flex-direction: column;
+}
+
+.cardio-overview{
+    max-width: 400px;
+    width: 100%;
 }
 
 /* Übungscontainer */
