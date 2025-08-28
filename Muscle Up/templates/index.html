@@ -44,11 +44,11 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Training</a>
-        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
+            <a href="{{ url_for('workout_page') }}">Training</a>
+            <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         {% else %}
             <a href="{{ url_for('login') }}">Login</a>

@@ -65,6 +65,12 @@ nav .link:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(13, 13, 30, 0.8); /* Semi-transparenter Hintergrund */
+    border-bottom: 1px solid var(--secondary);
+    position: sticky; /* Bleibt beim Scrollen am oberen Rand */
+    top: 0;
+    z-index: 1000;
 }
 
 
