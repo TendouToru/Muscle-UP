@@ -271,7 +271,8 @@ footer {
 }
 
 .cardio-overview{
-    max-width: 400px;
+    margin-top: 2rem;
+    max-width: 200px;
     width: 100%;
 }
 
@@ -358,7 +359,7 @@ footer {
 #workout-overview {
     margin-top: 2rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 200px;
 }
 #workout-overview h3, #cardio-overview h3 {
     text-align: center;
