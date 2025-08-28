@@ -1,11 +1,12 @@
-:root{
+:root {
     --background: #1e1e2f;
-    --primary: #e74c3c;
-    --secondary: #f1c40f;
+    --primary: #00e5ff; /* Helles, leuchtendes Cyan */
+    --secondary: #00aaff; /* Etwas dunkleres Blau */
     --text: #ecf0f1;
     --success: #4caf50;
     --card-bg: #2c2c3f;
     --accent-dark: #3a3a55;
+    --glow-effect: 0 0 10px var(--primary); /* Neuer "Glow"-Effekt */
 }
 
 /* Grundlayout */
