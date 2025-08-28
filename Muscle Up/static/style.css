@@ -227,8 +227,6 @@ footer {
 
 .overview{
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin: 0;
     gap: 50px;
 }
@@ -273,7 +271,7 @@ footer {
 }
 
 .cardio-overview{
-    margin: 0;
+    margin-top: 2rem;
     width: 100%;
 }
 
@@ -358,15 +356,13 @@ footer {
 
 /* Übersicht chronologisch */
 #workout-overview {
-    margin: 0;
+    margin-top: 2rem;
     max-width: 200px;
 }
 #workout-overview h3, #cardio-overview h3 {
     text-align: center;
     color: var(--primary);
-    margin: 0;
-    padding: 1rem 0;
-    white-space: nowrap;
+    margin-bottom: 0.5rem;
 }
 
 .day-block {
