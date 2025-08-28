@@ -229,6 +229,7 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
     margin: 0;
     gap: 50px;
 }
