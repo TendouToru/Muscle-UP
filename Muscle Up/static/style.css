@@ -52,6 +52,12 @@ header.head .headline {
     max-width: 400px;
     width: 100%;
     margin: 0 auto;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 .form-login input {
@@ -83,6 +89,7 @@ main.content {
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
+    border-color: var(--secondary);
     cursor: pointer;
     font-weight: bold;
     text-transform: uppercase;
@@ -239,6 +246,10 @@ footer {
     color: var(--secondary);
     transition: all 0.2s ease;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 .cardio-card:hover {
@@ -375,6 +386,10 @@ footer {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 100%;
     max-width: 500px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 /* Formular fürs Profil */
