@@ -270,10 +270,6 @@ footer {
     flex-direction: column;
 }
 
-.cardio-overview{
-    margin-top: 2rem;
-    width: 100%;
-}
 
 /* Übungscontainer */
 #exercise-container {
@@ -355,9 +351,10 @@ footer {
 }
 
 /* Übersicht chronologisch */
-#workout-overview {
+#workout-overview, #cardio-overview {
+    flex: 1;
+    min-width: 250px;
     margin-top: 2rem;
-    max-width: 200px;
 }
 #workout-overview h3, #cardio-overview h3 {
     text-align: center;
