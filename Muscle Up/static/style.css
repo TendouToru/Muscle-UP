@@ -391,7 +391,7 @@ footer {
     }
 
     #workout-overview h3, #cardio-overview h3 {
-        text-align: center; /* mittig wirkt auf Handy besser */
+        text-align: center; 
     }
 }
 

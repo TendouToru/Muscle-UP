@@ -601,7 +601,7 @@ def add_cardio_workout():
     sets_data = {}
     exercise_name = workout_type
 
-    if workout_type == ("Laufen" or "Schwimmen"):
+    if workout_type == ["Laufen", "Schwimmen"]:
         distance = data.get("distance")
         if distance is None:
             return jsonify({"error": "Distanz fehlt"}), 400
