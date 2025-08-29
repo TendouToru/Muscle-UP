@@ -285,21 +285,22 @@
         cardioFormsArray.forEach(form => {
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const workoutType = this.querySelector('select[name="type"]').value;
-
+                const workoutType = this.dataset.type;
+                const duration = this.querySelector('input[name="duration"]').value;
+                
                 let data = {
                     type: workoutType,
                     duration: parseFloat(duration)
                 };
 
-                const distanceInput = this.querySelector('input[name="distance"]');
-                if (distanceInput) {
-                    data.distance = parseFloat(distanceInput.value);
-                }
-
-                const sportartInput = this.querySelector('input[name="sportart"]');
-                if (sportartInput) {
-                    data.sportart = sportartInput.value;
+                if (workoutType === 'Laufen' || workoutType === 'Schwimmen') {
+                    const distance = this.querySelector('input[name="distance"]').value;
+                    if (distance) {
+                        data.distance = parseFloat(distance);
+                    }
+                } else if (workoutType === 'Spielsport') {
+                    const sportart = this.querySelector('input[name="sportart"]').value;
+                    data.sportart = sportart;
                 }
                 
                 const response = await fetch('/add_cardio_workout', {

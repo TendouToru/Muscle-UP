@@ -155,10 +155,6 @@ main.content {
     font-weight: bold;
     transition: all 0.2s;
     margin: 0;
-    box-shadow: 
-        0 0 15px var(--secondary),
-        0 4px 15px rgba(0,0,0,0.5);
-    border: 1px solid var(--accent-dark);
 }
 
 #cardio-btn:hover, #kraft-training-btn:hover{

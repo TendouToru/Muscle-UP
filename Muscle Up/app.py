@@ -594,7 +594,7 @@ def add_cardio_workout():
     if not data or "type" not in data or "duration" not in data:
         return jsonify({"error": "Fehlende Daten"}), 400
 
-    workout_type = data.get("type")
+    workout_type = data.get("type", "").strip().capitalize()   
     duration = data.get("duration")
     today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
 
