@@ -302,7 +302,7 @@ footer {
 .cardio-form form input{
     margin-bottom: 10px;
     width: 100%;
-    padding: 1rem 0;
+    padding: 0 1rem;
 }
 
 /* Container für die Übung */
