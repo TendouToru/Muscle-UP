@@ -280,6 +280,7 @@ footer {
 .cardio-header{
     color: var(--secondary);
     text-align: center;
+    font-size: 1.6rem;
 }
 
 .cardio-form form{
