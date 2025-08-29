@@ -279,10 +279,10 @@ footer {
 /* Übungscontainer */
 #exercise-container {
     background-color: var(--card-bg);
-    margin: 0;
+    padding: 5rem;
     border-radius: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: 450px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
