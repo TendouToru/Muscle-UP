@@ -286,7 +286,6 @@ footer {
     width: 100%;
     max-width: 400px;         
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -303,11 +302,18 @@ footer {
 /* Formulare */
 #exercise-container form {
     display: flex;
+    background-color: var(--card-bg);
     flex-direction: column;
     justify-content: center;
     gap: 0.8rem;
     width: 100%;  
-    box-sizing: border-box;            
+    border-radius: 12px;
+    padding: 15px 15px 10px;
+    box-sizing: border-box;    
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);        
 }
 
 /* Eingabefelder */
