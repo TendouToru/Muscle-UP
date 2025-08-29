@@ -279,6 +279,20 @@ footer {
 
 .cardio-header{
     color: var(--secondary);
+    text-align: center;
+}
+
+.cardio-form form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--card-bg);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark); 
 }
 
 
@@ -416,6 +430,7 @@ footer {
     text-align: center;
     color: var(--primary);
     margin-bottom: 0.5rem;
+    text-decoration: underline;
 }
 
 .day-block {
