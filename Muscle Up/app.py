@@ -589,7 +589,7 @@ def workout_page():
 def add_cardio_workout():
     if "user_id" not in session:
         return jsonify({"error": "Nicht angemeldet"}), 401
-
+    print("DEBUG REQ:", data)
     data = request.get_json()
     if not data or "type" not in data or "duration" not in data:
         return jsonify({"error": "Fehlende Daten"}), 400
