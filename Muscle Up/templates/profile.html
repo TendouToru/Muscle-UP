@@ -74,10 +74,10 @@
                 <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
                 <form method="post" class="form-profile">
                     <label>Körpergewicht (kg):</label>
-                    <input type="number" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
+                    <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
 
-                    <label>Größe (cm):</label>
-                    <input type="number" step="1" name="height" value="{{ profile.height or '' }}">
+                    <label>Körpegröße (cm):</label>
+                    <input type="number" placeholder="Gib deine Größe ein!" step="1" name="height" value="{{ profile.height or '' }}">
 
                     <button type="submit" class="button">Speichern</button>
                 </form>
