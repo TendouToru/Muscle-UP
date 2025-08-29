@@ -319,7 +319,7 @@ footer {
 }
 
 /* Buttons */
-#exercise-container .button {
+#exercise-container button {
     margin-top: 15px;
     width: 100%;    
     display: flex;
