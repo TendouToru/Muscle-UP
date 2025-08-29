@@ -277,29 +277,53 @@ footer {
 
 
 /* Übungscontainer */
+/* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 1rem 3rem 2rem;
-    margin: 2rem auto;
-    align-items: center;
+    padding: 2rem;
     border-radius: 10px;
     width: 100%;
     max-width: 450px;
+    margin: 2rem auto; /* sorgt dafür, dass der Container zentriert ist */
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    gap: 1rem;
-}
 
-#exercise-container form{
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* zentriert Inhalte horizontal */
+    gap: 1rem; /* Abstand zwischen Elementen */
 }
 
+/* Überschrift im Container */
 #exercise-container h2 {
     color: var(--primary);
-    margin-bottom: 1rem;
     text-align: center;
+    margin-bottom: 1rem;
 }
+
+/* Formulare im Container */
+#exercise-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Eingaben & Button mittig */
+    gap: 0.8rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Eingabefelder */
+#exercise-container input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+}
+
+/* Button */
+#exercise-container .button {
+    width: 100%;
+    max-width: 300px;
+}
+
 
 /* Satzliste */
 #sets-list {
