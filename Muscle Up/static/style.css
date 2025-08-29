@@ -279,8 +279,8 @@ footer {
 /* Übungscontainer */
 #exercise-container {
     background-color: var(--card-bg);
-    text-align: center;
-    padding: 4rem;
+    justify-content: center;
+    padding: 3rem;
     border-radius: 10px;
     width: 100%;
     max-width: 450px;
