@@ -113,8 +113,8 @@ main.content {
 
 /* Löschen-Button */
 .delete-btn {
-    background-color: var(--primary);
-    color: var(--text);
+    background-color: var(--secondary);
+    color: var(--background);
     border: none;
     padding: 6px 10px;
     border-radius: 6px;
@@ -124,8 +124,8 @@ main.content {
 }
 
 .delete-btn:hover {
-    background-color: var(--secondary);
-    color: var(--background);
+    background-color: var(--primary);
+    color: var(--text);
 }
 
 #btn-row{
@@ -302,7 +302,8 @@ footer {
 .cardio-form form input{
     margin-bottom: 10px;
     width: 100%;
-    padding: 0 1rem;
+    margin-left: 1rem ;
+    margin-right: 1rem;
 }
 
 /* Container für die Übung */
