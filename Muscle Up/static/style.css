@@ -281,12 +281,12 @@ footer {
 /* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 0.5rem 3rem 2rem;          /* gleichmäßiges Padding */
+    padding: 0 3rem 2rem;          
     border-radius: 10px;
     width: 100%;
     max-width: 400px;         
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    margin: 0 auto;
+    margin: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -311,16 +311,16 @@ footer {
 
 /* Eingabefelder */
 #exercise-container input {
-    width: 100%;              /* volle Containerbreite */
+    width: 100%;             
     padding: 10px;
     border-radius: 6px;
     border: none;
-    box-sizing: border-box;   /* verhindert "Überlaufen" */
+    box-sizing: border-box;   
 }
 
 /* Buttons */
 #exercise-container .button {
-    margin-top: 5px;
+    margin-top: 15px;
     width: 100%;    
     display: flex;
     text-align: center;        
@@ -349,7 +349,7 @@ footer {
 
 #sets-list li button {
     background-color: var(--primary);
-    color: var(--text);
+    color: var(--background);
     border: none;
     border-radius: 4px;
     padding: 2px 6px;
