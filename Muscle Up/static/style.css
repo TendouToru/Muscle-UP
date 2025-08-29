@@ -269,7 +269,7 @@ footer {
 
 .cardio-form {
     display: none; /* Standardmäßig unsichtbar */
-    padding: 1rem;
+    padding: 0 1rem 1rem;
     background-color: var(--card-bg);
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
@@ -286,7 +286,10 @@ footer {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: 100%;
     align-items: center;
+    border-radius: 12px;
+    padding: 1rem 0;
     background-color: var(--card-bg);
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     box-shadow: 
@@ -295,6 +298,9 @@ footer {
     border: 1px solid var(--accent-dark); 
 }
 
+.cardio-form form input{
+    margin-bottom: 10px;
+}
 
 /* Container für die Übung */
 #exercise-container {
