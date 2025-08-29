@@ -304,6 +304,7 @@ footer {
 #exercise-container form {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 0.8rem;
     width: 100%;  
     box-sizing: border-box;            
@@ -323,7 +324,7 @@ footer {
     margin-top: 15px;
     width: 100%;    
     display: flex;
-    text-align: center;        
+    justify-content: center;       
     box-sizing: border-box;
 }
 
