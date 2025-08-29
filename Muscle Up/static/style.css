@@ -280,7 +280,7 @@ footer {
 #exercise-container {
     background-color: var(--card-bg);
     padding: 1rem 3rem 2rem;
-    margin: 0 auto;
+    margin: 2rem auto;
     align-items: center;
     border-radius: 10px;
     width: 100%;
