@@ -279,23 +279,23 @@ footer {
 /* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 1.5rem 2rem;   /* weniger Padding */
+    padding: 1.5rem;          /* gleichmäßiges Padding */
     border-radius: 10px;
     width: 100%;
-    max-width: 400px;       /* schmaler, damit es nicht gestreckt wirkt */
-    margin: 1rem auto;      /* oben weniger Platz */
+    max-width: 400px;         /* feste Breite für Gleichmäßigkeit */
+    margin: 1rem auto;        /* zentriert horizontal */
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 
     display: flex;
     flex-direction: column;
-    align-items: center;    /* Inhalte mittig */
+    align-items: stretch;     /* sorgt dafür, dass Kinder gleich breit sind */
     gap: 1rem;
 }
 
 /* Überschrift */
 #exercise-container h2 {
     color: var(--primary);
-    margin-bottom: 0.5rem;  /* weniger Abstand */
+    margin-bottom: 0.5rem;
     text-align: center;
 }
 
@@ -303,24 +303,23 @@ footer {
 #exercise-container form {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 0.8rem;
-    width: 100%;
-    max-width: 320px;   /* enger machen */
+    width: 100%;              /* füllt Container vollständig */
 }
 
-/* Eingaben */
+/* Eingabefelder */
 #exercise-container input {
-    width: 100%;
+    width: 100%;              /* volle Containerbreite */
     padding: 10px;
     border-radius: 6px;
     border: none;
+    box-sizing: border-box;   /* verhindert "Überlaufen" */
 }
 
 /* Buttons */
 #exercise-container .button {
-    width: 100%;
-    max-width: 320px;   /* an die Inputs anpassen */
+    width: 100%;              /* gleiche Breite wie Inputs */
+    box-sizing: border-box;
 }
 
 
