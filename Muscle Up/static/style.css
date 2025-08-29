@@ -309,55 +309,53 @@ footer {
 /* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 0 3rem 2rem;          
+    padding: 2rem;
     border-radius: 10px;
     width: 100%;
-    max-width: 400px;         
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-/* Überschrift */
-#exercise-container h2 {
-    color: var(--primary);
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-/* Formulare */
-#exercise-container form {
-    display: flex;
-    background-color: var(--card-bg);
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.8rem;
-    width: 100%;  
-    border-radius: 12px;
-    padding: 15px 15px 10px;
-    box-sizing: border-box;    
+    max-width: 400px;
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
-    border: 1px solid var(--accent-dark);        
+    border: 1px solid var(--accent-dark);
+    /* Flexbox für vertikale Zentrierung */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem; /* Abstand zwischen den Elementen */
+    margin: 2rem auto 0 auto; /* Zentriert den Container horizontal */
 }
 
-/* Eingabefelder */
-#exercise-container input {
-    width: 100%;             
+/* Überschrift innerhalb des Containers */
+#exercise-container h2 {
+    color: var(--primary);
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* Die Form für die Eingabefelder */
+#set-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    box-sizing: border-box; 
+}
+
+/* Eingabefelder innerhalb der Form */
+#set-form input {
+    width: 100%; 
     padding: 10px;
     border-radius: 6px;
     border: none;
-    box-sizing: border-box;   
+    box-sizing: border-box; 
+    background-color: var(--background);
+    color: var(--text);
 }
 
-/* Buttons */
-#exercise-container .button {
-    width: 100%;    
+/* Buttons innerhalb der Form */
+#set-form .button {
+    width: 100%;
 }
-
 
 
 /* Satzliste */
