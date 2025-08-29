@@ -80,7 +80,6 @@ main.content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 /* Buttons */
@@ -221,6 +220,7 @@ footer {
 .container{
     display: none;
     justify-content: center;
+    flex-direction: column;
 }
 
 .container-header {
