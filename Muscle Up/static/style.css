@@ -279,11 +279,10 @@ footer {
 /* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 1.5rem;          /* gleichmäßiges Padding */
+    padding: 1rem 3rem 2rem;          /* gleichmäßiges Padding */
     border-radius: 10px;
     width: 100%;
-    max-width: 400px;         /* feste Breite für Gleichmäßigkeit */
-    margin: 1rem auto;        /* zentriert horizontal */
+    max-width: 400px;         
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 
     display: flex;
@@ -304,7 +303,8 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    width: 100%;              /* füllt Container vollständig */
+    width: 100%;  
+    box-sizing: border-box;            
 }
 
 /* Eingabefelder */
