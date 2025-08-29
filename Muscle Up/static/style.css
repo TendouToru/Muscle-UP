@@ -276,41 +276,40 @@ footer {
 }
 
 
-/* Übungscontainer */
 /* Container für die Übung */
 #exercise-container {
     background-color: var(--card-bg);
-    padding: 2rem;
+    padding: 1.5rem 2rem;   /* weniger Padding */
     border-radius: 10px;
     width: 100%;
-    max-width: 450px;
-    margin: 2rem auto; /* sorgt dafür, dass der Container zentriert ist */
+    max-width: 400px;       /* schmaler, damit es nicht gestreckt wirkt */
+    margin: 1rem auto;      /* oben weniger Platz */
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 
     display: flex;
     flex-direction: column;
-    align-items: center; /* zentriert Inhalte horizontal */
-    gap: 1rem; /* Abstand zwischen Elementen */
+    align-items: center;    /* Inhalte mittig */
+    gap: 1rem;
 }
 
-/* Überschrift im Container */
+/* Überschrift */
 #exercise-container h2 {
     color: var(--primary);
+    margin-bottom: 0.5rem;  /* weniger Abstand */
     text-align: center;
-    margin-bottom: 1rem;
 }
 
-/* Formulare im Container */
+/* Formulare */
 #exercise-container form {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Eingaben & Button mittig */
+    align-items: center;
     gap: 0.8rem;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;   /* enger machen */
 }
 
-/* Eingabefelder */
+/* Eingaben */
 #exercise-container input {
     width: 100%;
     padding: 10px;
@@ -318,11 +317,12 @@ footer {
     border: none;
 }
 
-/* Button */
+/* Buttons */
 #exercise-container .button {
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;   /* an die Inputs anpassen */
 }
+
 
 
 /* Satzliste */
