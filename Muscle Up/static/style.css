@@ -286,7 +286,7 @@ footer {
     width: 100%;
     max-width: 400px;         
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    margin: 1rem auto;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -320,8 +320,10 @@ footer {
 
 /* Buttons */
 #exercise-container .button {
+    margin-top: 5px;
     width: 100%;    
-    display: flex;        
+    display: flex;
+    text-align: center;        
     box-sizing: border-box;
 }
 
