@@ -155,7 +155,7 @@
                     <div class="completed-exercise">
                         <h4>{{ workout.exercise }}</h4>
                         <p>Dauer: {{ workout.sets.duration }}min
-                        {% if workout.sets.strecke %}
+                        {% if workout.sets.distance %}
                             | Strecke: {{ workout.sets.distance }}km
                         {% endif %}
                         {% if workout.sets.sportart %}
