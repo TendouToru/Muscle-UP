@@ -61,7 +61,7 @@ header.head .headline {
 }
 
 .form-login input {
-    padding: 10px;
+    padding: 10px 15px;
     border: none;
     border-radius: 6px;
     font-size: 16px;
