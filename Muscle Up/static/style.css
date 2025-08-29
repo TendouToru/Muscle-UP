@@ -309,8 +309,8 @@ footer {
 /* Container für die Übung */
 #kraft-training{
     align-items: center;
-    width: 100%;
-    max-width: 400px;
+   /* width: 100%;
+    max-width: 400px;*/
 }
 
 #exercise-container {
@@ -326,6 +326,7 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 1.5rem; /* Abstand zwischen den Elementen */
     margin: 0; /* Zentriert den Container horizontal */
 }
@@ -350,6 +351,7 @@ footer {
     width: 100%; 
     padding: 10px;
     border-radius: 6px;
+    font-size: 16px;
     border: none;
     box-sizing: border-box; 
     background-color: var(--background);
