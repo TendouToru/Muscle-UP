@@ -307,12 +307,17 @@ footer {
 }
 
 /* Container für die Übung */
+#kraft-training{
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
 #exercise-container {
     background-color: var(--card-bg);
     padding: 2rem;
     border-radius: 10px;
     width: 100%;
-    max-width: 400px;
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
@@ -322,13 +327,12 @@ footer {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem; /* Abstand zwischen den Elementen */
-    margin: 2rem auto 0 auto; /* Zentriert den Container horizontal */
+    margin: 0; /* Zentriert den Container horizontal */
 }
 
 /* Überschrift innerhalb des Containers */
 #exercise-container h2 {
     color: var(--primary);
-    margin-bottom: 0;
     text-align: center;
 }
 
@@ -353,7 +357,7 @@ footer {
 }
 
 /* Buttons innerhalb der Form */
-#set-form .button {
+#set-form .button, #finish-exercise{
     width: 100%;
 }
 
