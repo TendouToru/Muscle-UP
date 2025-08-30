@@ -11,28 +11,26 @@
 <body>
     <div class="wrapper">
         <header class="head">
-            <h1 class="headline">Fitness-Kalender</h1>
-            <div class="nav-bar">
-                 <!-- Links: Logo -->
-                <h1 class="headline">Muscle Up</h1>
+    <h1 class="headline">Fitness-Kalender</h1>
+    <div class="nav-bar">
+        <h1 class="headline">Muscle Up</h1>
 
-                <!-- Mitte: Navigation (nur Desktop) -->
-                <nav class="nav-top">
-                    <a href="{{ url_for('index') }}" class="link">Home</a>
-                    <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
-                    <a href="{{ url_for('workout_page') }}" class="link">Training</a>
-                </nav>
+        <nav class="nav-top">
+            <a href="{{ url_for('index') }}" class="link">Home</a>
+            <a href="{{ url_for('profile') }}" class="link">Mein Profil</a>
+            <a href="{{ url_for('workout_page') }}" class="link">Training</a>
+        </nav>
 
-        <!-- Rechts: Userbereich / Login -->
         {% if 'user_id' in session %}
         <div class="nav-user">
             <div class="dropdown">
                 <button class="dropbtn">
                     <img src="{{ url_for('static', filename='default.png.png') }}" 
-                         alt="Profil" class="profile-pic">
+                        alt="Profil" class="profile-pic">
                 </button>
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
+                    <a href="{{ url_for('profile') }}">Mein Profil</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </div>
@@ -44,24 +42,22 @@
         </nav>
         {% endif %}
 
-        <!-- Hamburger Button (nur Mobile) -->
         <button class="hamburger" onclick="toggleMenu()">☰</button>
     </div>
 
-    <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('workout_page') }}">Training</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
-            <a href="{{ url_for('workout_page') }}">Training</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         {% else %}
             <a href="{{ url_for('login') }}">Login</a>
             <a href="{{ url_for('register') }}">Registrieren</a>
         {% endif %}
     </nav>
-        </header>
+</header>
 
         <main class="content">
            <section class="workout-calendar">
