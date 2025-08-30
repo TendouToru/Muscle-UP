@@ -68,6 +68,7 @@
             <thead>
                 <tr id="trh">
                     <th>Platz</th>
+                    <th>Profil</th>
                     <th>Benutzer</th>
                     <th>Level</th>
                     <th>Rang</th>
@@ -78,10 +79,17 @@
                 {% for player in leaderboard %}
                 <tr id="trb">
                     <td>{{ loop.index }}</td>
-                    <td>{{ player.username }}</td>
+                    <td><img src="{{ url_for('static', filename=player.profile_pic) }}" 
+                         alt="Profil" class="profile-pic-small"></td>
+                    <td>{% if player.streak >= 3 %}
+                        🔥{{ player.streak }}
+                    {% endif %}
+                    {{ player.username }}</td>
                     <td>{{ player.level }}</td>
-                    <td>{{ player.rank }}</td>
-                    <td>{{ player.xp }}</td>
+                    <td><img src="{{ url_for('static', filename='ranks/' ~ player.rank|lower ~ '.png') }}" 
+                         alt="{{ player.rank }}" class="rank-pic">
+                    {{ player.rank }}</td>
+                    <td>{{ player.xpformat }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

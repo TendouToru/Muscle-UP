@@ -374,11 +374,26 @@ def index():
             "username": row["username"],
             "xp": row["xp_total"],
             "level": level,
-            "rank": rank
+            "rank": rank,
+            "profile_pic": row["profile_pic"] if row["profile_pic"] else "default.png",
+            "streak": row["streak_days"] or 0
         })
 
     return render_template("index.html", leaderboard=leaderboard_data)
 
+@app.template_filter("xpformat")
+def xpformat_filter(value):
+    try:
+        value = int(value)
+    except:
+        return value
+    if value >= 1_000_000_000:
+        return f"{value/1_000_000_000:.1f}Mrd"
+    elif value >= 1_000_000:
+        return f"{value/1_000_000:.1f}Mio"
+    elif value >= 1_000:
+        return f"{value/1_000:.1f}k"
+    return str(value)
 
 
 
