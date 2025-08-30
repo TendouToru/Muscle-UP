@@ -66,6 +66,7 @@ header.head .headline {
     border-radius: 6px;
     font-size: 16px;
     background-color: var(--background);
+    color: var(--text);
 }
 
 
@@ -332,8 +333,13 @@ footer {
     max-width: 400px;*/
 }
 
+#exercise-form{
+    margin: 0;
+}
+
 #exercise-name{
     background-color: var(--background);
+    color: var(--text);
 }
 
 #exercise-container {
