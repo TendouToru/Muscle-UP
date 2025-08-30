@@ -20,7 +20,7 @@
         </header>
 
         <main class="content">
-            <form method="POST" class="form-login">
+            <form method="POST" class="form-login" id="login-form">
                 <label>Benutzername:</label>
                 <input type="text" name="username" placeholder="Benutzername" required>
 
@@ -29,7 +29,7 @@
 
                 <button type="submit" class="button">Einloggen</button>
             </form>
-            <p>Kein Account? <a href="{{url_for('register')}}">Registrieren!</a></p>
+            <p>Kein Account? <a class="a-tag" href="{{url_for('register')}}">Registrieren!</a></p>
         </main>
 
         <footer>
