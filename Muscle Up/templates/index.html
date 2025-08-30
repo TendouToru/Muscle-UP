@@ -86,7 +86,7 @@
                     {% endif %}
                     {{ player.username }}</td>
                     <td>{{ player.level }}</td>
-                    <td><img src="{{ url_for('static', filename='ranks/' ~ player.rank|lower ~ '.png') }}" 
+                    <td><img src="{{ url_for('static', filename='ranks/' ~ player.rank|lower ~ '.jpg') }}" 
                          alt="{{ player.rank }}" class="rank-pic">
                     {{ player.rank }}</td>
                     <td>{{ player.xp|xpformat }}</td>
