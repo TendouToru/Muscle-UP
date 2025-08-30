@@ -51,10 +51,10 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Training</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
+            <a href="{{ url_for('workout_page') }}">Training</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         {% else %}
             <a href="{{ url_for('login') }}">Login</a>
@@ -106,13 +106,14 @@
             &copy; 2024 Muscle Up | <a href="#" class="link">Impressum</a>
         </footer>
     </div>
-<script>
-    function toggleMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('active');
-    }
-</script>
+
 </body>
+<script>
+function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+}
+</script>
 </html>
 
 
