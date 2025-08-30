@@ -75,12 +75,18 @@ header.head .headline {
 
 #login-form{
     justify-content: center;
+    align-items: center;
     background-color: var(--background);
+}
+
+#login-form input{
+    background-color: var(--card-bg);
     color: var(--text);
 }
 
 .a-tag{
     text-decoration: underline;
+    color: var(--text);
 }
 
 /* Hauptinhalt */
