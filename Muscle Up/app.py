@@ -375,7 +375,7 @@ def index():
             "xp": row["xp_total"],
             "level": level,
             "rank": rank,
-            "profile_pic": row["profile_pic"] if row["profile_pic"] else "default.png",
+            #"profile_pic": row["profile_pic"] if row["profile_pic"] else "default.png",
             "streak": row["streak_days"] or 0
         })
 
