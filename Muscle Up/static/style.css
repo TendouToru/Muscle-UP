@@ -660,6 +660,7 @@ footer {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+    border: 1px solid var(--secondary);
 }
 
 .rank-pic {
@@ -668,7 +669,7 @@ footer {
     margin-right: 5px;
     vertical-align: middle;
     border-radius: 50%;
-    border-color: var(--primary);
+    border: 1px solid var(--secondary)
 }
 
 .streak-icon {
