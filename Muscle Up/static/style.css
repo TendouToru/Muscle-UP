@@ -41,7 +41,11 @@ header.head .headline {
     text-decoration: underline;
 }
 
-
+#register-head{
+    text-align: center;
+    color: var(--primary);
+    text-decoration: underline;
+}
 
 /* Formulare (Login, Register, Workout hinzufügen) */
 .form-login {

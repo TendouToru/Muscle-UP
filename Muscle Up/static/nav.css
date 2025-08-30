@@ -55,8 +55,8 @@ nav .link:hover {
 }
 
 .nav-top a:hover {
-    background-color: var(--primary);
-    color: var(--text);
+    background-color: var(--secondary);
+    color: var(--accent-dark);
 }
 
 
@@ -112,7 +112,7 @@ nav .link:hover {
 
 .dropdown-content a:hover {
     background-color: var(--primary);
-    color: var(--text);
+    color: var(--accent-dark);
 }
 
 .dropdown:hover .dropdown-content {
