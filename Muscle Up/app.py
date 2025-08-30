@@ -376,6 +376,7 @@ def index():
             "level": level,
             "rank": rank,
             #"profile_pic": row["profile_pic"] if row["profile_pic"] else "default.png",
+            "profile_pic": "default.png" #standard
             "streak": row["streak_days"] or 0
         })
 

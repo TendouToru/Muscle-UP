@@ -89,7 +89,7 @@
                     <td><img src="{{ url_for('static', filename='ranks/' ~ player.rank|lower ~ '.png') }}" 
                          alt="{{ player.rank }}" class="rank-pic">
                     {{ player.rank }}</td>
-                    <td>{{ player.xpformat }}</td>
+                    <td>{{ player|xpformat }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
