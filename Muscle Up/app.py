@@ -357,7 +357,7 @@ def index():
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cursor.execute("""
-        SELECT u.id, u.username, s.xp_total
+        SELECT u.id, u.username, s.xp_total, s.streak_days
         FROM users u
         JOIN user_stats s ON u.id = s.user_id
         ORDER BY s.xp_total DESC
