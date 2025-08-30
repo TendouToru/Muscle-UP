@@ -1,3 +1,4 @@
+
 :root {
     --background: #1e1e2f;
     --primary: #00e5ff; /* Helles, leuchtendes Cyan */
@@ -154,7 +155,6 @@ nav .link:hover {
 }
 
 
-
 /* Mobile Menü */
 .mobile-menu {
     display: none;
@@ -176,8 +176,4 @@ nav .link:hover {
     background: var(--primary);
     color: var(--text);
 }
-
-
-
-
 
