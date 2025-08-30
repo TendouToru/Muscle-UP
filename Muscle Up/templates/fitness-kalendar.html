@@ -33,6 +33,7 @@
                 </button>
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
+                    <a href="{{ url_for('profile') }}">Mein Profil</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </div>
@@ -61,7 +62,7 @@
             <a href="{{ url_for('register') }}">Registrieren</a>
         {% endif %}
     </nav>
-        </header>
+</header>
 
         <main class="content">
            <section class="workout-calendar">
@@ -109,10 +110,10 @@
 
 </body>
 <script>
-    function toggleMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('active');
-    }
+function toggleMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenu.classList.toggle('active');
+}
 </script>
 </html>
 
