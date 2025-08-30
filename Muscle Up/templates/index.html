@@ -66,7 +66,7 @@
         <h2>🏆 Globale Rangliste</h2>
         <table>
             <thead>
-                <tr>
+                <tr id="trh">
                     <th>Platz</th>
                     <th>Benutzer</th>
                     <th>Level</th>
@@ -76,7 +76,7 @@
             </thead>
             <tbody>
                 {% for player in leaderboard %}
-                <tr>
+                <tr id="trb">
                     <td>{{ loop.index }}</td>
                     <td>{{ player.username }}</td>
                     <td>{{ player.level }}</td>

@@ -606,24 +606,29 @@ footer {
 }
 
 
+/* Leaderboard*/
 .leaderboard {
     margin-top: 2rem;
-    background: #111;
+    background: var(--card-bg);
     padding: 1rem;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 .leaderboard h2 {
     text-align: center;
     margin-bottom: 1rem;
-    color: #fff;
+    color: var(--secondary);
 }
 
 .leaderboard table {
     width: 100%;
     border-collapse: collapse;
-    color: #fff;
+    color: var(--text);
 }
 
 .leaderboard th, .leaderboard td {
@@ -631,19 +636,19 @@ footer {
     text-align: center;
 }
 
-.leaderboard tr:nth-child(1) {
+.leaderboard #trb:nth-child(1) {
     background: gold;
     color: black;
     font-weight: bold;
 }
 
-.leaderboard tr:nth-child(2) {
+.leaderboard #trb:nth-child(2) {
     background: silver;
     color: black;
     font-weight: bold;
 }
 
-.leaderboard tr:nth-child(3) {
+.leaderboard #trb:nth-child(3) {
     background: #cd7f32;
     color: black;
     font-weight: bold;
