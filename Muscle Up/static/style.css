@@ -668,6 +668,7 @@ footer {
     margin-right: 5px;
     vertical-align: middle;
     border-radius: 50%;
+    border-color: var(--primary);
 }
 
 .streak-icon {

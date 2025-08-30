@@ -81,8 +81,8 @@
                     <td>{{ loop.index }}</td>
                     <td><img src="{{ url_for('static', filename=player.profile_pic) }}" 
                          alt="Profil" class="profile-pic-small"></td>
-                    <td>{% if player.streak >= 2 %}
-                        🔥{{ player.streak }}
+                    <td>{% if player.streak >= 3 %}
+                        🔥
                     {% endif %}
                     {{ player.username }}</td>
                     <td>{{ player.level }}</td>
