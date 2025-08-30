@@ -142,7 +142,7 @@ nav .link:hover {
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
      .nav-top, .nav-user {
-        display: none; /* Desktop-Nav ausblenden */
+        display: none !important; /* Desktop-Nav ausblenden */
     }
 
     .mobile-menu.active{
