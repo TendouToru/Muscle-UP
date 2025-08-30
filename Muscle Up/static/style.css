@@ -605,3 +605,46 @@ footer {
     border: 2px solid var(--secondary);
 }
 
+
+.leaderboard {
+    margin-top: 2rem;
+    background: #111;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.leaderboard h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+}
+
+.leaderboard th, .leaderboard td {
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.leaderboard tr:nth-child(1) {
+    background: gold;
+    color: black;
+    font-weight: bold;
+}
+
+.leaderboard tr:nth-child(2) {
+    background: silver;
+    color: black;
+    font-weight: bold;
+}
+
+.leaderboard tr:nth-child(3) {
+    background: #cd7f32;
+    color: black;
+    font-weight: bold;
+}

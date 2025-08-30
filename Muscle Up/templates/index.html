@@ -61,6 +61,32 @@
 
     <main class="content">
         <p>Willkommen bei Muscle Up! Verfolge deine Fitness-Fortschritte und werde zum Sigma 💪</p>
+
+            <section class="leaderboard">
+        <h2>🏆 Globale Rangliste</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Platz</th>
+                    <th>Benutzer</th>
+                    <th>Level</th>
+                    <th>Rang</th>
+                    <th>XP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in leaderboard %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ player.username }}</td>
+                    <td>{{ player.level }}</td>
+                    <td>{{ player.rank }}</td>
+                    <td>{{ player.xp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
     </main>
 
     <footer>

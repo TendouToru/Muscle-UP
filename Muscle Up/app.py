@@ -354,6 +354,34 @@ def init_db():
 # --- Homepage ---
 @app.route("/")
 def index():
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute("""
+        SELECT u.id, u.username, s.xp_total
+        FROM users u
+        JOIN user_stats s ON u.id = s.user_id
+        ORDER BY s.xp_total DESC
+        LIMIT 10
+    """)
+    leaderboard = cursor.fetchall()
+    conn.close()
+
+    leaderboard_data = []
+    for row in leaderboard:
+        level, _, _, _ = calculate_level_and_progress(row["xp_total"])
+        rank = calculate_rank(row["id"])
+        leaderboard_data.append({
+            "username": row["username"],
+            "xp": row["xp_total"],
+            "level": level,
+            "rank": rank
+        })
+
+    return render_template("index.html", leaderboard=leaderboard_data)
+
+
+
+
     return render_template("index.html")
 
 # --- Login ---
