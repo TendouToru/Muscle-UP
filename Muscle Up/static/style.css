@@ -74,7 +74,6 @@ header.head .headline {
 }
 
 #login-form{
-    justify-content: center;
     align-items: center;
     background-color: var(--background);
 }
@@ -86,7 +85,7 @@ header.head .headline {
 
 .a-tag{
     text-decoration: underline;
-    color: var(--text);
+    color: var(--primary);
 }
 
 /* Hauptinhalt */
