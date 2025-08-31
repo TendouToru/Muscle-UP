@@ -7,6 +7,7 @@ import pytz
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
+from flask_migrate import Migrate
 
 # --- App & DB-Setup ---
 app = Flask(__name__)
@@ -14,7 +15,7 @@ app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
+migrate = Migrate(app, db)
 
 # --- SQLALCHEMY Datanbankklassen ---
 class User(db.Model):
@@ -22,6 +23,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     profile = db.relationship('UserProfile', backref='user', lazy=True, uselist=False)
     stats = db.relationship('UserStat', backref='user', lazy=True, uselist=False)
@@ -54,9 +56,13 @@ class Workout(db.Model):
 # --- Flask-Admin Konfigurationen ---
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        # Hier muss noch eine echte Authentifizierung hin!
-        # Zum Testen: return True
-        return False # Standardmäßig deaktiviert
+        # Prüft, ob ein Benutzer in der Session ist
+        if 'user_id' not in session:
+            return False
+            
+        # Holt den Benutzer aus der DB und prüft den Admin-Status
+        user = db.session.get(User, session["user_id"])
+        return user is not None and user.is_admin
     
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login', next=request.url))
@@ -68,6 +74,23 @@ admin.add_view(ModelView(User, db.session, name='Benutzer'))
 admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(ModelView(Workout, db.session, name='Workouts'))
+
+# Fügen Sie diese TEMPORÄRE Route hinzu
+@app.route("/make-me-admin")
+def make_me_admin():
+    try:
+        username_to_set_admin = "HT" 
+        user = User.query.filter_by(username=username_to_set_admin).first()
+        if user:
+            user.is_admin = True
+            db.session.commit()
+            return "Benutzer " + user.username + " wurde zum Admin gemacht. ROUTE LÖSCHEN!"
+        else:
+            return "Benutzer nicht gefunden."
+    except Exception as e:
+        db.session.rollback()
+        return f"Fehler: {e}"
+
 
 # --- Hilfsfunktion für DB ---
 def init_db():
