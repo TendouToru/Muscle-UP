@@ -70,7 +70,6 @@ admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(ModelView(Workout, db.session, name='Workouts'))
 
 # --- Hilfsfunktion für DB ---
-@app.before_first_request
 def init_db():
     db.create_all()
 
@@ -730,7 +729,8 @@ def fitness_kalendar():
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
-    init_db()
+    with app.app_context()
+        init_db()
     app.run(debug=True)
 
 
