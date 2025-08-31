@@ -75,7 +75,7 @@ admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(ModelView(Workout, db.session, name='Workouts'))
 
-# Fügen Sie diese TEMPORÄRE Route hinzu
+# Temporär
 @app.route("/make-me-admin")
 def make_me_admin():
     try:
