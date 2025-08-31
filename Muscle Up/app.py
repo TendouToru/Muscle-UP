@@ -75,21 +75,6 @@ admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(ModelView(Workout, db.session, name='Workouts'))
 
-# Temporär
-@app.route("/make-me-admin")
-def make_me_admin():
-    try:
-        username_to_set_admin = "HT" 
-        user = User.query.filter_by(username=username_to_set_admin).first()
-        if user:
-            user.is_admin = True
-            db.session.commit()
-            return "Benutzer " + user.username + " wurde zum Admin gemacht. ROUTE LÖSCHEN!"
-        else:
-            return "Benutzer nicht gefunden."
-    except Exception as e:
-        db.session.rollback()
-        return f"Fehler: {e}"
 
 
 # --- Hilfsfunktion für DB ---
