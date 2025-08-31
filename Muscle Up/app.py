@@ -215,7 +215,7 @@ def ausdauer(user_id: int):
 def update_streak(user_id: int):
 
     try:
-        workout_dates_rows = db.session.query(Workout.date).filter_by(user_id=user_id).order_by(Workout.date.desc()).all()
+        workout_dates_rows = db.session.query(Workout.date).filter_by(user_id=user_id).distinct().order_by(Workout.date.desc()).all()
 
         workout_dates = [row[0] for row in workout_dates_rows]
         
