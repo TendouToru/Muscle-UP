@@ -511,11 +511,12 @@ def workout_page():
             # XP aktualisieren (da calculate_xp_and_strength bereits committed, müssen wir hier nicht mehr committen)
             user_stats = db.session.get(UserStat, session["user_id"])
             if user_stats:
-                user_stats.xp_total += xp_gained
+                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
             
-            db.session.commit()
+            
             update_streak(session["user_id"])
-            
+            db.session.commit()
+
             return jsonify({"message": "Workout erfolgreich hinzugefügt!", "xp_gained": xp_gained}), 200
         except Exception as e:
             db.session.rollback()
@@ -588,10 +589,10 @@ def add_cardio_workout():
         
         user_stats = db.session.get(UserStat, session["user_id"])
         if user_stats:
-            user_stats.xp_total += xp_gained
+            user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
 
-        db.session.commit()
         update_streak(session["user_id"])
+        db.session.commit()
         
         return jsonify({"message": "Kardio-Workout erfolgreich hinzugefügt!", "xp_gained": xp_gained}), 200
     except Exception as e:
@@ -621,11 +622,10 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
             # XP abziehen
             user_stats = db.session.get(UserStat, session["user_id"])
             if user_stats:
-                user_stats.xp_total = max(0, user_stats.xp_total - xp_to_deduct)
+                user_stats.xp_total = max(0, (user_stats.xp_total or 0) - xp_to_deduct)
 
             # Workout löschen
             db.session.delete(workout)
-            db.session.commit()
             
             update_streak(session["user_id"])
             
@@ -677,7 +677,7 @@ def post_restday():
             db.session.add(new_restday)
             db.session.commit()
             
-            restday(session["user_id"])
+            update_streak(session["user_id"])
             flash("Ruhetag eingetragen. Dein Streak wird fortgesetzt.", "success")
         else:
             flash("Ein Ruhetag ist erst nach mindestens 2 Trainingstagen am Stück möglich.", "error")
