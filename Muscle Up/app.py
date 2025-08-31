@@ -30,7 +30,6 @@ class User(db.Model):
     profile = db.relationship('UserProfile', backref='user', lazy=True, uselist=False)
     stats = db.relationship('UserStat', backref='user', lazy=True, uselist=False)
     workouts = db.relationship('Workout', backref='user', lazy=True, cascade="all, delete-orphan")
-    # ✅ Korrigiert: Added sets and exercises relationships for direct access from User
     sets = db.relationship('Set', backref='user_sets', lazy=True, cascade="all, delete-orphan")
     exercises = db.relationship('Exercise', backref='user_exercises', lazy=True, cascade="all, delete-orphan")
 
@@ -73,12 +72,16 @@ class Set(db.Model):
     exercises = db.relationship('Exercise', backref='set', lazy=True, cascade="all, delete-orphan")
 
 
+# NEW: Exercise model
 class Exercise(db.Model):
     __tablename__ = 'exercises'
     id = db.Column(db.Integer, primary_key=True)
     set_id = db.Column(db.Integer, db.ForeignKey('sets.id', ondelete='CASCADE'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
     name = db.Column(db.Text, nullable=False)
+    
+    # ✅ Hinzugefügt: Die Beziehung zum User-Modell
+    user = db.relationship('User', backref='exercise_user', lazy=True)
 
 # --- Flask-Admin Configurations ---
 class MyAdminIndexView(AdminIndexView):
@@ -106,9 +109,9 @@ class SetAdmin(ModelView):
     column_filters = ('user.username', 'workout.date')
     
 class ExerciseAdmin(ModelView):
-    column_list = ('id', 'user', 'set', 'name')
-    column_searchable_list = ('user.username', 'name')
-    column_filters = ('user.username', 'name', 'set_id')
+    column_list = ('id', 'exercise_user', 'set', 'name')
+    column_searchable_list = ('exercise_user.username', 'name')
+    column_filters = ('exercise_user.username', 'name', 'set_id')
 
 
 # --- Admin-Instances ---
