@@ -97,19 +97,22 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     strength_change = 0
 
     for ex in exercises:
-        for s in ex["sets"]:
-            try:
-                weight = float(s.get("weight", 0) or 0)
-            except (ValueError, TypeError):
-                continue
+        if "sets" in ex and isinstance(ex["sets"], list):
+            for s in ex["sets"]:
+                # Neue Überprüfung, ob das Set-Objekt ein Dictionary ist
+                if isinstance(s, dict):
+                    try:
+                        weight = float(s.get("weight", 0) or 0)
+                    except (ValueError, TypeError):
+                        continue
 
-            total_xp += 5
-            if bodyweight > 0 and weight >= bodyweight:
-                total_xp += weight // 10
-                strength_change += 2
-            else:
-                total_xp += weight // 5
-                strength_change += 1
+                    total_xp += 5
+                    if bodyweight > 0 and weight >= bodyweight:
+                        total_xp += weight // 10
+                        strength_change += 2
+                    else:
+                        total_xp += weight // 5
+                        strength_change += 1
 
     if action == "add":
         user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
@@ -491,7 +494,7 @@ def workout_page():
 
         exercise_name = data.get("exercise_name")
         sets = data.get("sets")
-        if not exercise_name or not sets:
+        if not exercise_name or not isinstance(sets, list):
             return jsonify({"error": "Fehlende Daten"}), 400
 
         try:
