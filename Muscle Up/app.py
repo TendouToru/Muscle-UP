@@ -112,9 +112,9 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
                 strength_change += 1
 
     if action == "add":
-        user_stats.attr_strength += strength_change
+        user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
     elif action == "deduct":
-        user_stats.attr_strength = max(0, user_stats.attr_strength - strength_change)
+        user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
 
         return total_xp
 
@@ -154,13 +154,13 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
 
     #Methode
     if action == "add":
-        user_stats.attr_endurance += endurance_change
-        user_stats.attr_strength += strength_change
-        user_stats.attr_intelligence += iq_change
+        user_stats.attr_endurance = (user_stats.attr_endurance or 0) + endurance_change
+        user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
+        user_stats.attr_intelligence = (user_stats.attr_intelligence or 0) + iq_change
     elif action == "deduct":
-        user_stats.attr_endurance = max(0, user_stats.attr_endurance - endurance_change)
-        user_stats.attr_strength = max(0, user_stats.attr_strength - strength_change)
-        user_stats.attr_intelligence = max(0, user_stats.attr_intelligence - iq_change)
+        user_stats.attr_endurance = max(0, (user_stats.attr_endurance or 0) - endurance_change)
+        user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
+        user_stats.attr_intelligence = max(0, (user_stats.attr_intelligence or 0) - iq_change)
 
     return total_xp
  
