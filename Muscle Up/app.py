@@ -119,7 +119,7 @@ def calculate_xp_and_strength(user_id: int, exercises: list[dict], action="add")
     elif action == "deduct":
         user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
 
-        return total_xp
+    return total_xp
 
 
 def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
