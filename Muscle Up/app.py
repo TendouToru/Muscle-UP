@@ -729,7 +729,7 @@ def fitness_kalendar():
 
 # --- App starten & DB vorbereiten ---
 if __name__ == "__main__":
-    with app.app_context()
+    with app.app_context():
         init_db()
     app.run(debug=True)
 
