@@ -27,18 +27,18 @@ class User(db.Model):
     password = db.Column(db.Text, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
-    profile = db.relationship('UserProfile', backref='user', lazy=True, uselist=False)
-    stats = db.relationship('UserStat', backref='user', lazy=True, uselist=False)
-    workouts = db.relationship('Workout', backref='user', lazy=True, cascade="all, delete-orphan")
-    sets = db.relationship('Set', backref='user_sets', lazy=True, cascade="all, delete-orphan")
-    exercises = db.relationship('Exercise', backref='user_exercises', lazy=True, cascade="all, delete-orphan")
-
+    profile = db.relationship('UserProfile', back_populates='user', lazy=True, uselist=False)
+    stats = db.relationship('UserStat', back_populates='user', lazy=True, uselist=False)
+    workouts = db.relationship('Workout', back_populates='user', lazy=True, cascade="all, delete-orphan")
+    sets = db.relationship('Set', back_populates='user', lazy=True, cascade="all, delete-orphan")
+    exercises = db.relationship('Exercise', back_populates='user', lazy=True, cascade="all, delete-orphan")
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
+    user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
     __tablename__ = 'user_stats'
@@ -48,6 +48,7 @@ class UserStat(db.Model):
     attr_strength = db.Column(db.Integer, default=0)
     attr_endurance = db.Column(db.Integer, default=0)
     attr_intelligence = db.Column(db.Integer, default=0)
+    user = db.relationship('User', back_populates='stats')
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
@@ -57,8 +58,9 @@ class Workout(db.Model):
     date = db.Column(db.Text)
     type = db.Column(db.Text)
     
-    sets = db.relationship('Set', backref='workout', lazy=True, cascade="all, delete-orphan")
-
+    user = db.relationship('User', back_populates='workouts')
+    sets = db.relationship('Set', back_populates='workout', lazy=True, cascade="all, delete-orphan")
+    
 class Set(db.Model):
     __tablename__ = 'sets'
     id = db.Column(db.Integer, primary_key=True)
@@ -67,10 +69,9 @@ class Set(db.Model):
     reps = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)
     
-    # ✅ Korrigiert: Direct relationship to User for the Admin view to work
-    user = db.relationship('User', backref='set_user', lazy=True)
-    exercises = db.relationship('Exercise', backref='set', lazy=True, cascade="all, delete-orphan")
-
+    user = db.relationship('User', back_populates='sets')
+    workout = db.relationship('Workout', back_populates='sets')
+    exercises = db.relationship('Exercise', back_populates='set', lazy=True, cascade="all, delete-orphan")
 
 # NEW: Exercise model
 class Exercise(db.Model):
@@ -80,8 +81,8 @@ class Exercise(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
     name = db.Column(db.Text, nullable=False)
     
-    # ✅ Hinzugefügt: Die Beziehung zum User-Modell
-    user = db.relationship('User', backref='exercise_user', lazy=True)
+    user = db.relationship('User', back_populates='exercises')
+    set = db.relationship('Set', back_populates='exercises')
 
 # --- Flask-Admin Configurations ---
 class MyAdminIndexView(AdminIndexView):
@@ -95,8 +96,7 @@ class MyAdminIndexView(AdminIndexView):
         return redirect(url_for('login', next=request.url))
 
 class UserAdmin(ModelView):
-    # ✅ Korrigiert: Added 'sets' and 'exercises' to column_list
-    column_list = ('id', 'username', 'is_admin', 'workouts', 'sets', 'exercises')
+    column_list = ('id', 'username', 'is_admin', 'workouts')
 
 class WorkoutAdmin(ModelView):
     column_list = ('id', 'user', 'date', 'type', 'exercise', 'sets')
@@ -109,10 +109,12 @@ class SetAdmin(ModelView):
     column_filters = ('user.username', 'workout.date')
     
 class ExerciseAdmin(ModelView):
-    column_list = ('id', 'exercise_user', 'set', 'name')
-    column_searchable_list = ('exercise_user.username', 'name')
-    column_filters = ('exercise_user.username', 'name', 'set_id')
-
+    # ✅ Korrigiert: Verweis auf das Attribut 'user' im Exercise-Modell
+    column_list = ('id', 'user', 'set', 'name')
+    # ✅ Korrigiert: Verweis auf das Attribut 'user.username'
+    column_searchable_list = ('user.username', 'name')
+    # ✅ Korrigiert: Verweis auf das Attribut 'user.username'
+    column_filters = ('user.username', 'name', 'set_id')
 
 # --- Admin-Instances ---
 admin = Admin(app, name='Muscle Up Admin', template_mode='bootstrap3', index_view=MyAdminIndexView())
