@@ -159,7 +159,7 @@
                             {% if workout.distance and workout.distance > 0 %}
                                 | Strecke: {{ workout.distance }}km
                             {% endif %}
-                            {% if workout.exercise =='Spielsport' %}
+                            {% if workout.exercise not in ['Laufen', 'Schwimmen'] %}
                                 | Sportart: {{ workout.exercise }}
                             {% endif %}
                         </p>
