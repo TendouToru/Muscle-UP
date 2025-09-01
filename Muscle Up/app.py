@@ -31,6 +31,9 @@ class User(db.Model):
     workouts = db.relationship('Workout', back_populates='user', lazy=True, cascade="all, delete-orphan")
     sets = db.relationship('Set', back_populates='user', lazy=True, cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return self.username
+
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)

@@ -81,9 +81,9 @@
                                 </ul>
                             {% elif workout.type == "cardio" %}
                                 <strong>Cardio: {{ workout.exercise }}</strong>
-                                <p>Dauer: {{ workout.duration }}min
+                                <p>Dauer: {{ workout.duration }} min
                                 {% if workout.distance %}
-                                    | Strecke: {{ workout.distance }}km
+                                    | Strecke: {{ workout.distance }} km
                                 {% endif %}
                                 {% if workout.sportart %}
                                     | Sportart: {{ workout.sportart }}

@@ -153,9 +153,9 @@
                      <div class="completed-exercise">
                          <h4>{{ workout.exercise }}</h4>
                          <p>
-                             Dauer: {{ workout.duration }}min
+                             Dauer: {{ workout.duration }} min
                              {% if workout.distance and workout.distance > 0 %}
-                                 | Strecke: {{ workout.distance }}km
+                                 | Strecke: {{ workout.distance }} km
                              {% endif %}
                          </p>
                          <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
