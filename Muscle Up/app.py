@@ -570,6 +570,9 @@ def workout_page():
             workout_data = {
                 'id': workout.id,
                 'exercise': workout.exercise,
+                'type': workout.type,
+                'duration': 0,
+                'distance': 0
             }
             if workout.sets:
                 cardio_set = workout.sets[0]
