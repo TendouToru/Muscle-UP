@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-
 echo "Running database migration script..."
 python migrate_db.py
 
