@@ -148,8 +148,6 @@
                 </div>
             </div>
 
-                <div id="cardio-overview">
-                <h3>Heutige Cardio-Übungen:</h3>
                 <div id="completed-cardio-exercises">
                     {% for workout in today_cardio_workouts %}
                     <div class="completed-exercise">
@@ -158,6 +156,9 @@
                             Dauer: {{ workout.duration }}min
                             {% if workout.distance and workout.distance > 0 %}
                                 | Strecke: {{ workout.distance }}km
+                            {% endif %}
+                            {% if workout.exercise == 'Spielsport' %}
+                                | Sportart: {{ workout.exercise }}
                             {% endif %}
                         </p>
                         <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
