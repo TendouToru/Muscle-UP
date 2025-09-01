@@ -5,5 +5,5 @@ echo "Running database migration..."
 alembic upgrade head
 
 echo "Starting Gunicorn server..."
-# Gunicorn kann die app.py direkt finden.
+
 gunicorn --bind 0.0.0.0:$PORT app:app
