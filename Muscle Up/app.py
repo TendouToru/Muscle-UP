@@ -641,8 +641,12 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
 
             if workout.type == "cardio":
                 if sets:
+                    cardio_type = workout.exercise
+                    if cardio_type not in ['Laufen', 'Schwimmen']:
+                        cardio_type = 'Spielsport'
+
                     cardio_data = {
-                        "type": workout.exercise,
+                        "type": cardio_type,
                         "duration": sets[0].reps,
                         "distance": sets[0].weight if sets[0].weight is not None else 0
                     }
