@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sleep 10
 # Führt Datenbank-Migrationen aus
 flask db upgrade
 
