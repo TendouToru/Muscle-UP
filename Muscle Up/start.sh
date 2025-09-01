@@ -3,6 +3,5 @@
 echo "Running database migration..."
 flask db upgrade
 
-# Exit after migration to prevent the server from starting prematurely
-# Remove this line after successful migration
-exit 0
+echo "Starting Gunicorn server..."
+gunicorn --bind 0.0.0.0:$PORT app:app
