@@ -70,7 +70,6 @@
                 </form>
             {% endif %}
         
-        <!--Cardio-->
         <div id="cardio" class="container">
             <h3 class="container-header">Cardio-Training:</h3>
             <section class="cardio-dash">
@@ -107,7 +106,6 @@
         </div>
 
     
-        <!--Kraft Training-->
         <div id="kraft-training" class="container">
             <h3 class="container-header">Kraft Training:</h3>
             <form id="exercise-form" class="form-login">
@@ -128,49 +126,46 @@
             </div>
 
         </div>
-       <div class="overview">  
-        <div id="workout-overview">
-                <h3>Heutige Kraft-Übungen:</h3>
-                <div id="completed-exercises">
-                    {% for exercise in today_workouts %}
-                    <div class="completed-exercise">
-                        <h4>{{ exercise.exercise }}</h4>
-                        <ul>
-                            {% for s in exercise.sets %}
-                            <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
-                            {% endfor %}
-                        </ul>
-                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+       <div class="overview">    
+         <div id="workout-overview">
+             <h3>Heutige Kraft-Übungen:</h3>
+             <div id="completed-exercises">
+                 {% for exercise in today_workouts %}
+                 <div class="completed-exercise">
+                     <h4>{{ exercise.exercise }}</h4>
+                     <ul>
+                         {% for s in exercise.sets %}
+                         <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
+                         {% endfor %}
+                     </ul>
+                     <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                         <button type="submit" class="button">Löschen</button>
+                     </form>
+                 </div>
+                 {% endfor %}
+             </div>
+         </div>
 
-                <div id="cardio-overview">
-                <h3>Heutige Cardio-Übungen:</h3>
-                <div id="completed-cardio-exercises">
-                    {% for workout in today_cardio_workouts %}
-                    <div class="completed-exercise">
-                        <h4>{{ workout.exercise }}</h4>
-                        <p>
-                            Dauer: {{ workout.duration }}min
-                            {% if workout.distance and workout.distance > 0 %}
-                                | Strecke: {{ workout.distance }}km
-                            {% endif %}
-                            {% if workout.exercise not in ['Laufen', 'Schwimmen'] %}
-                                | Sportart: {{ workout.exercise }}
-                            {% endif %}
-                        </p>
-                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+             <div id="cardio-overview">
+                 <h3>Heutige Cardio-Übungen:</h3>
+                 <div id="completed-cardio-exercises">
+                     {% for workout in today_cardio_workouts %}
+                     <div class="completed-exercise">
+                         <h4>{{ workout.exercise }}</h4>
+                         <p>
+                             Dauer: {{ workout.duration }}min
+                             {% if workout.distance and workout.distance > 0 %}
+                                 | Strecke: {{ workout.distance }}km
+                             {% endif %}
+                         </p>
+                         <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
+                             <button type="submit" class="button">Löschen</button>
+                         </form>
+                     </div>
+                     {% endfor %}
+                 </div>
+             </div>
+         </div>
     </main>
 
     <footer>
@@ -332,12 +327,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

@@ -13,7 +13,6 @@ from sqlalchemy import exc as sa_exc
 # --- App & DB-Setup ---
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
-# For local development, use a local SQLite DB
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -31,7 +30,6 @@ class User(db.Model):
     stats = db.relationship('UserStat', back_populates='user', lazy=True, uselist=False)
     workouts = db.relationship('Workout', back_populates='user', lazy=True, cascade="all, delete-orphan")
     sets = db.relationship('Set', back_populates='user', lazy=True, cascade="all, delete-orphan")
-    exercises = db.relationship('Exercise', back_populates='user', lazy=True, cascade="all, delete-orphan")
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
@@ -71,18 +69,6 @@ class Set(db.Model):
     
     user = db.relationship('User', back_populates='sets')
     workout = db.relationship('Workout', back_populates='sets')
-    exercises = db.relationship('Exercise', back_populates='set', lazy=True, cascade="all, delete-orphan")
-
-# NEW: Exercise model
-class Exercise(db.Model):
-    __tablename__ = 'exercises'
-    id = db.Column(db.Integer, primary_key=True)
-    set_id = db.Column(db.Integer, db.ForeignKey('sets.id', ondelete='CASCADE'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
-    name = db.Column(db.Text, nullable=False)
-    
-    user = db.relationship('User', back_populates='exercises')
-    set = db.relationship('Set', back_populates='exercises')
 
 # --- Flask-Admin Configurations ---
 class MyAdminIndexView(AdminIndexView):
@@ -104,18 +90,10 @@ class WorkoutAdmin(ModelView):
     column_filters = ('user.username', 'date', 'type')
     
 class SetAdmin(ModelView):
-    column_list = ('id', 'user', 'workout', 'reps', 'weight', 'exercises')
+    column_list = ('id', 'user', 'workout', 'reps', 'weight')
     column_searchable_list = ('user.username',)
     column_filters = ('user.username', 'workout.date')
     
-class ExerciseAdmin(ModelView):
-    # ✅ Korrigiert: Verweis auf das Attribut 'user' im Exercise-Modell
-    column_list = ('id', 'user', 'set', 'name')
-    # ✅ Korrigiert: Verweis auf das Attribut 'user.username'
-    column_searchable_list = ('user.username', 'name')
-    # ✅ Korrigiert: Verweis auf das Attribut 'user.username'
-    column_filters = ('user.username', 'name', 'set_id')
-
 # --- Admin-Instances ---
 admin = Admin(app, name='Muscle Up Admin', template_mode='bootstrap3', index_view=MyAdminIndexView())
 admin.add_view(UserAdmin(User, db.session, name='Benutzer'))
@@ -123,7 +101,6 @@ admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(WorkoutAdmin(Workout, db.session, name='Workouts'))
 admin.add_view(SetAdmin(Set, db.session, name='Sätze'))
-admin.add_view(ExerciseAdmin(Exercise, db.session, name='Übungen'))
 
 
 # --- Helper Function for DB ---
@@ -157,7 +134,6 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
 
     for s in sets:
         try:
-            # ✅ Korrigiert: Use `s.weight` directly since sets is a list of objects
             weight = s.weight
             
             total_xp += 5
@@ -183,8 +159,8 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
     if not user_stats:
         return 0
 
-    # ✅ Korrigiert: Ensure type is `float`
-    duration_in_min = float(cardio_data.get("duration",0) or 0)
+    duration_in_min = float(cardio_data.get("duration", 0) or 0)
+    distance_in_km = float(cardio_data.get("distance", 0) or 0)
     duration_in_h = math.ceil(duration_in_min / 60)
     total_xp = 0
     endurance_change = 0
@@ -192,14 +168,12 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
     iq_change = 0
 
     if cardio_data.get("type") == "Laufen":
-        distance_km = float(cardio_data.get("distance", 0) or 0)
-        total_xp += distance_km * 10 - duration_in_min
-        endurance_change += math.ceil(distance_km // 5 + duration_in_h)
+        total_xp += distance_in_km * 10 - duration_in_min
+        endurance_change += math.ceil(distance_in_km // 5 + duration_in_h)
     elif cardio_data.get("type") == "Schwimmen":
-        distance_km = float(cardio_data.get("distance", 0) or 0)
-        total_xp += distance_km * 10 - duration_in_h
-        endurance_change += int(distance_km + duration_in_h) * 2
-        strength_change += int(distance_km + duration_in_h) * 2
+        total_xp += distance_in_km * 10 - duration_in_h
+        endurance_change += int(distance_in_km + duration_in_h) * 2
+        strength_change += int(distance_in_km + duration_in_h) * 2
     elif cardio_data.get("type") == "Spielsport":
         total_xp += duration_in_min // 5
         endurance_change += duration_in_h
@@ -536,13 +510,6 @@ def workout_page():
                 )
                 db.session.add(new_set)
                 
-                new_exercise = Exercise(
-                    set_id=new_set.id,
-                    user_id=session["user_id"],
-                    name=exercise_name
-                )
-                db.session.add(new_exercise)
-
             xp_gained = calculate_xp_and_strength(session["user_id"], new_workout.sets, "add")
             user_stats = db.session.get(UserStat, session["user_id"])
             if user_stats:
@@ -561,7 +528,7 @@ def workout_page():
             user_id=session["user_id"], date=today, type='strength'
         ).all()
         
-        today_cardio_workouts = Workout.query.filter_by(
+        today_cardio_workouts_raw = Workout.query.filter_by(
             user_id=session["user_id"], date=today, type='cardio'
         ).all()
 
@@ -576,8 +543,8 @@ def workout_page():
             }
             if workout.sets:
                 cardio_set = workout.sets[0]
-                workout_data['duration'] = cardio_set.reps  # Dauer aus 'reps' lesen
-                workout_data['distance'] = cardio_set.weight  # Distanz aus 'weight' lesen
+                workout_data['duration'] = cardio_set.reps
+                workout_data['distance'] = cardio_set.weight
             
             today_cardio_workouts.append(workout_data)
         
@@ -619,7 +586,7 @@ def add_cardio_workout():
         sportart = data.get("sportart")
         if sportart is None:
             return jsonify({"error": "Sport type missing"}), 400
-        cardio_data = {"type": workout_type, "duration": duration, "sportart": sportart}
+        cardio_data = {"type": workout_type, "duration": duration, "distance": 0, "sportart": sportart}
         exercise_name = sportart
     else:
         return jsonify({"error": "Invalid workout type"}), 400
@@ -636,24 +603,14 @@ def add_cardio_workout():
         db.session.add(new_workout)
         db.session.flush()
 
-        # ✅ Korrigiert: Save Cardio data in a Set row instead of a JSON field
-        # We reuse the Set table for cardio to maintain consistency
         new_set = Set(
             workout_id=new_workout.id,
             user_id=session["user_id"],
-            reps=duration, # Use reps for duration
-            weight=cardio_data.get("distance", 0) # Use weight for distance
+            reps=duration,
+            weight=cardio_data.get("distance", 0)
         )
         db.session.add(new_set)
         
-        new_exercise = Exercise(
-            set_id=new_set.id,
-            user_id=session["user_id"],
-            name=exercise_name
-        )
-        db.session.add(new_exercise)
-
-
         user_stats = db.session.get(UserStat, session["user_id"])
         if user_stats:
             user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
@@ -681,11 +638,10 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
 
             if workout.type == "cardio":
                 if sets:
-                    # ✅ Korrigiert: Read data from the Set table, not a JSON field
                     cardio_data = {
                         "type": workout.exercise,
                         "duration": sets[0].reps,
-                        "distance": sets[0].weight
+                        "distance": sets[0].weight if sets[0].weight is not None else 0
                     }
                     xp_to_deduct = calculate_xp_and_endurance(session["user_id"], cardio_data, "deduct")
             elif workout.type == "strength":
@@ -783,18 +739,14 @@ def fitness_kalendar():
         }
         
         if workout_item.type == "cardio":
-            # ✅ Korrigiert: Read from the Set table
             if workout_item.sets:
                 cardio_set = workout_item.sets[0]
                 workout_data["duration"] = cardio_set.reps
                 workout_data["distance"] = cardio_set.weight
-                workout_data["sportart"] = workout_item.exercise
             else:
                 workout_data["duration"] = "N/A"
                 workout_data["distance"] = "N/A"
-                workout_data["sportart"] = workout_item.exercise
         else:
-            # For strength, get sets from the new related table
             workout_data["sets"] = [
                 {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
             ]
