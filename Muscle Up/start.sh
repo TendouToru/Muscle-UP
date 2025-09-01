@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
 echo "Running database migration..."
-# Change into the directory where the alembic.ini and migrations folder are located
-cd "Muscle Up"
-
-# Run the migration
+# Alembic kann direkt ausgeführt werden, da die alembic.ini im selben Ordner ist.
 alembic upgrade head
 
-# Go back to the parent directory to run gunicorn
-cd ..
-
 echo "Starting Gunicorn server..."
+# Gunicorn kann die app.py direkt finden.
 gunicorn --bind 0.0.0.0:$PORT app:app
