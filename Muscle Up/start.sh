@@ -2,7 +2,7 @@
 
 echo "Running database migration..."
 # Change into the directory where the alembic.ini and migrations folder are located
-cd Muscle\ Up
+cd "Muscle Up"
 
 # Run the migration
 alembic upgrade head
