@@ -154,13 +154,11 @@
                     {% for workout in today_cardio_workouts %}
                     <div class="completed-exercise">
                         <h4>{{ workout.exercise }}</h4>
-                        <p>Dauer: {{ workout.sets.duration }}min
-                        {% if workout.sets.distance %}
-                            | Strecke: {{ workout.sets.distance }}km
-                        {% endif %}
-                        {% if workout.sets.sportart %}
-                            | Sportart: {{ workout.sets.sportart }}
-                        {% endif %}
+                        <p>
+                            Dauer: {{ workout.duration }}min
+                            {% if workout.distance and workout.distance > 0 %}
+                                | Strecke: {{ workout.distance }}km
+                            {% endif %}
                         </p>
                         <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
                             <button type="submit" class="button">Löschen</button>

@@ -564,6 +564,19 @@ def workout_page():
         today_cardio_workouts = Workout.query.filter_by(
             user_id=session["user_id"], date=today, type='cardio'
         ).all()
+
+        today_cardio_workouts = []
+        for workout in today_cardio_workouts_raw:
+            workout_data = {
+                'id': workout.id,
+                'exercise': workout.exercise,
+            }
+            if workout.sets:
+                cardio_set = workout.sets[0]
+                workout_data['duration'] = cardio_set.reps  # Dauer aus 'reps' lesen
+                workout_data['distance'] = cardio_set.weight  # Distanz aus 'weight' lesen
+            
+            today_cardio_workouts.append(workout_data)
         
     except Exception as e:
         flash(f"An error occurred: {e}", "error")
