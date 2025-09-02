@@ -77,7 +77,7 @@
                     <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
 
                     <label>Körpergröße (cm):</label>
-                    <input type="number" placeholder="Gib deine Größe ein!" step="1" name="height" value="{{ profile.height or '' }}">
+                    <input type="number" placeholder="Gib deine Größe ein!" step="1" name="height" value="{{ profile.height|int or '' }}">
 
                     <button type="submit" class="button">Speichern</button>
                 </form>
