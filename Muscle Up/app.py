@@ -439,7 +439,7 @@ def profile():
             if bodyweight_str:
                 bodyweight_val = float(bodyweight_str)
             if height_str:
-                height_val = float(height_str)
+                height_val = int(height_str)
         except ValueError:
             flash("Bodyweight and height must be valid numbers.", "error")
             return redirect(url_for("profile"))
