@@ -2,6 +2,7 @@
     --background: #1e1e2f;
     --primary: #00e5ff; /* Helles, leuchtendes Cyan */
     --secondary: #00aaff; /* Etwas dunkleres Blau */
+    --contrast: gold;
     --text: #ecf0f1;
     --success: #4caf50;
     --error: #cd071b;
@@ -176,6 +177,11 @@ main.content {
 #cardio-btn:hover, #kraft-training-btn:hover{
     background-color: var(--accent-dark);
     color: var(--primary);
+}
+
+#saveBtn{
+    border-color: var(--success);
+    background-color: var(--success);
 }
 
 /* Footer */
@@ -530,7 +536,7 @@ footer {
     gap: 12px;
 }
 
-.form-profile input {
+.form-profile input, #gender {
     padding: 10px;
     border-radius: 6px;
     border: none;

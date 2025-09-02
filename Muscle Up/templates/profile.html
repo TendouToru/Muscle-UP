@@ -70,43 +70,35 @@
 
             <!-- Profil-Daten -->
             <section class="profile-card">
-                <h3>Meine Daten</h3>
+                <h3>Profil von {{username}}</h3>
                 <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
-                <form method="post" class="form-profile">
+                <form method="post" class="form-profile" id="profileForm">
+                    <label>Geschlecht:</label>
+                    <select name="gender" id="gender" disabled>
+                        <option value="">Wähle...</option>
+                        <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
+                        <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
+                        <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
+                    </select>
+
                     <label>Körpergewicht (kg):</label>
-                    <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}">
+                    <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
 
-                    <label>Körpergröße (cm):</label>
-                    <input type="number" placeholder="Gib deine Größe ein!" step="1" name="height" value="{{ profile.height|int or '' }}">
+                    <label>Größe (cm):</label>
+                    <input type="number" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
 
-                    <button type="submit" class="button">Speichern</button>
+                    <div class="form-buttons">
+                        <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten </button>
+                        <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
+                    </div>
                 </form>
             </section>
 
           <!-- Stats -->
             <section class="stats-card">
                 <h3>Meine Stats</h3>
-                {%if rank == 1 %}
-                    <img src="{{url_for('static', filename='ranks/1.jpg')}}" class="pfp">
-                {%elif rank == 2 %}
-                    <img src="{{url_for('static', filename='ranks/2.jpg')}}" class="pfp">
-                {%elif rank == 3 %}
-                    <img src="{{url_for('static', filename='ranks/3.jpg')}}" class="pfp">
-                {%elif rank == 4 %}
-                    <img src="{{url_for('static', filename='ranks/4.jpg')}}" class="pfp">
-                {%elif rank == 5 %}
-                    <img src="{{url_for('static', filename='ranks/5.jpg')}}" class="pfp">
-                {%elif rank == 6 %}
-                    <img src="{{url_for('static', filename='ranks/6.jpg')}}" class="pfp">
-                {%elif rank == 7 %}
-                    <img src="{{url_for('static', filename='ranks/7.jpg')}}" class="pfp">
-                {%elif rank == 8 %}
-                    <img src="{{url_for('static', filename='ranks/8.jpg')}}" class="pfp">
-                {%elif rank == 9 %}
-                    <img src="{{url_for('static', filename='ranks/9.jpg')}}" class="pfp">
-                {%elif rank == 10 %}
-                    <img src="{{url_for('static', filename='ranks/10.jpg')}}" class="pfp">
-                {%endif%}
+
+                    <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" class="pfp">
 
 
                 <p>Level: <strong>{{ level }}</strong>  |  Rang: <strong>{{rank}}</strong></p>
@@ -129,7 +121,7 @@
                 <div class="attributes">
                     <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
                     <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
-                    <div class="attr"><span>🧠 Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
+                    <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
                 </div>
             </section>
 
@@ -148,6 +140,26 @@ function toggleMenu() {
     const menu = document.getElementById("mobileMenu");
     menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const formFields = document.querySelectorAll('#profileForm input, #profileForm select');
+
+    editBtn.addEventListener('click', function() {
+        // Formularfelder aktivieren + Design
+        formFields.forEach(field => {
+            field.removeAttribute('disabled');
+            field.style.boxShadow = '0 0 5px gold';
+        });
+
+        // Knöpfe tauschen
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'block';
+
+    });
+});
 </script>
 </html>
 

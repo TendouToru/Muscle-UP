@@ -13,7 +13,7 @@ from sqlalchemy import exc as sa_exc
 # --- App & DB-Setup ---
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -26,10 +26,10 @@ class User(db.Model):
     password = db.Column(db.Text, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
-    profile = db.relationship('UserProfile', back_populates='user', lazy=True, uselist=False)
-    stats = db.relationship('UserStat', back_populates='user', lazy=True, uselist=False)
-    workouts = db.relationship('Workout', back_populates='user', lazy=True, cascade="all, delete-orphan")
-    sets = db.relationship('Set', back_populates='user', lazy=True, cascade="all, delete-orphan")
+    profile = db.relationship('UserProfile', back_populates='user', lazy=True, uselist=False, cascade='all, delete-orphan')
+    stats = db.relationship('UserStat', back_populates='user', lazy=True, uselist=False, cascade='all, delete-orphan')
+    workouts = db.relationship('Workout', back_populates='user', lazy=True, cascade='all, delete-orphan')
+    sets = db.relationship('Set', back_populates='user', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return self.username
@@ -37,6 +37,7 @@ class User(db.Model):
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    gender = db.Column(db.Text)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
     user = db.relationship('User', back_populates='profile')
@@ -429,30 +430,34 @@ def profile():
     rank = calculate_rank(user.id)
 
     if request.method == "POST":
-        bodyweight_str = request.form.get("bodyweight")
-        height_str = request.form.get("height")
-        
-        bodyweight_val = 0
-        height_val = 0
+            try:
+                # Stelle sicher, dass das Profilobjekt existiert
+                if not user.profile:
+                    user.profile = UserProfile(user_id=user.id)
 
-        try:
-            if bodyweight_str:
-                bodyweight_val = float(bodyweight_str)
-            if height_str:
-                height_val = int(height_str)
-        except ValueError:
-            flash("Bodyweight and height must be valid numbers.", "error")
+                # Prüfe, ob die Formularwerte vorhanden sind, bevor sie zugewiesen werden
+                gender = request.form.get("gender")
+                if gender:
+                    user.profile.gender = gender
+
+                bodyweight_str = request.form.get("bodyweight")
+                if bodyweight_str:
+                    user.profile.bodyweight = float(bodyweight_str)
+
+                height_str = request.form.get("height")
+                if height_str:
+                    user.profile.height = float(height_str)  # Ändern von int auf float für mehr Flexibilität
+                
+                db.session.commit()
+                flash("Profil erfolgreich aktualisiert!", "success")
+                return redirect(url_for("profile"))
+            except ValueError:
+                db.session.rollback()
+                flash("Körpergewicht und Körpergröße müssen gültige Zahlen sein.", "error")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Fehler beim Aktualisieren des Profils: {e}", "error")
             return redirect(url_for("profile"))
-
-        try:
-            user.profile.bodyweight = bodyweight_val
-            user.profile.height = height_val
-            db.session.commit()
-            flash("Profile updated successfully!", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error {e}","error")
-        return redirect(url_for("profile"))
 
     stats = user.stats
     if stats:
