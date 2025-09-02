@@ -642,13 +642,13 @@ footer {
 }
 
 .leaderboard #trb:nth-child(2) {
-    background: silver;
+    background: #c9d3d6;
     color: black;
     font-weight: bold;
 }
 
 .leaderboard #trb:nth-child(3) {
-    background: #cd7f32;
+    background: #B87333;
     color: black;
     font-weight: bold;
 }
