@@ -85,7 +85,11 @@ class MyAdminIndexView(AdminIndexView):
         return redirect(url_for('login', next=request.url))
 
 class UserAdmin(ModelView):
-    column_list = ('id', 'username', 'is_admin', 'workouts')
+    column_list = ('id', 'username', 'is_admin', 'profile', 'stats', 'workouts', 'sets')
+    column_labels = dict(id='ID', username='Benutzername', is_admin='Ist Admin', profile='Profil', stats='Statistiken', workouts='Workouts', sets='Sätze')
+    column_searchable_list = ('username',)
+    column_filters = ('is_admin',)
+    column_default_sort = ('id', False)
 
 class WorkoutAdmin(ModelView):
     column_list = ('id', 'user', 'date', 'type', 'exercise', 'sets')
@@ -141,10 +145,10 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
             
             total_xp += 5
             if bodyweight > 0 and weight >= bodyweight:
-                total_xp += weight // 10
+                total_xp += weight // 5
                 strength_change += 2
             else:
-                total_xp += weight // 5
+                total_xp += weight // 10
                 strength_change += 1
         except (ValueError, TypeError):
             continue

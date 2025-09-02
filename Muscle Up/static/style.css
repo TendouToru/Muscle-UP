@@ -4,6 +4,7 @@
     --secondary: #00aaff; /* Etwas dunkleres Blau */
     --text: #ecf0f1;
     --success: #4caf50;
+    --error: #cd071b;
     --card-bg: #2c2c3f;
     --accent-dark: #3a3a55;
     --glow-effect: 0 0 10px var(--primary); /* Neuer "Glow"-Effekt */
@@ -37,8 +38,6 @@ header.head .headline {
     margin: 0;
     font-size: 2rem;
     color: var(--primary);
-    letter-spacing: 1px;
-    text-decoration: underline;
 }
 
 
@@ -141,7 +140,7 @@ main.content {
 }
 
 .delete-btn:hover {
-    background-color: var(--primary);
+    background-color: var(--error);
     color: var(--text);
 }
 
