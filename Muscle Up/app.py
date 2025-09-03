@@ -320,7 +320,11 @@ def calculate_rank(user_id: int):
 def index():
     leaderboard = db.session.query(
         User.id, UserProfile.name, User.username, UserStat.xp_total, UserStat.streak_days
-    ).join(UserStat).order_by(UserStat.xp_total.desc()).limit(10).all()
+    ).outerjoin(UserStat, User.id == UserStat.user_id) \
+     .outerjoin(UserProfile, User.id == UserProfile.user_id) \
+     .order_by(UserStat.xp_total.desc()) \
+     .limit(10) \
+     .all()
 
     leaderboard_data = []
     for row in leaderboard:
