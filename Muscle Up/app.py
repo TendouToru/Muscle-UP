@@ -37,6 +37,7 @@ class User(db.Model):
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    name = db.Column(db.Text)
     gender = db.Column(db.Text)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
@@ -146,10 +147,10 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
             
             total_xp += 5
             if bodyweight > 0 and weight >= bodyweight:
-                total_xp += weight // 5
+                total_xp += int(weight / 5)
                 strength_change += 2
             else:
-                total_xp += weight // 10
+                total_xp += int(weight / 10)
                 strength_change += 1
         except (ValueError, TypeError):
             continue
@@ -176,7 +177,7 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
     iq_change = 0
 
     if cardio_data.get("type") == "Laufen":
-        total_xp += distance_in_km * 10 - duration_in_min
+        total_xp += (distance_in_km * 10) + (duration_in_min / 2)
         endurance_change += math.ceil(distance_in_km // 5 + duration_in_h)
     elif cardio_data.get("type") == "Schwimmen":
         total_xp += distance_in_km * 10 - duration_in_h
@@ -399,7 +400,7 @@ def register():
                     db.session.add(new_user)
                     db.session.flush()
                     
-                    new_profile = UserProfile(user_id=new_user.id, bodyweight=0, height=0)
+                    new_profile = UserProfile(user_id=new_user.id, bodyweight=0, height=0, gender='', name=username)
                     new_stats = UserStat(
                         user_id=new_user.id, xp_total=0, streak_days=0,
                         attr_strength=0, attr_endurance=0, attr_intelligence=0
@@ -437,6 +438,11 @@ def profile():
 
                 # Prüfe, ob die Formularwerte vorhanden sind, bevor sie zugewiesen werden
                 gender = request.form.get("gender")
+                name = request.form.get("username")
+
+                if name:
+                    user.profile.name = name
+
                 if gender:
                     user.profile.gender = gender
 

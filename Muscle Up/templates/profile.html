@@ -65,14 +65,19 @@
         </header>
 
         <main class="content">
-            <h2>Willkommen, {{ username}}!</h2>
+            <h2>Willkommen, {{profile.name}}!</h2>
             <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten</p>
 
             <!-- Profil-Daten -->
             <section class="profile-card">
-                <h3>Profil von {{username}}</h3>
+                <h3>Dein Profil </h3>
                 <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
                 <form method="post" class="form-profile" id="profileForm">
+                     
+                    
+                    <label>Spielername:</label>
+                    <input type="text" placeholder="Dein name" name="username" value="{{profile.name or ''}}" disabled>
+                    
                     <label>Geschlecht:</label>
                     <select name="gender" id="gender" disabled>
                         <option value="">Wähle...</option>
@@ -98,7 +103,7 @@
             <section class="stats-card">
                 <h3>Meine Stats</h3>
 
-                    <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" class="pfp">
+                    <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" alt="Rang" class="pfp">
 
 
                 <p>Level: <strong>{{ level }}</strong>  |  Rang: <strong>{{rank}}</strong></p>
