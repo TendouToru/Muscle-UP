@@ -319,16 +319,17 @@ def calculate_rank(user_id: int):
 @app.route("/")
 def index():
     leaderboard = db.session.query(
-        User.id, UserProfile.name, UserStat.xp_total, UserStat.streak_days
+        User.id, UserProfile.name, User.username, UserStat.xp_total, UserStat.streak_days
     ).join(UserStat).order_by(UserStat.xp_total.desc()).limit(10).all()
 
     leaderboard_data = []
     for row in leaderboard:
-        user_id, name, xp_total, streak_days = row
+        user_id, name, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         leaderboard_data.append({
-            "username": name,
+            "name": name,
+            "username": username,
             "xp": xp_total,
             "level": level,
             "rank": rank,
