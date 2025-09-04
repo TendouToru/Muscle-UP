@@ -548,6 +548,11 @@ footer {
     margin-top: 10px;
 }
 
+.form-profile input:disabled, #gender:disabled{
+    -webkit-text-fill-color: var(--text);
+    opacity: 1;
+}
+
 
 /* XP-Bar */
 .xp-bar {
