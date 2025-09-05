@@ -148,23 +148,49 @@ def shutdown_session(exception=None):
 
 
 def upload_to_github(image_data, filename):
-    """Lädt Bild zu GitHub Pages"""
+    """Lädt Bild zu GitHub Pages mit Timeout"""
     try:
-        g = Github(app.config['GITHUB_TOKEN'])
-        repo = g.get_repo(app.config['GITHUB_REPO'])
+        import signal
+        from functools import wraps
         
-        # Base64 encoden
-        content_base64 = base64.b64encode(image_data).decode('utf-8')
+        # Timeout Decorator
+        def timeout(seconds=10):
+            def decorator(func):
+                @wraps(func)
+                def wrapper(*args, **kwargs):
+                    def handler(signum, frame):
+                        raise TimeoutError("Function timed out")
+                    
+                    signal.signal(signal.SIGALRM, handler)
+                    signal.alarm(seconds)
+                    try:
+                        result = func(*args, **kwargs)
+                    finally:
+                        signal.alarm(0)
+                    return result
+                return wrapper
+            return decorator
         
-        # Datei erstellen/updaten
-        repo.create_file(
-            path=f"profile_pics/{filename}",
-            message=f"Add profile picture {filename}",
-            content=content_base64,
-            branch=app.config['GITHUB_BRANCH']
-        )
+        @timeout(15)  # 15 Sekunden Timeout
+        def upload():
+            g = Github(app.config['GITHUB_TOKEN'])
+            repo = g.get_repo(app.config['GITHUB_REPO'])
+            
+            content_base64 = base64.b64encode(image_data).decode('utf-8')
+            
+            repo.create_file(
+                path=f"profile_pics/{filename}",
+                message=f"Add profile picture {filename}",
+                content=content_base64,
+                branch=app.config['GITHUB_BRANCH']
+            )
+            return True
         
-        return True
+        return upload()
+        
+    except TimeoutError:
+        print("GitHub upload timed out")
+        return False
     except Exception as e:
         print(f"Error uploading to GitHub: {e}")
         return False
@@ -369,14 +395,24 @@ def calculate_rank(user_id: int):
 
 # --- Homepage ---
 @app.route("/")
+@app.route("/")
 def index():
+    # 1. Daten aus der Datenbank abfragen
+    leaderboard = db.session.query(
+        User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
+    ).outerjoin(UserStat, User.id == UserStat.user_id) \
+     .outerjoin(UserProfile, User.id == UserProfile.user_id) \
+     .order_by(UserStat.xp_total.desc()) \
+     .limit(10) \
+     .all()
+
+    # 2. Daten verarbeiten
     leaderboard_data = []
-    for row in leaderboard_data:
+    for row in leaderboard:
         user_id, name, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         
-        # URL mit Fallback
         profile_pic_url = get_github_url(profile_pic) if profile_pic else url_for('static', filename='profile_pics/default.png')
         
         leaderboard_data.append({
@@ -386,9 +422,11 @@ def index():
             "level": level,
             "rank": rank,
             "profile_pic": profile_pic or 'default.png',
-            "profile_pic_url": profile_pic_url,  # Hier die vollständige URL
+            "profile_pic_url": profile_pic_url,
             "streak": streak_days
         })
+    
+    # 3. Template mit Daten rendern
     return render_template("index.html", leaderboard=leaderboard_data)
 
 @app.template_filter("xpformat")
