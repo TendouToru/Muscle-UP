@@ -47,7 +47,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
-    profile_pic = db.Column(db.Text, default='default.png')
+    profile_pic = db.Column(db.Text, default='default.png.png')
     user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
@@ -330,7 +330,7 @@ def calculate_rank(user_id: int):
 @app.route("/")
 def index():
     leaderboard = db.session.query(
-        User.id, UserProfile.name, User.username, UserStat.xp_total, UserStat.streak_days
+        User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
      .outerjoin(UserProfile, User.id == UserProfile.user_id) \
      .order_by(UserStat.xp_total.desc()) \
@@ -339,7 +339,7 @@ def index():
 
     leaderboard_data = []
     for row in leaderboard:
-        user_id, name, username, xp_total, streak_days = row
+        user_id, name, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         leaderboard_data.append({
@@ -348,7 +348,7 @@ def index():
             "xp": xp_total,
             "level": level,
             "rank": rank,
-            "profile_pic": "default.png",
+            "profile_pic": profile_pic,
             "streak": streak_days
         })
     return render_template("index.html", leaderboard=leaderboard_data)
