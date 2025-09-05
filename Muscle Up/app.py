@@ -371,7 +371,7 @@ def calculate_rank(user_id: int):
 @app.route("/")
 def index():
     leaderboard_data = []
-    for row in leaderboard:
+    for row in leaderboard_data:
         user_id, name, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
