@@ -55,7 +55,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
-    profile_pic_filename = db.Column(db.Text, default='default.png')
+    profile_pic = db.Column(db.Text, default='default.png')
     user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
@@ -371,16 +371,16 @@ def calculate_rank(user_id: int):
 @app.route("/")
 def index():
     leaderboard = db.session.query(
-        User.id, UserProfile.name, UserProfile.profile_pic_filename, User.username, UserStat.xp_total, UserStat.streak_days
+        User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
-     .outerjoin(UserProfile, User.id == UserProfile.user_id) \
-     .order_by(UserStat.xp_total.desc()) \
-     .limit(10) \
-     .all()
+    .outerjoin(UserProfile, User.id == UserProfile.user_id) \
+    .order_by(UserStat.xp_total.desc()) \
+    .limit(10) \
+    .all()
 
     leaderboard_data = []
     for row in leaderboard:
-        user_id, name, profile_pic_filename, username, xp_total, streak_days = row
+        user_id, name, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         leaderboard_data.append({
@@ -389,7 +389,7 @@ def index():
             "xp": xp_total,
             "level": level,
             "rank": rank,
-            "profile_pic": profile_pic_filename,
+            "profile_pic": profile_pic or 'default.png',  # Fallback falls None
             "streak": streak_days
         })
     return render_template("index.html", leaderboard=leaderboard_data)
@@ -592,7 +592,7 @@ def upload_profile_pic():
         
         if upload_to_github(img_data, filename):
             # Nur den Dateinamen in der DB speichern
-            user_profile.profile_pic_filename = filename
+            user_profile.profile_pic = filename
             db.session.commit()
             
             return jsonify({
@@ -633,8 +633,8 @@ def inject_profile_data():
                 'age': user.profile.age,
                 'bodyweight': user.profile.bodyweight,
                 'height': user.profile.height,
-                'profile_pic_filename': user.profile.profile_pic_filename,
-                'profile_pic_url': get_github_url(user.profile.profile_pic_filename)
+                'profile_pic': user.profile.profile_pic, 
+                'profile_pic_url': get_github_url(user.profile.profile_pic) if user.profile.profile_pic else get_github_url('default.png')
             }
             return {'current_user_profile': profile_data}
     
