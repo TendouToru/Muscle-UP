@@ -329,6 +329,9 @@ def calculate_rank(user_id: int):
 # --- Homepage ---
 @app.route("/")
 def index():
+    user = db.session.get(User, session["user_id"])
+    
+
     leaderboard = db.session.query(
         User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
