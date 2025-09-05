@@ -73,25 +73,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for player in leaderboard %}
+                    {% for player in leaderboard_data %}
                     <tr id="trb">
                         <td>{{ loop.index }}</td>
                         <td>
-                            <img src="{{ get_github_url(player.profile_pic) if player.profile_pic else url_for('static', filename='profile_pics/default.png') }}" 
+                            <img src="{{ player.profile_pic_url }}" 
                                 alt="Profil" class="profile-pic-small"
                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </td>
-                        <td>{{ player['name'] or player['username'] }}</td>
+                        <td>{{ player.name or player.username }}</td>
+                        <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
                         <td>
-                            {% if player['streak'] >= 3 %}🔥{% endif %}
-                            {{ player['level'] }}
+                            <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
+                                alt="{{ player.rank }}" class="rank-pic">
+                            {{ player.rank }}
                         </td>
-                        <td>
-                            <img src="{{ url_for('static', filename='ranks/' ~ player['rank'] ~ '.jpg') }}" 
-                                 alt="{{ player['rank'] }}" class="rank-pic">
-                            {{ player['rank'] }}
-                        </td>
-                        <td>{{ player['xp']|xpformat }}</td>
+                        <td>{{ player.xp|xpformat }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
