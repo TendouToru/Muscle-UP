@@ -20,8 +20,8 @@
         <div class="nav-user">
             <div class="dropdown">
                 <button class="dropbtn">
-                    <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
-                                 alt="Profil" class="profile-pic">
+                    <img src="{{ url_for('static', filename='profile_pics/' ~ (current_user_profile.profile_pic if current_user_profile and current_user_profile.profile_pic else 'default.png')) }}"
+                    alt="Profil" class="profile-pic">
                 </button>
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
@@ -79,7 +79,7 @@
                 {% for player in leaderboard %}
                 <tr id="trb">
                     <td>{{ loop.index }}</td>
-                    <td><img src="{{ url_for('static', filename='profile_pics/' ~ (player.profile_pic or default.png)) }}" 
+                    <td><img src="{{ url_for('static', filename='profile_pics/' ~ (player.profile_pic if player.profile-pic else 'default.png')) }}" 
                          alt="Profil" class="profile-pic-small"></td>
                     <td>
                     {{ player.name or player.username }}</td>

@@ -564,6 +564,15 @@ def upload_profile_pic():
 
     return jsonify({"success": False, "error": "Unbekannter Fehler"}), 500
 
+# Context Processor um Profildaten global verfügbar zu machen
+@app.context_processor
+def inject_profile_data():
+    if 'user_id' in session:
+        user = db.session.get(User, session["user_id"])
+        if user and user.profile:
+            return {'current_user_profile': user.profile}
+    return {'current_user_profile': None}
+
 # --- Logout ---
 @app.route("/logout")
 def logout():
