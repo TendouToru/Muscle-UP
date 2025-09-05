@@ -370,26 +370,23 @@ def calculate_rank(user_id: int):
 # --- Homepage ---
 @app.route("/")
 def index():
-    leaderboard = db.session.query(
-        User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
-    ).outerjoin(UserStat, User.id == UserStat.user_id) \
-    .outerjoin(UserProfile, User.id == UserProfile.user_id) \
-    .order_by(UserStat.xp_total.desc()) \
-    .limit(10) \
-    .all()
-
     leaderboard_data = []
     for row in leaderboard:
         user_id, name, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
+        
+        # URL mit Fallback
+        profile_pic_url = get_github_url(profile_pic) if profile_pic else url_for('static', filename='profile_pics/default.png')
+        
         leaderboard_data.append({
             "name": name,
             "username": username,
             "xp": xp_total,
             "level": level,
             "rank": rank,
-            "profile_pic": profile_pic or 'default.png',  # Fallback falls None
+            "profile_pic": profile_pic or 'default.png',
+            "profile_pic_url": profile_pic_url,  # Hier die vollständige URL
             "streak": streak_days
         })
     return render_template("index.html", leaderboard=leaderboard_data)
@@ -639,6 +636,8 @@ def inject_profile_data():
             return {'current_user_profile': profile_data}
     
     return {'current_user_profile': None}
+
+
 # --- Logout ---
 @app.route("/logout")
 def logout():
