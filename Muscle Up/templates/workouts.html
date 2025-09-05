@@ -24,8 +24,9 @@
             <div class="nav-user">
                 <div class="dropdown">
                     <button class="dropbtn">
-                        <img src="{{ url_for('static', filename='profile_pics/' ~ (current_user_profile.profile_pic if current_user_profile and current_user_profile.profile_pic else 'default.png')) }}"
-                        alt="Profil" class="profile-pic">
+                         <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                 alt="Profil" class="profile-pic"
+                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                     </button>
                     <div class="dropdown-content">
                         <span class="username">{{ session['username'] }}</span>

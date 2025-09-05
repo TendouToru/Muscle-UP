@@ -2,7 +2,6 @@
 <html lang="de">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
@@ -13,7 +12,7 @@
         <header class="head">
             <h1 class="headline">Mein Profil</h1>
             <div class="nav-bar">
-                 <h1 class="headline">Muscle Up</h1>
+                <h1 class="headline">Muscle Up</h1>
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
                     <a href="{{ url_for('workout_page') }}" class="link">Training</a>
@@ -23,8 +22,9 @@
                 <div class="nav-user">
                     <div class="dropdown">
                         <button class="dropbtn">
-                            <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
-                                 alt="Profil" class="profile-pic">
+                            <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                                 alt="Profil" class="profile-pic"
+                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </button>
                         <div class="dropdown-content">
                             <span class="username">{{ session['username'] }}</span>
@@ -54,20 +54,24 @@
             </nav>
         </header>
         <main class="content">
-            <h2>Willkommen, {{profile.name or ''}}!</h2>
+            <h2>Willkommen, {{ profile.name or '' }}!</h2>
             <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten</p>
+            
             <section class="profile-card">
                 <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
                     <h3>Dein Profil</h3>
                     <div class="profile-pic-container">
-                        <img id="profile-pic-display" src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
-                             alt="Profilbild" class="pfp">
+                        <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                             alt="Profilbild" class="pfp"
+                             onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
                         <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
                     </div>
                     <div id="upload-message" class="upload-message"></div>
+                    
                     <label>Anzeigename:</label>
-                    <input type="text" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{profile.name or ''}}" disabled>
+                    <input type="text" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
+                    
                     <label>Geschlecht:</label>
                     <select name="gender" id="gender" disabled>
                         <option value="">Wähle...</option>
@@ -75,34 +79,42 @@
                         <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
                         <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
                     </select>
+                    
                     <label>Alter:</label>
                     <input type="number" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
+                    
                     <label>Körpergewicht (kg):</label>
                     <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
+                    
                     <label>Größe (cm):</label>
                     <input type="number" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
+                    
                     <div class="form-buttons">
                         <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
                         <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
                     </div>
                 </form>
             </section>
+            
             <section class="stats-card">
                 <h3>Meine Stats</h3>
-                <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" alt="Rang" class="pfp">
-                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{rank}}</strong></p>
+                <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
+                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank }}</strong></p>
                 <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
-                <div class="xp-bar" style="background-color: #ddd; width: 100%; height: 20px; border-radius: 10px; overflow: hidden;">
-                    <div class="xp-fill" style="background-color: #4caf50; width: {{ (progress*100)|round(1) }}%; height: 100%;"></div>
+                <div class="xp-bar">
+                    <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
                 </div>
+                
                 {% if stats.streak_days == 1 %}
                     <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
                 {% else %}
                     <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
                 {% endif %}
-                {%if ruhe == True%}
+                
+                {% if ruhe == True %}
                     <p>Restday Verfügbar ✅</p>
-                {%endif%}
+                {% endif %}
+                
                 <div class="attributes">
                     <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
                     <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
@@ -110,12 +122,13 @@
                 </div>
             </section>
         </main>
+        
         <footer>
             &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
         </footer>
     </div>
-</body>
-<script>
+    
+    <script>
     function toggleMenu() {
         const mobileMenu = document.getElementById("mobileMenu");
         mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
@@ -137,7 +150,7 @@
             });
             profilePicInput.removeAttribute('disabled');
             profilePicInput.style.display = 'block';
-            uploadBtn.style.display = 'block'; // Zeige den Upload-Button an
+            uploadBtn.style.display = 'block';
             editBtn.style.display = 'none';
             saveBtn.style.display = 'block';
         });
@@ -159,7 +172,7 @@
             const file = profilePicInput.files[0];
             if (!file) {
                 uploadMessage.textContent = 'Keine Datei ausgewählt!';
-                uploadMessage.style.color = 'var(--error)';
+                uploadMessage.style.color = 'red';
                 return;
             }
 
@@ -176,20 +189,22 @@
                 
                 if (response.ok && result.success) {
                     uploadMessage.textContent = 'Profilbild erfolgreich hochgeladen!';
-                    uploadMessage.style.color = 'var(--success)';
+                    uploadMessage.style.color = 'green';
                     
-                    profilePicDisplay.src = `{{ url_for('static', filename='profile_pics/') }}` + result.path;
-
+                    // Bild sofort aktualisieren
+                    profilePicDisplay.src = result.url;
+                    
                 } else {
                     uploadMessage.textContent = 'Fehler beim Hochladen: ' + (result.error || 'Unbekannter Fehler');
-                    uploadMessage.style.color = 'var(--error)';
+                    uploadMessage.style.color = 'red';
                 }
 
             } catch (e) {
                 uploadMessage.textContent = 'Fehler beim Hochladen: ' + e.message;
-                uploadMessage.style.color = 'var(--error)';
+                uploadMessage.style.color = 'red';
             }
         });
     });
-</script>
+    </script>
+</body>
 </html>

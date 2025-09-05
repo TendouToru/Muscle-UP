@@ -11,6 +11,9 @@ from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
 from sqlalchemy import exc as sa_exc
 from PIL import Image
+import base64
+import requests
+from github import Github
 
 # --- App & DB-Setup ---
 app = Flask(__name__)
@@ -21,6 +24,11 @@ UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'profile_pics')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Github Configuration
+app.config['GITHUB_TOKEN'] = os.environ.get('GITHUB_TOKEN')
+app.config['GITHUB_REPO'] = os.environ.get('GITHUB_REPO', 'TendouToru/Muscle-UP')
+app.config['GITHUB_BRANCH'] = os.environ.get('GITHUB_BRANCH', 'main')
 
 # --- SQLALCHEMY Database Classes ---
 class User(db.Model):
@@ -47,7 +55,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
-    profile_pic = db.Column(db.Text, default='default.png')
+    profile_pic_filename = db.Column(db.Text, default='default.png')
     user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
@@ -123,7 +131,7 @@ admin.add_view(WorkoutAdmin(Workout, db.session, name='Workouts'))
 admin.add_view(SetAdmin(Set, db.session, name='Sätze'))
 
 
-# --- Helper Function for DB ---
+# --- Helper Function for DB und Cloud ---
 def init_db():
     try:
         db.create_all()
@@ -137,6 +145,39 @@ def init_db():
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db.session.remove()
+
+
+def upload_to_github(image_data, filename):
+    """Lädt Bild zu GitHub Pages"""
+    try:
+        g = Github(app.config['GITHUB_TOKEN'])
+        repo = g.get_repo(app.config['GITHUB_REPO'])
+        
+        # Base64 encoden
+        content_base64 = base64.b64encode(image_data).decode('utf-8')
+        
+        # Datei erstellen/updaten
+        repo.create_file(
+            path=f"profile_pics/{filename}",
+            message=f"Add profile picture {filename}",
+            content=content_base64,
+            branch=app.config['GITHUB_BRANCH']
+        )
+        
+        return True
+    except Exception as e:
+        print(f"Error uploading to GitHub: {e}")
+        return False
+
+def get_github_url(filename):
+    """Generiert GitHub Pages URL"""
+    if not filename or filename == 'default.png':
+        return url_for('static', filename='profile_pics/default.png')
+    
+    # GitHub Pages URL Format: https://username.github.io/repo-name/profile_pics/filename.jpg
+    username = app.config['GITHUB_REPO'].split('/')[0]
+    repo_name = app.config['GITHUB_REPO'].split('/')[1]
+    return f"https://{username}.github.io/{repo_name}/profile_pics/{filename}"
 
 
 # --- XP Functions ---
@@ -330,7 +371,7 @@ def calculate_rank(user_id: int):
 @app.route("/")
 def index():
     leaderboard = db.session.query(
-        User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
+        User.id, UserProfile.name, UserProfile.profile_pic_filename, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
      .outerjoin(UserProfile, User.id == UserProfile.user_id) \
      .order_by(UserStat.xp_total.desc()) \
@@ -339,7 +380,7 @@ def index():
 
     leaderboard_data = []
     for row in leaderboard:
-        user_id, name, profile_pic, username, xp_total, streak_days = row
+        user_id, name, profile_pic_filename, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         leaderboard_data.append({
@@ -348,7 +389,7 @@ def index():
             "xp": xp_total,
             "level": level,
             "rank": rank,
-            "profile_pic": profile_pic,
+            "profile_pic": profile_pic_filename,
             "streak": streak_days
         })
     return render_template("index.html", leaderboard=leaderboard_data)
@@ -525,44 +566,55 @@ def upload_profile_pic():
         return jsonify({"success": False, "error": "Keine Datei ausgewählt"}), 400
 
     file = request.files['profile_pic']
-
     if file.filename == '':
         return jsonify({"success": False, "error": "Keine Datei ausgewählt"}), 400
 
-    if file:
-        try:
-            from PIL import Image
-            
-            img = Image.open(file.stream).convert('RGB')
-            size = (200, 200)
-            img.thumbnail(size, Image.Resampling.LANCZOS)
-
-            user_profile = db.session.get(UserProfile, session["user_id"])
-            if not user_profile:
-                return jsonify({"success": False, "error": "Benutzerprofil nicht gefunden"}), 404
-            
-            if user_profile.profile_pic and user_profile.profile_pic != 'default.png':
-                old_file_path = os.path.join(app.config['UPLOAD_FOLDER'], user_profile.profile_pic)
-                if os.path.exists(old_file_path):
-                    os.remove(old_file_path)
-
-            filename = secure_filename(f"{session['user_id']}_{secrets.token_hex(8)}.jpg")
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-            
-            img.save(file_path, 'JPEG')
-
-            user_profile.profile_pic = filename
+    try:
+        from PIL import Image
+        import io
+        
+        # Bild verarbeiten
+        img = Image.open(file.stream).convert('RGB')
+        img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+        
+        # In Bytes umwandeln
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='JPEG')
+        img_data = img_byte_arr.getvalue()
+        
+        # Altes Bild löschen (optional, falls du das implementieren willst)
+        user_profile = db.session.get(UserProfile, session["user_id"])
+        if not user_profile:
+            return jsonify({"success": False, "error": "Benutzerprofil nicht gefunden"}), 404
+        
+        # Neues Bild hochladen
+        filename = f"user_{session['user_id']}_{secrets.token_hex(8)}.jpg"
+        
+        if upload_to_github(img_data, filename):
+            # Nur den Dateinamen in der DB speichern
+            user_profile.profile_pic_filename = filename
             db.session.commit()
             
-            return jsonify({"success": True, "path": filename}), 200
+            return jsonify({
+                "success": True, 
+                "filename": filename,
+                "url": get_github_url(filename)
+            }), 200
+        else:
+            return jsonify({"success": False, "error": "Fehler beim Hochladen zu GitHub"}), 500
 
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"success": False, "error": f"Fehler beim Verarbeiten des Bildes: {e}"}), 500
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Fehler beim Verarbeiten des Bildes: {e}"}), 500
 
-    return jsonify({"success": False, "error": "Unbekannter Fehler"}), 500
+
+@app.route('/profile_pic/<filename>')
+def get_profile_pic(filename):
+    if filename == 'default.png':
+        return redirect(url_for('static', filename='profile_pics/default.png'))
+    
+    user_profile = UserProfile.query.filter_by(profile_pic_filename=filename).first()
+    if user
 
 # Context Processor um Profildaten global verfügbar zu machen
 @app.context_processor
@@ -570,9 +622,18 @@ def inject_profile_data():
     if 'user_id' in session:
         user = db.session.get(User, session["user_id"])
         if user and user.profile:
-            return {'current_user_profile': user.profile}
+            profile_data = {
+                'name': user.profile.name,
+                'gender': user.profile.gender,
+                'age': user.profile.age,
+                'bodyweight': user.profile.bodyweight,
+                'height': user.profile.height,
+                'profile_pic_filename': user.profile.profile_pic_filename,
+                'profile_pic_url': get_github_url(user.profile.profile_pic_filename)
+            }
+            return {'current_user_profile': profile_data}
+    
     return {'current_user_profile': None}
-
 # --- Logout ---
 @app.route("/logout")
 def logout():
