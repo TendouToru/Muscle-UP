@@ -196,9 +196,16 @@ def upload_to_github(image_data, filename):
         return False
 
 def get_github_url(filename):
-    """Generiert GitHub Pages URL"""
+    """Generiert die korrekte URL für GitHub-hostete Bilder"""
     if not filename or filename == 'default.png':
         return url_for('static', filename='profile_pics/default.png')
+    
+    # RAW GitHub Content URL (für direktes Anzeigen von Bildern)
+    username = app.config['GITHUB_REPO'].split('/')[0]
+    repo_name = app.config['GITHUB_REPO'].split('/')[1]
+    branch = app.config['GITHUB_BRANCH']
+    
+    return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/{filename}"
     
     # GitHub Pages URL Format: https://username.github.io/repo-name/profile_pics/filename.jpg
     username = app.config['GITHUB_REPO'].split('/')[0]
