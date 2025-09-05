@@ -198,19 +198,18 @@ def upload_to_github(image_data, filename):
 def get_github_url(filename):
     """Generiert die korrekte URL für GitHub-hostete Bilder"""
     if not filename or filename == 'default.png':
-        return url_for('static', filename='profile_pics/default.png')
+        # Für default.png verwenden wir GitHub, nicht local!
+        username = app.config['GITHUB_REPO'].split('/')[0]
+        repo_name = app.config['GITHUB_REPO'].split('/')[1]
+        branch = app.config['GITHUB_BRANCH']
+        return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/default.png"
     
-    # RAW GitHub Content URL (für direktes Anzeigen von Bildern)
+    # RAW GitHub Content URL
     username = app.config['GITHUB_REPO'].split('/')[0]
     repo_name = app.config['GITHUB_REPO'].split('/')[1]
     branch = app.config['GITHUB_BRANCH']
     
     return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/{filename}"
-    
-    # GitHub Pages URL Format: https://username.github.io/repo-name/profile_pics/filename.jpg
-    username = app.config['GITHUB_REPO'].split('/')[0]
-    repo_name = app.config['GITHUB_REPO'].split('/')[1]
-    return f"https://{username}.github.io/{repo_name}/profile_pics/{filename}"
 
 
 # --- XP Functions ---
@@ -663,6 +662,7 @@ def get_profile_pic(filename):
     # Fallback to default image
     return redirect(url_for('static', filename='profile_pics/default.png'))
 
+
 # Context Processor um Profildaten global verfügbar zu machen
 @app.context_processor
 def inject_profile_data():
@@ -676,12 +676,15 @@ def inject_profile_data():
                 'bodyweight': user.profile.bodyweight,
                 'height': user.profile.height,
                 'profile_pic': user.profile.profile_pic, 
-                'profile_pic_url': get_github_url(user.profile.profile_pic) if user.profile.profile_pic else get_github_url('default.png')
+                # IMMER GitHub URL verwenden, nie local static!
+                'profile_pic_url': get_github_url(user.profile.profile_pic)
             }
             return {'current_user_profile': profile_data}
     
-    return {'current_user_profile': None}
-
+    # Fallback für nicht eingeloggte User
+    return {'current_user_profile': {
+        'profile_pic_url': get_github_url('default.png')
+    }}
 
 # --- Logout ---
 @app.route("/logout")

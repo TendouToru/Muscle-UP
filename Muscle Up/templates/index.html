@@ -18,9 +18,9 @@
         <div class="nav-user">
             <div class="dropdown">
                 <button class="dropbtn">
-                     <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-                        alt="Profil" class="profile-pic"
-                        onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                    <img src="{{ current_user_profile.profile_pic_url }}" 
+                                 alt="Profil" class="profile-pic"
+                                 onerror="this.src='{{ get_github_url('default.png') }}'">
                 </button>
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
@@ -79,7 +79,7 @@
                         <td>
                             <img src="{{ player.profile_pic_url }}" 
                                 alt="Profil" class="profile-pic-small"
-                                onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                                onerror="this.src='{{ get_github_url('default.png') }}'">
                         </td>
                         <td>{{ player.name or player.username }}</td>
                         <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
