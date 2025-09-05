@@ -23,7 +23,7 @@
                 <div class="nav-user">
                     <div class="dropdown">
                         <button class="dropbtn">
-                            <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png.png')) }}"
+                            <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
                                  alt="Profil" class="profile-pic">
                         </button>
                         <div class="dropdown-content">
@@ -60,7 +60,7 @@
                 <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
                     <h3>Dein Profil</h3>
                     <div class="profile-pic-container">
-                        <img id="profile-pic-display" src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png.png')) }}"
+                        <img id="profile-pic-display" src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
                              alt="Profilbild" class="pfp">
                         <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
                         <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>

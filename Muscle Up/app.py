@@ -47,7 +47,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
-    profile_pic = db.Column(db.Text, default='default.png.png')
+    profile_pic = db.Column(db.Text, default='default.png')
     user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
@@ -329,9 +329,6 @@ def calculate_rank(user_id: int):
 # --- Homepage ---
 @app.route("/")
 def index():
-    user = db.session.get(User, session["user_id"])
-    
-
     leaderboard = db.session.query(
         User.id, UserProfile.name, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
@@ -544,7 +541,7 @@ def upload_profile_pic():
             if not user_profile:
                 return jsonify({"success": False, "error": "Benutzerprofil nicht gefunden"}), 404
             
-            if user_profile.profile_pic and user_profile.profile_pic != 'default.png.png':
+            if user_profile.profile_pic and user_profile.profile_pic != 'default.png':
                 old_file_path = os.path.join(app.config['UPLOAD_FOLDER'], user_profile.profile_pic)
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)

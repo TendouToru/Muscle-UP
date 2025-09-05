@@ -24,7 +24,7 @@
             <div class="nav-user">
                 <div class="dropdown">
                     <button class="dropbtn">
-                        <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png.png')) }}"
+                        <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png')) }}"
                                  alt="Profil" class="profile-pic">
                     </button>
                     <div class="dropdown-content">
