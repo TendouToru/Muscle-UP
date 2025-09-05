@@ -9,3 +9,4 @@ pytz==2025.2
 Flask-Admin==1.6.1
 Flask-SQLAlchemy==3.0.3
 Flask-Migrate==4.0.7
+Pillow==9.5.0
