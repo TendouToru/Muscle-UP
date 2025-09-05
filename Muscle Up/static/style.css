@@ -179,7 +179,7 @@ main.content {
     color: var(--primary);
 }
 
-#saveBtn{
+#saveBtn, #uploadBtn{
     border-color: var(--success);
     background-color: var(--success);
 }
@@ -539,10 +539,12 @@ footer {
 .form-profile input, #gender {
     padding: 10px;
     border-radius: 6px;
-    border: none;
+    border: none;   
     background: var(--accent-dark);
     color: var(--text);
 }
+
+
 
 .form-profile button {
     margin-top: 10px;
@@ -552,7 +554,6 @@ footer {
     -webkit-text-fill-color: var(--text);
     opacity: 1;
 }
-
 
 /* XP-Bar */
 .xp-bar {
@@ -605,16 +606,36 @@ footer {
     display: block;
 }
 
-.pfp{
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 70px;
-    height: 70px;
+.pfp {
+    width: 100px; /* Kleinere Größe */
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--secondary);
 }
+
+.profile-pic-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto 20px; 
+}
+
+#profile_pic {
+    all: unset;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.upload-container{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 
 
 /* Leaderboard*/

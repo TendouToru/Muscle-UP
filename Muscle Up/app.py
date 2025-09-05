@@ -1,4 +1,5 @@
 import os
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 from collections import defaultdict
 import hashlib, json, secrets, math
@@ -9,12 +10,15 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
 from sqlalchemy import exc as sa_exc
+from PIL import Image
 
 # --- App & DB-Setup ---
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'profile_pics')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -33,14 +37,17 @@ class User(db.Model):
 
     def __repr__(self):
         return self.username
+    
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
     name = db.Column(db.Text)
     gender = db.Column(db.Text)
+    age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
+    profile_pic = db.Column(db.Text, default='default.png')
     user = db.relationship('User', back_populates='profile')
 
 class UserStat(db.Model):
@@ -63,6 +70,8 @@ class Workout(db.Model):
     
     user = db.relationship('User', back_populates='workouts')
     sets = db.relationship('Set', back_populates='workout', lazy=True, cascade="all, delete-orphan")
+
+
     
 class Set(db.Model):
     __tablename__ = 'sets'
@@ -74,6 +83,8 @@ class Set(db.Model):
     
     user = db.relationship('User', back_populates='sets')
     workout = db.relationship('Workout', back_populates='sets')
+
+  
 
 # --- Flask-Admin Configurations ---
 class MyAdminIndexView(AdminIndexView):
@@ -337,7 +348,7 @@ def index():
             "xp": xp_total,
             "level": level,
             "rank": rank,
-            "profile_pic": "default.png.png",
+            "profile_pic": "default.png",
             "streak": streak_days
         })
     return render_template("index.html", leaderboard=leaderboard_data)
@@ -437,13 +448,15 @@ def profile():
 
     if request.method == "POST":
             try:
-                # Stelle sicher, dass das Profilobjekt existiert
                 if not user.profile:
                     user.profile = UserProfile(user_id=user.id)
 
-                # Prüfe, ob die Formularwerte vorhanden sind, bevor sie zugewiesen werden
                 gender = request.form.get("gender")
                 name = request.form.get("username")
+                age = request.form.get("age")
+                bodyweight_str = request.form.get("bodyweight")
+                height_str = request.form.get("height")
+                profile_pic_path = request.form.get("profile_pic_path")
 
                 if name:
                     user.profile.name = name
@@ -451,13 +464,26 @@ def profile():
                 if gender:
                     user.profile.gender = gender
 
-                bodyweight_str = request.form.get("bodyweight")
+                if age:
+                    user.profile.age = age
+
                 if bodyweight_str:
                     user.profile.bodyweight = float(bodyweight_str)
 
-                height_str = request.form.get("height")
                 if height_str:
-                    user.profile.height = float(height_str)  # Ändern von int auf float für mehr Flexibilität
+                    user.profile.height = float(height_str)  
+
+                if 'profile_pic' in request.files:
+                    file = request.files['profile_pic']
+                    if file.filename != '':
+                        filename = secure_filename(str(user.id) + '_' + file.filename)
+                        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        
+                        img = Image.open(file)
+                        img.thumbnail((300, 300))
+                        img.save(file_path)
+                        
+                        user.profile.profile_pic = filename
                 
                 db.session.commit()
                 flash("Profil erfolgreich aktualisiert!", "success")
@@ -488,6 +514,55 @@ def profile():
                            xp_for_next=xp_for_next,
                            xp_remaining=xp_remaining,
                            username=user.username)
+
+# --- Profilbild ---
+@app.route("/upload_profile_pic", methods=["POST"])
+def upload_profile_pic():
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Nicht angemeldet"}), 401
+
+    if 'profile_pic' not in request.files:
+        return jsonify({"success": False, "error": "Keine Datei ausgewählt"}), 400
+
+    file = request.files['profile_pic']
+
+    if file.filename == '':
+        return jsonify({"success": False, "error": "Keine Datei ausgewählt"}), 400
+
+    if file:
+        try:
+            from PIL import Image
+            
+            img = Image.open(file.stream).convert('RGB')
+            size = (200, 200)
+            img.thumbnail(size, Image.Resampling.LANCZOS)
+
+            user_profile = db.session.get(UserProfile, session["user_id"])
+            if not user_profile:
+                return jsonify({"success": False, "error": "Benutzerprofil nicht gefunden"}), 404
+            
+            if user_profile.profile_pic and user_profile.profile_pic != 'default.png.png':
+                old_file_path = os.path.join(app.config['UPLOAD_FOLDER'], user_profile.profile_pic)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+
+            filename = secure_filename(f"{session['user_id']}_{secrets.token_hex(8)}.jpg")
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            
+            img.save(file_path, 'JPEG')
+
+            user_profile.profile_pic = filename
+            db.session.commit()
+            
+            return jsonify({"success": True, "path": filename}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"success": False, "error": f"Fehler beim Verarbeiten des Bildes: {e}"}), 500
+
+    return jsonify({"success": False, "error": "Unbekannter Fehler"}), 500
 
 # --- Logout ---
 @app.route("/logout")

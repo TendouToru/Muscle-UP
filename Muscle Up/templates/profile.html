@@ -13,71 +13,61 @@
         <header class="head">
             <h1 class="headline">Mein Profil</h1>
             <div class="nav-bar">
-                 <!-- Links: Logo -->
-                <h1 class="headline">Muscle Up</h1>
-
-                <!-- Mitte: Navigation (nur Desktop) -->
+                 <h1 class="headline">Muscle Up</h1>
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
                     <a href="{{ url_for('workout_page') }}" class="link">Training</a>
                     <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
                 </nav>
-
-        <!-- Rechts: Userbereich / Login -->
-        {% if 'user_id' in session %}
-        <div class="nav-user">
-            <div class="dropdown">
-                <button class="dropbtn">
-                    <img src="{{ url_for('static', filename='default.png.png') }}" 
-                         alt="Profil" class="profile-pic">
-                </button>
-                <div class="dropdown-content">
-                    <span class="username">{{ session['username'] }}</span>
-                    <a href="{{ url_for('profile') }}">Mein Profil</a>
-                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% if 'user_id' in session %}
+                <div class="nav-user">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            <img src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png.png')) }}"
+                                 alt="Profil" class="profile-pic">
+                        </button>
+                        <div class="dropdown-content">
+                            <span class="username">{{ session['username'] }}</span>
+                            <a href="{{ url_for('profile') }}">Mein Profil</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        </div>
+                    </div>
                 </div>
+                {% else %}
+                <nav class="nav-top">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                </nav>
+                {% endif %}
+                <button class="hamburger" onclick="toggleMenu()">☰</button>
             </div>
-        </div>
-        {% else %}
-        <nav class="nav-top">
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        </nav>
-        {% endif %}
-
-        <!-- Hamburger Button (nur Mobile) -->
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-    </div>
-
-    <!-- Mobile Menü -->
-    <nav class="mobile-menu" id="mobileMenu">
-        <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('workout_page') }}">Training</a>
-        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
-
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        {% endif %}
-    </nav>
+            <nav class="mobile-menu" id="mobileMenu">
+                <a href="{{ url_for('index') }}">Start</a>
+                <a href="{{ url_for('workout_page') }}">Training</a>
+                <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+                {% if 'user_id' in session %}
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                {% endif %}
+            </nav>
         </header>
-
         <main class="content">
-            <h2>Willkommen, {{profile.name}}!</h2>
+            <h2>Willkommen, {{profile.name or ''}}!</h2>
             <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten</p>
-
-            <!-- Profil-Daten -->
             <section class="profile-card">
-                <h3>Dein Profil </h3>
-                <img src="{{url_for('static', filename='default.png.png')}}" class="pfp">
-                <form method="post" class="form-profile" id="profileForm">
-                     
-                    
+                <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
+                    <h3>Dein Profil</h3>
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-display" src="{{ url_for('static', filename='profile_pics/' ~ (profile.profile_pic if profile and profile.profile_pic else 'default.png.png')) }}"
+                             alt="Profilbild" class="pfp">
+                        <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
+                        <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
+                    </div>
+                    <div id="upload-message" class="upload-message"></div>
                     <label>Anzeigename:</label>
-                    <input type="text" placeholder="Dein name" name="username" value="{{profile.name or ''}}" disabled>
-                    
+                    <input type="text" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{profile.name or ''}}" disabled>
                     <label>Geschlecht:</label>
                     <select name="gender" id="gender" disabled>
                         <option value="">Wähle...</option>
@@ -85,93 +75,121 @@
                         <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
                         <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
                     </select>
-
+                    <label>Alter:</label>
+                    <input type="number" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
                     <label>Körpergewicht (kg):</label>
                     <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
-
                     <label>Größe (cm):</label>
                     <input type="number" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
-
                     <div class="form-buttons">
-                        <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten </button>
+                        <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
                         <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
                     </div>
                 </form>
             </section>
-
-          <!-- Stats -->
             <section class="stats-card">
                 <h3>Meine Stats</h3>
-
-                    <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" alt="Rang" class="pfp">
-
-
-                <p>Level: <strong>{{ level }}</strong>  |  Rang: <strong>{{rank}}</strong></p>
+                <img src="{{url_for('static', filename='ranks/' ~rank~ '.jpg')}}" alt="Rang" class="pfp">
+                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{rank}}</strong></p>
                 <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
-
                 <div class="xp-bar" style="background-color: #ddd; width: 100%; height: 20px; border-radius: 10px; overflow: hidden;">
                     <div class="xp-fill" style="background-color: #4caf50; width: {{ (progress*100)|round(1) }}%; height: 100%;"></div>
                 </div>
-
                 {% if stats.streak_days == 1 %}
                     <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
                 {% else %}
                     <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
                 {% endif %}
-
                 {%if ruhe == True%}
                     <p>Restday Verfügbar ✅</p>
                 {%endif%}
-
                 <div class="attributes">
                     <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
                     <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
                     <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
                 </div>
             </section>
-
         </main>
-
-
-
         <footer>
             &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
         </footer>
     </div>
-    
 </body>
 <script>
-function toggleMenu() {
-    const menu = document.getElementById("mobileMenu");
-    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-}
+    function toggleMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
+    }
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const formFields = document.querySelectorAll('#profileForm input, #profileForm select');
+        const profilePicInput = document.getElementById('profile_pic');
+        const uploadMessage = document.getElementById('upload-message');
+        const profilePicDisplay = document.getElementById('profile-pic-display');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const editBtn = document.getElementById('editBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const formFields = document.querySelectorAll('#profileForm input, #profileForm select');
-
-    editBtn.addEventListener('click', function() {
-        // Formularfelder aktivieren + Design
-        formFields.forEach(field => {
-            field.removeAttribute('disabled');
-            field.style.boxShadow = '0 0 5px gold';
+        editBtn.addEventListener('click', function() {
+            formFields.forEach(field => {
+                field.removeAttribute('disabled');
+                field.style.boxShadow = '0 0 5px gold';
+            });
+            profilePicInput.removeAttribute('disabled');
+            profilePicInput.style.display = 'block';
+            uploadBtn.style.display = 'block'; // Zeige den Upload-Button an
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'block';
         });
 
-        // Knöpfe tauschen
-        editBtn.style.display = 'none';
-        saveBtn.style.display = 'block';
+        profilePicInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePicDisplay.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
+        uploadBtn.addEventListener('click', async function(event) {
+            event.preventDefault();
+
+            const file = profilePicInput.files[0];
+            if (!file) {
+                uploadMessage.textContent = 'Keine Datei ausgewählt!';
+                uploadMessage.style.color = 'var(--error)';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_pic', file);
+
+            try {
+                const response = await fetch("{{ url_for('upload_profile_pic') }}", {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    uploadMessage.textContent = 'Profilbild erfolgreich hochgeladen!';
+                    uploadMessage.style.color = 'var(--success)';
+                    
+                    profilePicDisplay.src = `{{ url_for('static', filename='profile_pics/') }}` + result.path;
+
+                } else {
+                    uploadMessage.textContent = 'Fehler beim Hochladen: ' + (result.error || 'Unbekannter Fehler');
+                    uploadMessage.style.color = 'var(--error)';
+                }
+
+            } catch (e) {
+                uploadMessage.textContent = 'Fehler beim Hochladen: ' + e.message;
+                uploadMessage.style.color = 'var(--error)';
+            }
+        });
     });
-});
 </script>
 </html>
-
-
-
-
-
-
-
-
