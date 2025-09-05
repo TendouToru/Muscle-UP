@@ -610,11 +610,16 @@ def upload_profile_pic():
 
 @app.route('/profile_pic/<filename>')
 def get_profile_pic(filename):
+    """Serve profile pictures from database"""
     if filename == 'default.png':
         return redirect(url_for('static', filename='profile_pics/default.png'))
     
     user_profile = UserProfile.query.filter_by(profile_pic_filename=filename).first()
-    if user
+    if user_profile and user_profile.profile_pic_data:
+        return Response(user_profile.profile_pic_data, mimetype='image/jpeg')
+    
+    # Fallback to default image
+    return redirect(url_for('static', filename='profile_pics/default.png'))
 
 # Context Processor um Profildaten global verfügbar zu machen
 @app.context_processor
