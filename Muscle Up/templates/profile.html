@@ -22,9 +22,9 @@
                 <div class="nav-user">
                     <div class="dropdown">
                         <button class="dropbtn">
-                            <img src="{{ current_user_profile.profile_pic_url }}" 
-                                 alt="Profil" class="profile-pic"
-                                 onerror="this.src='{{ get_github_url('default.png') }}'">
+                            <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+     alt="Profil" class="profile-pic"
+     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </button>
                         <div class="dropdown-content">
                             <span class="username">{{ session['username'] }}</span>
@@ -61,9 +61,10 @@
                 <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
                     <h3>Dein Profil</h3>
                     <div class="profile-pic-container">
-                        <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url }}" 
-                             alt="Profilbild" class="pfp"
-                             onerror="this.src='{{ get_github_url('default.png') }}'">
+                        <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+     alt="Profilbild" class="pfp"
+     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+
                         <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
                         <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
                     </div>

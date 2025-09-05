@@ -198,7 +198,6 @@ def upload_to_github(image_data, filename):
 def get_github_url(filename):
     """Generiert die korrekte URL für GitHub-hostete Bilder"""
     if not filename or filename == 'default.png':
-        # Für default.png verwenden wir GitHub, nicht local!
         username = app.config['GITHUB_REPO'].split('/')[0]
         repo_name = app.config['GITHUB_REPO'].split('/')[1]
         branch = app.config['GITHUB_BRANCH']
