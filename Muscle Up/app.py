@@ -195,6 +195,17 @@ def upload_to_github(image_data, filename):
         print(f"❌ Error uploading to GitHub: {e}")
         return False
 
+def get_github_url(filename):
+    """Generiert URL für Bilder die im GitHub Repository im static Ordner liegen"""
+    if not filename or filename == 'default.png':
+        filename = 'default.png'
+    
+    # GitHub Pages URL Format (wenn du GitHub Pages verwendest)
+    username = app.config['GITHUB_REPO'].split('/')[0]
+    repo_name = app.config['GITHUB_REPO'].split('/')[1]
+    
+    return f"https://{username}.github.io/{repo_name}/profile_pics/{filename}"
+
 # In app.py nach der Funktion:
 app.jinja_env.globals['get_github_url'] = get_github_url
 
