@@ -196,20 +196,18 @@ def upload_to_github(image_data, filename):
         return False
 
 def get_github_url(filename):
-    """Generiert die korrekte URL für GitHub-hostete Bilder"""
+    """Generiert URL für Bilder die im GitHub Repository im static Ordner liegen"""
     if not filename or filename == 'default.png':
-        username = app.config['GITHUB_REPO'].split('/')[0]
-        repo_name = app.config['GITHUB_REPO'].split('/')[1]
-        branch = app.config['GITHUB_BRANCH']
-        return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/default.png"
+        filename = 'default.png'
     
-    # RAW GitHub Content URL
+    # GitHub Pages URL Format (wenn du GitHub Pages verwendest)
     username = app.config['GITHUB_REPO'].split('/')[0]
     repo_name = app.config['GITHUB_REPO'].split('/')[1]
-    branch = app.config['GITHUB_BRANCH']
     
-    return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/{filename}"
+    return f"https://{username}.github.io/{repo_name}/profile_pics/{filename}"
 
+# In app.py nach der Funktion:
+app.jinja_env.globals['get_github_url'] = get_github_url
 
 # --- XP Functions ---
 def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
