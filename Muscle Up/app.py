@@ -148,66 +148,85 @@ def shutdown_session(exception=None):
 
 
 def upload_to_github(image_data, filename):
-    """Lädt Bild zu GitHub Pages mit Timeout"""
+    """Lädt Bild zu GitHub mit Debug-Informationen"""
     try:
-        import signal
-        from functools import wraps
+        token = app.config['GITHUB_TOKEN']
+        repo_path = app.config['GITHUB_REPO']
+        branch = app.config['GITHUB_BRANCH']
         
-        # Timeout Decorator
-        def timeout(seconds=10):
-            def decorator(func):
-                @wraps(func)
-                def wrapper(*args, **kwargs):
-                    def handler(signum, frame):
-                        raise TimeoutError("Function timed out")
-                    
-                    signal.signal(signal.SIGALRM, handler)
-                    signal.alarm(seconds)
-                    try:
-                        result = func(*args, **kwargs)
-                    finally:
-                        signal.alarm(0)
-                    return result
-                return wrapper
-            return decorator
+        if not token:
+            print("❌ GitHub Token nicht konfiguriert!")
+            return False
         
-        @timeout(15)  # 15 Sekunden Timeout
-        def upload():
-            g = Github(app.config['GITHUB_TOKEN'])
-            repo = g.get_repo(app.config['GITHUB_REPO'])
-            
-            content_base64 = base64.b64encode(image_data).decode('utf-8')
-            
-            repo.create_file(
-                path=f"profile_pics/{filename}",
-                message=f"Add profile picture {filename}",
-                content=content_base64,
-                branch=app.config['GITHUB_BRANCH']
-            )
+        print(f"🔄 Versuche Upload zu: {repo_path}/profile_pics/{filename}")
+        
+        # GitHub API URL
+        url = f"https://api.github.com/repos/{repo_path}/contents/profile_pics/{filename}"
+        
+        # Base64 encoden
+        content_base64 = base64.b64encode(image_data).decode('utf-8')
+        
+        # Request an GitHub API
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        
+        data = {
+            "message": f"Add profile picture {filename}",
+            "content": content_base64,
+            "branch": branch
+        }
+        
+        print(f"📤 Sende Request an: {url}")
+        
+        response = requests.put(url, headers=headers, json=data, timeout=15)
+        
+        print(f"📥 Response: {response.status_code} - {response.text}")
+        
+        if response.status_code in [200, 201]:
+            print(f"✅ Bild erfolgreich hochgeladen: {filename}")
             return True
-        
-        return upload()
-        
-    except TimeoutError:
-        print("GitHub upload timed out")
-        return False
+        else:
+            print(f"❌ GitHub API Fehler: {response.status_code}")
+            return False
+            
     except Exception as e:
-        print(f"Error uploading to GitHub: {e}")
+        print(f"❌ Error uploading to GitHub: {e}")
         return False
-
-def get_github_url(filename):
-    """Generiert URL für Bilder die im GitHub Repository im static Ordner liegen"""
-    if not filename or filename == 'default.png':
-        filename = 'default.png'
-    
-    # GitHub Pages URL Format (wenn du GitHub Pages verwendest)
-    username = app.config['GITHUB_REPO'].split('/')[0]
-    repo_name = app.config['GITHUB_REPO'].split('/')[1]
-    
-    return f"https://{username}.github.io/{repo_name}/profile_pics/{filename}"
 
 # In app.py nach der Funktion:
 app.jinja_env.globals['get_github_url'] = get_github_url
+
+
+
+@app.route("/test_github_config")
+def test_github_config():
+    """Testet die GitHub Konfiguration"""
+    token = app.config['GITHUB_TOKEN']
+    repo = app.config['GITHUB_REPO']
+    branch = app.config['GITHUB_BRANCH']
+    
+    result = f"Token: {'✅' if token else '❌'} {token[:10] if token else ''}...<br>"
+    result += f"Repo: {repo}<br>"
+    result += f"Branch: {branch}<br>"
+    
+    if token:
+        try:
+            import requests
+            headers = {"Authorization": f"token {token}"}
+            response = requests.get(f"https://api.github.com/repos/{repo}", headers=headers, timeout=10)
+            result += f"Repo Zugriff: {response.status_code}<br>"
+            if response.status_code == 200:
+                result += "✅ Repository gefunden und zugreifbar"
+            else:
+                result += f"❌ Fehler: {response.text}"
+        except Exception as e:
+            result += f"❌ Exception: {e}"
+    
+    return result
+
+
 
 # --- XP Functions ---
 def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
