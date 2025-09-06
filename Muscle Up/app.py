@@ -426,7 +426,6 @@ def calculate_rank(user_id: int):
 
 # --- Homepage ---
 @app.route("/")
-@app.route("/")
 def index():
     # 1. Daten aus der Datenbank abfragen
     leaderboard = db.session.query(
@@ -444,7 +443,8 @@ def index():
         level, _, _, _ = calculate_level_and_progress(xp_total)
         rank = calculate_rank(user_id)
         
-        profile_pic_url = get_github_url(profile_pic) if profile_pic else url_for('static', filename='profile_pics/default.png')
+        # WICHTIG: Hier get_github_url verwenden!
+        profile_pic_url = get_github_url(profile_pic) if profile_pic else get_github_url('default.png')
         
         leaderboard_data.append({
             "name": name,
@@ -457,7 +457,6 @@ def index():
             "streak": streak_days
         })
     
-    # 3. Template mit Daten rendern
     return render_template("index.html", leaderboard=leaderboard_data)
 
 @app.template_filter("xpformat")
@@ -701,8 +700,7 @@ def inject_profile_data():
                 'bodyweight': user.profile.bodyweight,
                 'height': user.profile.height,
                 'profile_pic': user.profile.profile_pic, 
-                # IMMER GitHub URL verwenden, nie local static!
-                'profile_pic_url': get_github_url(user.profile.profile_pic)
+                'profile_pic_url': get_github_url(user.profile.profile_pic) if user.profile.profile_pic else get_github_url('default.png')
             }
             return {'current_user_profile': profile_data}
     
