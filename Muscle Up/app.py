@@ -158,10 +158,10 @@ def upload_to_github(image_data, filename):
             print("❌ GitHub Token nicht konfiguriert!")
             return False
         
-        print(f"🔄 Versuche Upload zu: {repo_path}/profile_pics/{filename}")
+        print(f"🔄 Versuche Upload zu: {repo_path}/static/profile_pics/{filename}")
         
-        # GitHub API URL
-        url = f"https://api.github.com/repos/{repo_path}/contents/profile_pics/{filename}"
+        # ✅ KORRIGIERT: static/profile_pics/ verwenden ggf Muscle Up/static/...
+        url = f"https://api.github.com/repos/{repo_path}/contents/Muscle%20Up/static/profile_pics/{filename}"
         
         # Base64 encoden
         content_base64 = base64.b64encode(image_data).decode('utf-8')
@@ -196,7 +196,7 @@ def upload_to_github(image_data, filename):
         return False
 
 def get_github_url(filename):
-    """Generiert RAW GitHub URL für hochgeladene Profilbilder"""
+    """Generiert URL für Bilder im static/profile_pics Ordner"""
     if not filename or filename == 'default.png':
         filename = 'default.png'
     
@@ -204,8 +204,8 @@ def get_github_url(filename):
     repo_name = app.config['GITHUB_REPO'].split('/')[1]
     branch = app.config['GITHUB_BRANCH']
     
-    # RAW GitHub Content URL für profile_pics Ordner
-    return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/profile_pics/{filename}"
+    # ✅ KORRIGIERT: static/profile_pics/ verwenden
+    return f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/Muscle%20Up/static/profile_pics/{filename}"
 
 
 
