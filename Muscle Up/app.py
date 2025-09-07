@@ -748,6 +748,7 @@ def workout_page():
             exercise=exercise_name,
             date=today,
             type=workout_type
+        )
 
         try:
             new_workout = Workout(
