@@ -44,6 +44,7 @@
             </div>
             <nav class="mobile-menu" id="mobileMenu">
                 <a href="{{ url_for('index') }}">Start</a>
+                <a href="{{url_for('shop')}}">Shop</a>
                 <a href="{{ url_for('workout_page') }}">Training</a>
                 <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
                 {% if 'user_id' in session %}
