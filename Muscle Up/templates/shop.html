@@ -17,7 +17,7 @@
 
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Home</a>
-                    <a href="{{ url_for('workouts') }}" class="link">Training</a>
+                    <a href="{{ url_for('workout_page') }}" class="link">Training</a>
                     <a href="{{ url_for('fitness-kalendar') }}" class="link">Fitness Kalender</a>
                 </nav>
 
@@ -51,7 +51,7 @@
 
                     {% if 'user_id' in session %}
                         <a href="{{ url_for('profile') }}">Mein Profil</a>
-                        <a href="{{ url_for('workouts') }}">Training</a>
+                        <a href="{{ url_for('workout_page') }}">Training</a>
                         <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
                         <a href="{{ url_for('logout') }}">Logout</a>
                     {% else %}
