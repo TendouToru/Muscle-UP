@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
+    <title>Muscle Up | Shop</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="head">
+            <h1 class="headline">Shop</h1>
+
+            <div class="nav-bar">
+                <h1 class="headline">Muscle Up</h1>
+
+                <nav class="nav-top">
+                    <a href="{{ url_for('index') }}" class="link">Home</a>
+                    <a href="{{ url_for('workouts') }}" class="link">Training</a>
+                    <a href="{{ url_for('fitness-kalendar') }}" class="link">Fitness Kalender</a>
+                </nav>
+
+                 {% if 'user_id' in session %}
+            <div class="nav-user">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+     alt="Profil" class="profile-pic"
+     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                    </button>
+                    <div class="dropdown-content">
+                        <span class="username">{{ session['username'] }}</span>
+                        <a href="{{ url_for('profile') }}">Mein Profil</a>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <nav class="nav-top">
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Registrieren</a>
+            </nav>
+            {% endif %}
+
+            <button class="hamburger" onclick="toggleMenu()">☰</button>
+        </div>
+
+                <nav class="mobile-menu" id="mobileMenu">
+                    <a href="{{ url_for('index') }}">Start</a>
+
+                    {% if 'user_id' in session %}
+                        <a href="{{ url_for('profile') }}">Mein Profil</a>
+                        <a href="{{ url_for('workouts') }}">Training</a>
+                        <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}">Login</a>
+                        <a href="{{ url_for('register') }}">Registrieren</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </header>
+
+        <main class="content">
+            
+        </main>
+    </div>
+    
+</body>
+</html>

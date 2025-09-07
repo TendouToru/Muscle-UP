@@ -1020,6 +1020,13 @@ def fitness_kalendar():
 
     return render_template("fitness-kalendar.html", workouts=dict(sorted_workouts))
 
+@app.route('/shop')
+def shop():
+    if "user_id" not in session:
+        return redirect(url_for('login'))
+        
+    return render_template("shop.html")
+
 # --- Start App & Prepare DB ---
 if __name__ == "__main__":
     with app.app_context():

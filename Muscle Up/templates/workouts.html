@@ -31,6 +31,7 @@
                     <div class="dropdown-content">
                         <span class="username">{{ session['username'] }}</span>
                         <a href="{{ url_for('profile') }}">Mein Profil</a>
+                        <a href="{{ url_for('shop') }}">Shop</a>
                         <a href="{{ url_for('logout') }}">Logout</a>
                     </div>
                 </div>
@@ -73,7 +74,7 @@
 
 
         <div id="calestenics" class="container">
-            <h3 class="container-header">Körpergewichts-Training</h3>
+            <h3 class="container-header">Körpergewichts Training</h3>
             <form id="cal-ex-form" class="form-login">
                 <input type="text" id="cal-ex-name" placeholder="Übung eingeben" required>
                 <button type="submit" class="button">Übung starten</button>
@@ -93,7 +94,7 @@
         </div>
         
         <div id="cardio" class="container">
-            <h3 class="container-header">Cardio-Training:</h3>
+            <h3 class="container-header">Cardio Training:</h3>
             <section class="cardio-dash">
                 <div class="cardio-card" data-target="laufen-form">Laufen</div>
                 <div class="cardio-card" data-target="schwimmen-form">Schwimmen</div>
