@@ -199,22 +199,32 @@
     document.addEventListener('DOMContentLoaded', function() {
         const kraftTrainingBtn = document.getElementById('kraft-training-btn');
         const cardioBtn = document.getElementById('cardio-btn');
+        const calBtn = document.getElementById('calestenics-btn')
         const kraftTrainingContainer = document.getElementById('kraft-training');
         const cardioContainer = document.getElementById('cardio');
         const cardioCards = document.querySelectorAll('.cardio-card');
         const cardioForms = document.querySelectorAll('.cardio-form');
+        const calContainer = document.getElementById('calestenics')
 
 
 
         kraftTrainingBtn.addEventListener('click', function() {
             kraftTrainingContainer.style.display = 'flex';
             cardioContainer.style.display = 'none';
+            calContainer.style.display = 'none';
         });
 
         cardioBtn.addEventListener('click', function() {
             kraftTrainingContainer.style.display = 'none';
             cardioContainer.style.display = 'block';
+            calContainer.style.display = 'none';
         });
+
+        calBtn.addEventListener('click', function(){
+            kraftTrainingContainer.style.display = 'none';
+            cardioContainer.style.display = 'none';
+            calContainer.style.display = 'flex';
+        })
 
         cardioCards.forEach(card => {
             card.addEventListener('click', function() {
