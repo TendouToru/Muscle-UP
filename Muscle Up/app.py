@@ -737,6 +737,18 @@ def workout_page():
         if not exercise_name or not isinstance(sets_data, list):
             return jsonify({"error": "Missing data"}), 400
 
+    if request.method == "POST":
+        data = request.get_json()
+        exercise_name = data.get("exercise_name")
+        sets_data = data.get("sets")
+        workout_type = data.get("type", 'strength')
+
+        new_workout = Workout(
+            user_id=session["user_id"],
+            exercise=exercise_name,
+            date=today,
+            type=workout_type
+
         try:
             new_workout = Workout(
                 user_id=session["user_id"],

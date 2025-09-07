@@ -63,12 +63,34 @@
         <div id="btn-row">
             <button id="kraft-training-btn">Kraft Training</button>
             <button id="cardio-btn">Cardio</button>
+            <button id="calestenics-btn">Calestenics</button>
         </div>
             {% if ruhe == True %}
                 <form method="post" action="{{ url_for('post_restday') }}">
                     <button type="submit" id="rest-btn" class="button">Restday</button>
                 </form>
             {% endif %}
+
+
+        <div id="calestenics" class="container">
+            <h3 class="container-header">Körpergewichts-Training</h3>
+            <form id="cal-ex-form" class="form-login">
+                <input type="text" id="cal-ex-name" placeholder="Übung eingeben" required>
+                <button type="submit" class="button">Übung starten</button>
+            </form>
+            
+    
+            <div id="cal-ex-container" style="display:none;">
+                <h2 id="cal-current-ex"></h2>
+                <form id="cal-set-form">
+                    <input type="number" id="cal-weight" placeholder="Gewicht (kg)" required>
+                    <input type="number" id="cal-reps" placeholder="Wiederholungen" required>
+                    <button type="submit" class="button">Satz hinzufügen</button>
+                </form>
+                <ul id="cal-sets-list"></ul>
+                <button id="cal-finish-exercise" class="button">Übung beenden</button>
+            </div>
+        </div>
         
         <div id="cardio" class="container">
             <h3 class="container-header">Cardio-Training:</h3>
@@ -319,6 +341,80 @@
 
 
     });
+
+
+    // Calisthenics Formular-Handling
+const calExForm = document.getElementById('cal-ex-form');
+const calSetForm = document.getElementById('cal-set-form');
+const calFinishExerciseBtn = document.getElementById('cal-finish-exercise');
+const calExContainer = document.getElementById('cal-ex-container');
+const calCurrentExDisplay = document.getElementById('cal-current-ex');
+const calSetsList = document.getElementById('cal-sets-list');
+let calCurrentSets = [];
+let calCurrentExerciseName = "";
+
+calExForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    calCurrentExerciseName = document.getElementById('cal-ex-name').value;
+    calCurrentExDisplay.textContent = calCurrentExerciseName;
+    calExForm.style.display = 'none';
+    calExContainer.style.display = 'block';
+    calSetsList.innerHTML = '';
+    calCurrentSets = [];
+});
+
+calSetForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const weight = document.getElementById('cal-weight').value;
+    const reps = document.getElementById('cal-reps').value;
+    if (weight && reps) {
+        const set = { weight: parseFloat(weight), reps: parseInt(reps) };
+        calCurrentSets.push(set);
+        const li = document.createElement('li');
+        li.innerHTML = `Gewicht: ${weight} kg | Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
+        calSetsList.appendChild(li);
+        document.getElementById('cal-weight').value = '';
+        document.getElementById('cal-reps').value = '';
+    }
+});
+
+calSetsList.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-set')) {
+        const li = e.target.closest('li');
+        const index = Array.from(calSetsList.children).indexOf(li);
+        if (index > -1) {
+            calCurrentSets.splice(index, 1);
+            li.remove();
+        }
+    }
+});
+
+calFinishExerciseBtn.addEventListener('click', async function() {
+    if (calCurrentSets.length > 0) {
+        const data = {
+            exercise_name: calCurrentExerciseName,
+            sets: calCurrentSets,
+            type: 'calisthenics'  // ✅ Neuer Typ für Backend
+        };
+        
+        const response = await fetch('/workout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            window.location.reload(); 
+        } else {
+            alert('Fehler: ' + result.error);
+        }
+    }
+});
+
 
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
