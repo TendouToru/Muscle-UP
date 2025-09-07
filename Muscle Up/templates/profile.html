@@ -167,6 +167,7 @@
             }
         });
 
+   
         uploadBtn.addEventListener('click', async function(event) {
             event.preventDefault();
 
@@ -192,8 +193,13 @@
                     uploadMessage.textContent = 'Profilbild erfolgreich hochgeladen!';
                     uploadMessage.style.color = 'green';
                     
-                    // Bild sofort aktualisieren
+                    // ✅ Bild sofort aktualisieren mit der neuen URL
                     profilePicDisplay.src = result.url;
+                    
+                    // ✅ Seite neu laden um Context Processor zu aktualisieren
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                     
                 } else {
                     uploadMessage.textContent = 'Fehler beim Hochladen: ' + (result.error || 'Unbekannter Fehler');
@@ -205,6 +211,7 @@
                 uploadMessage.style.color = 'red';
             }
         });
+
     });
     </script>
 </body>

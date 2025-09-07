@@ -647,7 +647,7 @@ def upload_profile_pic():
         img.save(img_byte_arr, format='JPEG')
         img_data = img_byte_arr.getvalue()
         
-        # Altes Bild löschen (optional, falls du das implementieren willst)
+        # Benutzerprofil holen
         user_profile = db.session.get(UserProfile, session["user_id"])
         if not user_profile:
             return jsonify({"success": False, "error": "Benutzerprofil nicht gefunden"}), 404
@@ -656,14 +656,17 @@ def upload_profile_pic():
         filename = f"user_{session['user_id']}_{secrets.token_hex(8)}.jpg"
         
         if upload_to_github(img_data, filename):
-            # Nur den Dateinamen in der DB speichern
+            # ✅ WICHTIG: Dateinamen in der DB speichern
             user_profile.profile_pic = filename
             db.session.commit()
+            
+            # ✅ Neue GitHub URL generieren
+            new_url = get_github_url(filename)
             
             return jsonify({
                 "success": True, 
                 "filename": filename,
-                "url": get_github_url(filename)
+                "url": new_url
             }), 200
         else:
             return jsonify({"success": False, "error": "Fehler beim Hochladen zu GitHub"}), 500
