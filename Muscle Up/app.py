@@ -245,88 +245,141 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
     if not user_stats or not user_profile:
         return 0
 
-    bodyweight = user_profile.bodyweight if user_profile and user_profile.bodyweight is not None else 0
-
+    bodyweight = user_profile.bodyweight or 70  # fallback 70kg
     total_xp = 0
     strength_change = 0
 
-    for s in sets:
-        try:
-            weight = s.weight
-            
-            total_xp += 5
-            if bodyweight > 0 and weight >= bodyweight:
-                total_xp += int(weight / 5)
-                strength_change += 2
-            else:
-                total_xp += int(weight / 10)
-                strength_change += 1
-        except (ValueError, TypeError):
-            continue
+    for i, s in enumerate(sets, start=1):
+        reps = s.reps or 0
+        weight = s.weight or 0
+
+        # --- Volumen ---
+        volume = weight * reps
+
+        # --- Satzfaktor (Diminishing Returns) ---
+        set_factor = max(1 - (i - 1) * 0.05, 0.5)
+
+        # --- Intensität ---
+        if weight >= 1.5 * bodyweight:
+            intensity_factor = 1.5
+        elif weight >= bodyweight:
+            intensity_factor = 1.2
+        elif weight < 0.5 * bodyweight:
+            intensity_factor = 0.8
+        else:
+            intensity_factor = 1.0
+
+        # --- XP-Berechnung ---
+        xp_set = (volume / 10) * set_factor * intensity_factor
+        total_xp += xp_set
+
+        # --- Stärke-Änderung (optional grob) ---
+        strength_change += int((volume / bodyweight) * 0.1)
 
     if action == "add":
         user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
     elif action == "deduct":
         user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
+
     db.session.commit()
-    return total_xp
+    return int(total_xp)
+
 
 def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
-    user_stats = db.session.get(UserStat, user_id)
+    """
+    Berechnet XP + Attribut-Änderungen für Cardio.
+    cardio_data = {
+        "type": "Laufen" / "Schwimmen" / "Spielsport",
+        "duration": Minuten,
+        "distance": km (falls vorhanden)
+    }
+    """
 
+    user_stats = db.session.get(UserStat, user_id)
     if not user_stats:
         return 0
 
-    duration_in_min = float(cardio_data.get("duration", 0) or 0)
-    distance_in_km = float(cardio_data.get("distance", 0) or 0)
-    duration_in_h = math.ceil(duration_in_min / 60)
+    try:
+        duration = float(cardio_data.get("duration", 0) or 0)  # Minuten
+        distance = float(cardio_data.get("distance", 0) or 0)  # km
+        sport_type = cardio_data.get("type", "").lower()
+    except (ValueError, TypeError):
+        return 0
+
     total_xp = 0
     endurance_change = 0
     strength_change = 0
     iq_change = 0
 
-    if cardio_data.get("type") == "Laufen":
-        total_xp += (distance_in_km * 10) + (duration_in_min / 2)
-        endurance_change += math.ceil(distance_in_km // 5 + duration_in_h)
-    elif cardio_data.get("type") == "Schwimmen":
-        total_xp += distance_in_km * 10 - duration_in_h
-        endurance_change += int(distance_in_km + duration_in_h) * 2
-        strength_change += int(distance_in_km + duration_in_h) * 2
-    elif cardio_data.get("type") == "Spielsport":
-        total_xp += duration_in_min // 5
-        endurance_change += duration_in_h
-        strength_change += duration_in_h
-        iq_change += duration_in_h
+    # --- Lauf-Formel ---
+    if sport_type == "laufen":
+        speed = (distance / (duration / 60)) if duration > 0 else 0  # km/h
+        total_xp += duration * 1                      # 1 XP pro Minute
+        total_xp += distance * 10                     # 10 XP pro km
+        total_xp *= (1 + min(speed / 20, 0.5))        # Bonus je schneller, max +50%
+        endurance_change += int(distance // 2) + int(duration // 30)
 
+    # --- Schwimm-Formel ---
+    elif sport_type == "schwimmen":
+        speed = (distance / (duration / 60)) if duration > 0 else 0
+        total_xp += duration * 2                      # Schwimmen ist intensiver
+        total_xp += distance * 15                     # mehr XP pro km
+        total_xp *= (1 + min(speed / 8, 0.5))         # Bonus je schneller, max +50%
+        endurance_change += int(distance) + int(duration // 20)
+        strength_change += int(distance // 2)         # Schwimmen gibt auch Kraft
+
+    # --- Spielsport (Fußball, Basketball etc.) ---
+    elif sport_type == "spielsport":
+        total_xp += duration * 2                      # XP rein nach Dauer
+        endurance_change += int(duration // 20)
+        strength_change += int(duration // 40)
+        iq_change += int(duration // 30)              # Taktik & Teamplay = "Intelligenz"
+
+    # --- Streak-Bonus ---
+    streak_bonus = (user_stats.streak_days or 0) * 0.05
+    total_xp *= (1 + streak_bonus)
+
+    # --- Attribute anwenden ---
     if action == "add":
         user_stats.attr_endurance = (user_stats.attr_endurance or 0) + endurance_change
         user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
         user_stats.attr_intelligence = (user_stats.attr_intelligence or 0) + iq_change
+        user_stats.xp_total = (user_stats.xp_total or 0) + int(total_xp)
     elif action == "deduct":
         user_stats.attr_endurance = max(0, (user_stats.attr_endurance or 0) - endurance_change)
         user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
         user_stats.attr_intelligence = max(0, (user_stats.attr_intelligence or 0) - iq_change)
+        user_stats.xp_total = max(0, (user_stats.xp_total or 0) - int(total_xp))
+
     db.session.commit()
-    return total_xp
+    return int(total_xp)
+
     
-def calculate_level_and_progress(xp_total: int):
+def calculate_level_and_progress(xp_total: int, base_xp: int = 100, growth: float = 1.11):
+    """
+    Gibt (level, progress, xp_for_next, xp_in_current_level) zurück.
+    - base_xp: XP für Level 1 -> 2
+    - growth: Multiplikator pro Level (z.B. 1.12)
+    - Rundung: jede Stufe auf das nächste Vielfache von 10
+    """
     level = 1
-    base_xp = 100
-    xp_required_for_level = base_xp
+    xp_in_level = xp_total
 
-    while xp_total >= xp_required_for_level:
-        xp_total -= xp_required_for_level
+    # XP-Anforderung für nächste Stufe (Level 1 -> 2)
+    xp_req_next = base_xp
+    # auf Zehner runden (nach oben)
+    xp_req_next = int(math.ceil(xp_req_next / 10.0) * 10)
+
+    # so lange wir genug XP für den nächsten Level-Up haben
+    while xp_in_level >= xp_req_next:
+        xp_in_level -= xp_req_next
         level += 1
-        xp_required_for_level = int(xp_required_for_level * 1.5)
+        # nächste Stufe berechnen und direkt runden
+        xp_req_next = int(math.ceil((xp_req_next * growth) / 10.0) * 10)
 
-    while xp_required_for_level % 10 != 0:
-        xp_required_for_level += 1
-
-    xp_for_next = xp_required_for_level
-    progress = xp_total / xp_for_next if xp_for_next > 0 else 0
-    xp_remaining_in_level = xp_total
-    
-    return level, progress, int(xp_for_next), xp_remaining_in_level
+    # Fortschritt in aktueller Stufe
+    progress = xp_in_level / xp_req_next if xp_req_next > 0 else 0.0
+    return level, progress, xp_req_next, xp_in_level
 
 # Strength Functions
 def staerke(user_id: int):
