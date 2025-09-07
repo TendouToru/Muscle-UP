@@ -696,18 +696,18 @@ def inject_profile_data():
     if 'user_id' in session:
         user = db.session.get(User, session["user_id"])
         if user and user.profile:
+            profile_pic = user.profile.profile_pic
             profile_data = {
                 'name': user.profile.name,
                 'gender': user.profile.gender,
                 'age': user.profile.age,
                 'bodyweight': user.profile.bodyweight,
                 'height': user.profile.height,
-                'profile_pic': user.profile.profile_pic, 
-                'profile_pic_url': get_github_url(user.profile.profile_pic) if user.profile.profile_pic else get_github_url('default.png')
+                'profile_pic': profile_pic,
+                'profile_pic_url': get_github_url(profile_pic) if profile_pic else get_github_url('default.png')
             }
             return {'current_user_profile': profile_data}
     
-    # Fallback für nicht eingeloggte User
     return {'current_user_profile': {
         'profile_pic_url': get_github_url('default.png')
     }}
