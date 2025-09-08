@@ -1135,7 +1135,8 @@ footer {
     }
     
     .leaderboard {
-        width: 400px;
+        width: 100%;
+        max-width: 100%;
     }
     
     .leaderboard table {
