@@ -1135,7 +1135,7 @@ footer {
     }
     
     .leaderboard {
-        overflow-x: auto;
+        width: 100%;
     }
     
     .leaderboard table {
@@ -1165,6 +1165,14 @@ footer {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+    }
+
+    .weekday{
+        display: none;
+    }
+
+    .day-number{
+        text-align: left;
     }
     
     .workout-details-modal {
