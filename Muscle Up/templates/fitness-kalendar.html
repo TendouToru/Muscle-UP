@@ -65,42 +65,26 @@
 </header>
 
         <main class="content">
-           <section class="workout-calendar">
-                {% for date, workouts in workouts.items() %}
-                <div class="day-block">
-                    <h3>{{ date }}</h3>
-                    {% for workout in workouts %}
-                    <div class="workout-card">
-                        <div class="workout-details">
-                            {% if workout.type == "strength" %}
-                                <strong>Krafttraining: {{ workout.exercise }}</strong>
-                                <ul>
-                                    {% for s in workout.sets %}
-                                        <li>Gewicht: {{ s.weight }}kg | Wiederholungen: {{ s.reps }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% elif workout.type == "cardio" %}
-                                <strong>Cardio: {{ workout.exercise }}</strong>
-                                <p>Dauer: {{ workout.duration }} min
-                                {% if workout.distance %}
-                                    | Strecke: {{ workout.distance }} km
-                                {% endif %}
-                                {% if workout.sportart %}
-                                    | Sportart: {{ workout.sportart }}
-                                {% endif %}
-                                </p>
-                            {% elif workout.type == "restday" %}
-                                <strong>Ruhetag</strong>
-                            {% endif %}
-                        </div>
-                        <form method="post" action="{{ url_for('delete_workout_from_calendar', workout_id=workout.id) }}">
-                            <button type="submit" class="delete-btn">Löschen</button>
-                        </form>
-                    </div>
-                    {% endfor %}
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="month-nav-btn" onclick="prevMonth()">
+                        &lsaquo;
+                    </button>
+                    <h2 id="currentMonthYear"></h2>
+                    <button class="month-nav-btn" onclick="nextMonth()">
+                        &rsaquo;
+                    </button>
                 </div>
-                {% endfor %}
-            </section>
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="weekday">So</div>
+                    <div class="weekday">Mo</div>
+                    <div class="weekday">Di</div>
+                    <div class="weekday">Mi</div>
+                    <div class="weekday">Do</div>
+                    <div class="weekday">Fr</div>
+                    <div class="weekday">Sa</div>
+                </div>
+            </div>
         </main>
 
         <footer>
@@ -108,14 +92,176 @@
         </footer>
     </div>
 
-</body>
 <script>
-function toggleMenu() {
-    const mobileMenu = document.getElementById('mobileMenu');
-    mobileMenu.classList.toggle('active');
-}
+    const workoutsData = {{ workouts | tojson }};
+    const headerElement = document.querySelector('header.head');
+
+    function generateCalendar(year, month) {
+        const grid = document.getElementById('calendarGrid');
+        const monthYearHeader = document.getElementById('currentMonthYear');
+        
+        // Monat- und Jahr-Header aktualisieren
+        const date = new Date(year, month - 1);
+        monthYearHeader.textContent = date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+
+        // Kalender-Grid leeren, aber Wochentage behalten
+        while (grid.children.length > 7) {
+            grid.removeChild(grid.lastChild);
+        }
+
+        const firstDay = new Date(year, month - 1, 1).getDay();
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        // Leere Zellen für den Start des Monats hinzufügen
+        const startDayIndex = firstDay === 0 ? 6 : firstDay - 1; // Sonntag als letzter Tag
+        for (let i = 0; i < startDayIndex; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('calendar-day', 'inactive');
+            grid.appendChild(dayDiv);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('calendar-day');
+
+            const dayNumber = document.createElement('div');
+            dayNumber.classList.add('day-number');
+            dayNumber.textContent = i;
+            dayDiv.appendChild(dayNumber);
+
+            const workoutSummary = document.createElement('div');
+            workoutSummary.classList.add('workout-summary');
+            dayDiv.appendChild(workoutSummary);
+
+            const dateString = `${String(i).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
+            const workoutsForDay = workoutsData[dateString] || [];
+            
+            if (workoutsForDay.length > 0) {
+                workoutsForDay.forEach(workout => {
+                    const workoutItem = document.createElement('div');
+                    workoutItem.classList.add('workout-item-mini', workout.type);
+                    
+                    let icon = '';
+                    if (workout.type === 'calestenics') {
+                        icon = '💪';
+                    } else if (workout.type === 'cardio') {
+                        icon = '🏃';
+                    } else if (workout.type === 'strength') {
+                        icon = '🏋️';
+                    }
+                    
+                    workoutItem.innerHTML = `<span class="workout-icon">${icon}</span> ${workout.exercise}`;
+                    workoutSummary.appendChild(workoutItem);
+                });
+            } else {
+                const emptyText = document.createElement('div');
+                emptyText.classList.add('empty-day');
+                emptyText.textContent = 'Keine Workouts';
+                workoutSummary.appendChild(emptyText);
+            }
+
+            // Klick-Event für Workout-Details
+            dayDiv.addEventListener('click', () => showWorkoutDetails(dateString, workoutsForDay));
+
+            grid.appendChild(dayDiv);
+        }
+
+        // Leere Zellen am Ende hinzufügen
+        const totalCells = startDayIndex + daysInMonth;
+        const remainingCells = 42 - totalCells;
+        if (totalCells <= 35) {
+            for (let i = 0; i < (35 - totalCells); i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day', 'inactive');
+                grid.appendChild(dayDiv);
+            }
+        }
+    }
+
+    function toggleHeaderVisibility(visible) {
+        if (visible) {
+            headerElement.classList.remove('hidden-header');
+        } else {
+            headerElement.classList.add('hidden-header');
+        }
+    }
+
+    function showWorkoutDetails(date, workouts) {
+        toggleHeaderVisibility(false); // Versteckt die Navigationsleiste
+        const detailsOverlay = document.createElement('div');
+        detailsOverlay.classList.add('workout-details-overlay');
+        
+        const detailsModal = document.createElement('div');
+        detailsModal.classList.add('workout-details-modal');
+        
+        const detailsHtml = `
+        <div class="workout-details-header">
+            <h3 class="workout-details-title">Workouts am ${date}</h3>
+            <button class="close-btn" onclick="hideWorkoutDetails()">&times;</button>
+        </div>
+        <div class="workout-list">
+            ${workouts.map(w => `
+                <div class="workout-item-full ${w.type}">
+                    <span class="workout-type ${w.type}">
+                        ${w.type === 'calestenics' ? '💪 Calisthenics' : w.type === 'cardio' ? '🏃 Cardio' : '🏋️ Krafttraining'}
+                    </span>
+                    <div class="workout-details-text">${w.exercise}</div>
+                    <ul class="workout-sets">
+                        ${w.sets ? w.sets.map(s => `
+                            <li class="set-item">${s.reps} Wiederholungen ${s.weight ? ' | ' + s.weight + 'kg' : ''}</li>
+                        `).join('') : ''}
+                        ${w.type === 'cardio' ? `<li class="set-item">Dauer: ${w.duration} Min, Distanz: ${w.distance} Km</li>` : ''}
+                    </ul>
+                </div>
+            `).join('')}
+        </div>
+        `;
+        detailsModal.innerHTML = detailsHtml;
+        detailsOverlay.appendChild(detailsModal);
+        document.body.appendChild(detailsOverlay);
+    }
+    
+    function hideWorkoutDetails() {
+        toggleHeaderVisibility(true); // Zeigt die Navigationsleiste wieder an
+        const detailsOverlay = document.querySelector('.workout-details-overlay');
+        if (detailsOverlay) {
+            detailsOverlay.remove();
+        }
+    }
+
+    let currentYear, currentMonth;
+    
+    function updateDate() {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth() + 1;
+        generateCalendar(currentYear, currentMonth);
+    }
+
+    function prevMonth() {
+        currentMonth--;
+        if (currentMonth < 1) {
+            currentMonth = 12;
+            currentYear--;
+        }
+        generateCalendar(currentYear, currentMonth);
+    }
+
+    function nextMonth() {
+        currentMonth++;
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        }
+        generateCalendar(currentYear, currentMonth);
+    }
+
+    function toggleMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', updateDate);
 </script>
+</body>
 </html>
-
-
-

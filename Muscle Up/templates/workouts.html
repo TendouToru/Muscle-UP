@@ -60,7 +60,7 @@
         </nav>
     </header>
 
-    <main class="content">
+     <main class="content">
         <div id="btn-row">
             <button id="kraft-training-btn">Kraft Training</button>
             <button id="cardio-btn">Cardio</button>
@@ -74,7 +74,7 @@
 
 
         <div id="calestenics" class="container">
-            <h3 class="container-header">Körpergewichts Training</h3>
+            <h3 class="container-header">Körper Training</h3>
             <form id="cal-ex-form" class="form-login">
                 <input type="text" id="cal-ex-name" placeholder="Übung eingeben" required>
                 <button type="submit" class="button">Übung starten</button>
@@ -84,7 +84,6 @@
             <div id="cal-ex-container" style="display:none;">
                 <h2 id="cal-current-ex"></h2>
                 <form id="cal-set-form">
-                    <input type="number" id="cal-weight" placeholder="Gewicht (kg)" required>
                     <input type="number" id="cal-reps" placeholder="Wiederholungen" required>
                     <button type="submit" class="button">Satz hinzufügen</button>
                 </form>
@@ -149,46 +148,67 @@
             </div>
 
         </div>
-       <div class="overview">    
-         <div id="workout-overview">
-             <h3>Heutige Kraft-Übungen:</h3>
-             <div id="completed-exercises">
-                 {% for exercise in today_workouts %}
-                 <div class="completed-exercise">
-                     <h4>{{ exercise.exercise }}</h4>
-                     <ul>
-                         {% for s in exercise.sets %}
-                         <li>Gewicht: {{ s.weight }} kg | Wiederholungen: {{ s.reps }}</li>
-                         {% endfor %}
-                     </ul>
-                     <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
-                         <button type="submit" class="button">Löschen</button>
-                     </form>
-                 </div>
-                 {% endfor %}
-             </div>
-         </div>
+       <!-- Im Overview-Bereich -->
+        <div class="overview">    
+            <div id="workout-overview">
+                <h3>Heutige Kraft-<br>Übungen:</h3>
+                <div id="completed-exercises">
+                    {% for exercise in today_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ exercise.exercise }}</h4>
+                        <ul>
+                            {% for s in exercise.sets %}
+                            <li>Gewicht: {{ s.weight }} kg <br> Wiederholungen: {{ s.reps }}</li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-             <div id="cardio-overview">
-                 <h3>Heutige Cardio-Übungen:</h3>
-                 <div id="completed-cardio-exercises">
-                     {% for workout in today_cardio_workouts %}
-                     <div class="completed-exercise">
-                         <h4>{{ workout.exercise }}</h4>
-                         <p>
-                             Dauer: {{ workout.duration }} min
-                             {% if workout.distance and workout.distance > 0 %}
-                                 | Strecke: {{ workout.distance }} km
-                             {% endif %}
-                         </p>
-                         <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
-                             <button type="submit" class="button">Löschen</button>
-                         </form>
-                     </div>
-                     {% endfor %}
-                 </div>
-             </div>
-         </div>
+            <div id="cardio-overview">
+                <h3>Heutige Cardio-<br>Übungen:</h3>
+                <div id="completed-cardio-exercises">
+                    {% for workout in today_cardio_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ workout.exercise }}</h4>
+                        <p>
+                            Dauer: {{ workout.duration }} min
+                            {% if workout.distance and workout.distance > 0 %}
+                                | Strecke: {{ workout.distance }} km
+                            {% endif %}
+                        </p>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ✅ Calisthenics Overview hinzufügen -->
+            <div id="calistenics-overview">
+                <h3>Heutige Calisthenics-Übungen:</h3>
+                <div id="completed-calistenics-exercises">
+                    {% for exercise in today_calistenics_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ exercise.exercise }}</h4>
+                        <ul>
+                            {% for s in exercise.sets %}
+                            <li>Wiederholungen: {{ s.reps }} </li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
@@ -376,15 +396,13 @@ calExForm.addEventListener('submit', function(e) {
 
 calSetForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    const weight = document.getElementById('cal-weight').value;
     const reps = document.getElementById('cal-reps').value;
-    if (weight && reps) {
-        const set = { weight: parseFloat(weight), reps: parseInt(reps) };
+    if (reps) {
+        const set = { reps: parseInt(reps) };
         calCurrentSets.push(set);
         const li = document.createElement('li');
-        li.innerHTML = `Gewicht: ${weight} kg | Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
+        li.innerHTML = `Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
         calSetsList.appendChild(li);
-        document.getElementById('cal-weight').value = '';
         document.getElementById('cal-reps').value = '';
     }
 });
@@ -405,10 +423,10 @@ calFinishExerciseBtn.addEventListener('click', async function() {
         const data = {
             exercise_name: calCurrentExerciseName,
             sets: calCurrentSets,
-            type: 'calisthenics'  // ✅ Neuer Typ für Backend
+            type: 'calestenics'  // ✅ Neuer Typ für Backend
         };
         
-        const response = await fetch('/workout', {
+        const response = await fetch('/cal-workouts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

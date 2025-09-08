@@ -245,7 +245,7 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
     if not user_stats or not user_profile:
         return 0
 
-    bodyweight = user_profile.bodyweight or 70  # fallback 70kg
+    bodyweight = user_profile.bodyweight or 70  
     total_xp = 0
     strength_change = 0
 
@@ -257,7 +257,7 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
         volume = weight * reps
 
         # --- Satzfaktor (Diminishing Returns) ---
-        set_factor = max(1 - (i - 1) * 0.05, 0.5)
+        set_factor = 1 + max(1 - (i - 1) * 0.05, 0.5)
 
         # --- Intensität ---
         if weight >= 1.5 * bodyweight:
@@ -283,6 +283,7 @@ def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
 
     db.session.commit()
     return int(total_xp)
+
 
 
 def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
@@ -354,8 +355,48 @@ def calculate_xp_and_endurance(user_id: int, cardio_data: dict, action="add"):
     db.session.commit()
     return int(total_xp)
 
+def calculate_xp_for_calestenics(user_id:int, sets:list, action="add"):
     
-def calculate_level_and_progress(xp_total: int, base_xp: int = 100, growth: float = 1.11):
+    user_stats = db.session.get(UserStat, user_id)
+    user_profile = db.session.get(UserProfile, user_id)
+    if not user_stats or not user_profile:
+        return 0
+    
+    total_xp = 0
+    strength_change = 0
+    endurance_change = 0
+
+    for i, s in enumerate(sets, start=1):
+        reps = s.reps or 0
+        
+        set_factor = 1 + max(1- (i - 1) * 0.05, 0.5)
+
+        if 5 > reps > 0:
+            strength_change += 3
+        elif 10 > reps >= 5:
+            strength_change +=2
+            endurance_change +=1
+        elif 15 > reps >= 10:
+            strength_change += 1
+            endurance_change += 2
+        elif reps >= 15:
+            endurance_change += 3
+        else:
+            continue
+
+        total_xp += reps * 2 * set_factor
+
+    if action == "add":
+        user_stats.attr_endurance = (user_stats.attr_endurance or 0) + endurance_change 
+        user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
+    elif action == "deduct":
+        user_stats.attr_endurance = max(0, (user_stats.attr_endurance or 0) - endurance_change)
+        user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
+    db.session.commit()
+    return int(total_xp)
+
+    
+def calculate_level_and_progress(xp_total: int, base_xp: int = 100, growth: float = 1.10):
     """
     Gibt (level, progress, xp_for_next, xp_in_current_level) zurück.
     - base_xp: XP für Level 1 -> 2
@@ -854,6 +895,82 @@ def workout_page():
                 'distance': 0
             }
             if workout.sets:
+                cardio_set = work# --- Fitness Page (Workouts) ---
+@app.route('/workout', methods=['GET', 'POST'])
+def workout_page():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
+    ruhe = check_restday(session["user_id"])
+
+    if request.method == "POST":
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid JSON"}), 400
+
+        exercise_name = data.get("exercise_name")
+        sets_data = data.get("sets")
+        if not exercise_name or not isinstance(sets_data, list):
+            return jsonify({"error": "Missing data"}), 400
+
+        try:
+            new_workout = Workout(
+                user_id=session["user_id"],
+                exercise=exercise_name,
+                date=today,
+                type='strength'
+            )
+            db.session.add(new_workout)
+            db.session.flush()
+
+            for set_data in sets_data:
+                new_set = Set(
+                    workout_id=new_workout.id,
+                    user_id=session["user_id"],
+                    reps=set_data.get("reps"),
+                    weight=set_data.get("weight")
+                )
+                db.session.add(new_set)
+                
+            xp_gained = calculate_xp_and_strength(session["user_id"], new_workout.sets, "add")
+            user_stats = db.session.get(UserStat, session["user_id"])
+            if user_stats:
+                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
+            
+            update_streak(session["user_id"])
+            db.session.commit()
+
+            return jsonify({"message": "Workout added successfully!", "xp_gained": xp_gained}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    try:
+        today_workouts = Workout.query.filter_by(
+            user_id=session["user_id"], date=today, type='strength'
+        ).all()
+        
+        today_cardio_workouts_raw = Workout.query.filter_by(
+            user_id=session["user_id"], date=today, type='cardio'
+        ).all()
+
+        today_calistenics_workouts = Workout.query.filter_by(
+            user_id=session["user_id"], date=today, type='calestenics'
+        ).all()
+
+
+
+        today_cardio_workouts = []
+        for workout in today_cardio_workouts_raw:
+            workout_data = {
+                'id': workout.id,
+                'exercise': workout.exercise,
+                'type': workout.type,
+                'duration': 0,
+                'distance': 0
+            }
+            if workout.sets:
                 cardio_set = workout.sets[0]
                 workout_data['duration'] = cardio_set.reps
                 workout_data['distance'] = cardio_set.weight
@@ -865,7 +982,8 @@ def workout_page():
         today_workouts = []
         today_cardio_workouts = []
 
-    return render_template("workouts.html", today_workouts=today_workouts, today_cardio_workouts=today_cardio_workouts, ruhe=ruhe)
+    return render_template("workouts.html", today_workouts=today_workouts, today_cardio_workouts=today_cardio_workouts,
+                            today_calistenics_workouts=today_calistenics_workouts, ruhe=ruhe)
 
 # --- Cardio Route ---
 @app.route('/add_cardio_workout', methods=['POST'])
@@ -935,6 +1053,54 @@ def add_cardio_workout():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+# --- Calestenics-Workouts ---
+@app.route('/cal-workouts', methods=['POST'])
+def add_cal_workout():
+    if "user_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    data = request.get_json()
+    if not data or "type" not in data or "sets" not in data:
+        return jsonify({"error": "Missing data"}), 400
+    
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
+    user_profile = UserProfile.query.filter_by(user_id=session["user_id"]).first()
+    bodyweight = user_profile.bodyweight if user_profile else 70  
+    exercise_name = data.get("exercise_name")
+    sets_data = data.get("sets")
+    if not exercise_name or not isinstance(sets_data, list):
+        return jsonify({"error": "Missing data"}), 400
+    
+    try:
+        new_workout = Workout(
+            user_id=session["user_id"],
+            exercise=exercise_name,
+            date=today,
+            type='calestenics'
+        )
+        db.session.add(new_workout)
+        db.session.flush()
+
+        for set_data in sets_data:
+            new_set = Set(
+                workout_id=new_workout.id,
+                user_id=session["user_id"],
+                reps=set_data.get("reps"),
+                weight=bodyweight
+            )
+            db.session.add(new_set)
+        
+        xp_gained = calculate_xp_for_calestenics(session["user_id"], new_workout.sets, "add")
+        user_stats = db.session.get(UserStat, session["user_id"])
+        if user_stats:
+            user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
+        
+        update_streak(session["user_id"])
+        db.session.commit()
+        return jsonify({"message": "Workout added successfully!", "xp_gained": xp_gained}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 # --- Centralized function to delete workouts ---
 def _delete_workout_and_update_stats(workout_id, redirect_url):
@@ -964,6 +1130,8 @@ def _delete_workout_and_update_stats(workout_id, redirect_url):
                 xp_to_deduct = calculate_xp_and_strength(session["user_id"], sets, "deduct")
             elif workout.type == "restday":
                 xp_to_deduct = 0
+            elif workout.type == "calestenics":
+                xp_to_deduct = calculate_xp_for_calestenics(session["user_id"], sets, "deduct")
             
             user_stats = db.session.get(UserStat, session["user_id"])
             if user_stats:
@@ -1060,8 +1228,14 @@ def fitness_kalendar():
                 workout_data["duration"] = cardio_set.reps
                 workout_data["distance"] = cardio_set.weight
             else:
-                workout_data["duration"] = "N/A"
-                workout_data["distance"] = "N/A"
+                workout_data["duration"] = 0
+                workout_data["distance"] = 0
+        elif workout_item.type == "calestenics":  
+            workout_data["sets"] = [
+                {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
+            ]
+            workout_data["bodyweight"] = workout_item.sets[0].weight if workout_item.sets else 0
+
         else:
             workout_data["sets"] = [
                 {"reps": s.reps, "weight": s.weight} for s in workout_item.sets

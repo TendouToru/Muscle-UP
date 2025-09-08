@@ -1,18 +1,22 @@
 :root {
     --background: #1e1e2f;
-    --primary: #00e5ff; /* Helles, leuchtendes Cyan */
-    --secondary: #00aaff; /* Etwas dunkleres Blau */
+    --primary: #00e5ff;
+    --secondary: #00aaff;
     --contrast: gold;
     --text: #ecf0f1;
     --success: #4caf50;
     --error: #cd071b;
     --card-bg: #2c2c3f;
     --accent-dark: #3a3a55;
-    --glow-effect: 0 0 10px var(--primary); /* Neuer "Glow"-Effekt */
+    --glow-effect: 0 0 10px var(--primary);
+    --calistenics-color: #4CAF50;
+    --cardio-color: #FF6B6B;
+    --strength-color: #00aaff;
+    --restday-color: #9b59b6;
 }
 
 /* Grundlayout */
-body{
+body {
     background-color: var(--background);
     color: var(--text);
     font-family: 'Poppins', Arial, sans-serif;
@@ -21,7 +25,7 @@ body{
     line-height: 1.6;
 }
 
-.wrapper{
+.wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -41,8 +45,7 @@ header.head .headline {
     color: var(--primary);
 }
 
-
-/* Formulare (Login, Register, Workout hinzufügen) */
+/* Formulare */
 .form-login {
     display: flex;
     background-color: var(--card-bg);
@@ -68,23 +71,22 @@ header.head .headline {
     color: var(--text);
 }
 
-
-.form-login label{
+.form-login label {
     text-decoration: underline;
     color: var(--text);
 }
 
-#login-form{
+#login-form {
     align-items: center;
     background-color: var(--card-bg);
 }
 
-#login-form input{
+#login-form input {
     background-color: var(--background);
     color: var(--text);
 }
 
-.a-tag{
+.a-tag {
     text-decoration: underline;
     color: var(--primary);
 }
@@ -100,11 +102,11 @@ main.content {
 
 /* Buttons */
 .button {
-    background-color: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
     color: var(--text);
     padding: 12px 24px;
     border-radius: 8px;
-    border-color: var(--secondary);
+    border: 2px solid var(--secondary);
     cursor: pointer;
     font-weight: bold;
     text-transform: uppercase;
@@ -115,15 +117,15 @@ main.content {
 }
 
 .button:hover {
-    background-color: var(--secondary);
+    background: var(--secondary);
     color: var(--background);
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(0, 255, 200, 0.4);
 }
 
-#rest-btn{
+#rest-btn {
     background-color: var(--success);
-    border-color: inherit;
+    border-color: var(--success);
     font-size: large;
     width: 400px;
 }
@@ -145,24 +147,22 @@ main.content {
     color: var(--text);
 }
 
-#btn-row{
+#btn-row {
     max-width: 400px;
     background-color: var(--accent-dark);
     margin-bottom: 1rem;
     border-radius: 10px;
-    padding: 10px 10px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    display: flex;
-    gap: 12px;
-    justify-content: center;
+    padding: 10px;
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
     border: 1px solid var(--accent-dark);
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 }
 
-
-#cardio-btn, #kraft-training-btn, #calestenics-btn{
+#cardio-btn, #kraft-training-btn, #calestenics-btn {
     color: var(--secondary);
     background-color: var(--card-bg);
     border: none;
@@ -174,12 +174,12 @@ main.content {
     margin: 0;
 }
 
-#cardio-btn:hover, #kraft-training-btn:hover, #calestenics-btn:hover{
+#cardio-btn:hover, #kraft-training-btn:hover, #calestenics-btn:hover {
     background-color: var(--accent-dark);
     color: var(--primary);
 }
 
-#saveBtn, #uploadBtn{
+#saveBtn, #uploadBtn {
     border-color: var(--success);
     background-color: var(--success);
 }
@@ -201,45 +201,24 @@ footer {
     gap: 20px;
 }
 
-/* Einzelnes Workout als "Karte" */
 .workout-card {
     background-color: var(--card-bg);
     padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     font-size: 0.95rem;
     margin-bottom: 5px;
-    box-shadow: 
-        0 0 15px var(--secondary),
-        0 4px 15px rgba(0,0,0,0.5);
-    border: 1px solid var(--accent-dark);
 }
 
-
-
-/* Mobil-Optimierung */
-@media (max-width: 480px) {
-    .workout-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        font-size: 0.9rem;
-    }
-
-    .workout-card .delete-btn {
-        align-self: flex-end;
-    }
-}
-
-/* -------------------------
-   Workouts Styling
-------------------------- */
-
-.container{
+/* Workouts Styling */
+.container {
     display: none;
     justify-content: center;
     flex-direction: column;
@@ -253,10 +232,12 @@ footer {
     font-size: 2rem;
 }
 
-.overview{
+.overview {
     display: flex;
-    margin: 0;
-    gap: 50px;
+    margin: 2rem 0;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 /* Cardio Container */
@@ -276,7 +257,6 @@ footer {
     font-weight: bold;
     color: var(--secondary);
     transition: all 0.2s ease;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
@@ -290,26 +270,25 @@ footer {
 }
 
 .cardio-form {
-    display: none; /* Standardmäßig unsichtbar */
+    display: none;
     padding: 0 1rem 1rem;
     background-color: var(--card-bg);
     border-radius: 10px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     justify-content: center;
     flex-direction: column;
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
-    border: 1px solid var(--accent-dark); 
+    border: 1px solid var(--accent-dark);
 }
 
-.cardio-header{
+.cardio-header {
     color: var(--secondary);
     text-align: center;
     font-size: 1.6rem;
 }
 
-.cardio-form form{
+.cardio-form form {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -320,7 +299,7 @@ footer {
     background-color: var(--accent-dark);
 }
 
-.cardio-form form input{
+.cardio-form form input {
     margin-bottom: 10px;
     padding: 10px;
     font-size: 16px;
@@ -331,17 +310,15 @@ footer {
 }
 
 /* Container für die Übung */
-#kraft-training, #calestenics{
+#kraft-training, #calestenics {
     align-items: center;
-   /* width: 100%;
-    max-width: 400px;*/
 }
 
-#exercise-form{
+#exercise-form, #cal-ex-form {
     margin: 0;
 }
 
-#exercise-name{
+#exercise-name, #cal-ex-name {
     background-color: var(--background);
     color: var(--text);
 }
@@ -355,53 +332,64 @@ footer {
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
     border: 1px solid var(--accent-dark);
-    /* Flexbox für vertikale Zentrierung */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem; /* Abstand zwischen den Elementen */
-    margin: 0; /* Zentriert den Container horizontal */
+    gap: 1.5rem;
+    margin: 0;
 }
 
-/* Überschrift innerhalb des Containers */
 #exercise-container h2, #cal-ex-container h2 {
     color: var(--primary);
     text-align: center;
 }
 
-/* Die Form für die Eingabefelder */
 #set-form, #cal-set-form {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
-/* Eingabefelder innerhalb der Form */
 #set-form input, #cal-set-form input {
-    width: 100%; 
+    width: 100%;
     padding: 10px;
     border-radius: 6px;
     font-size: 16px;
     border: none;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     background-color: var(--background);
     color: var(--text);
 }
 
-/* Buttons innerhalb der Form */
-#set-form .button, #finish-exercise, #cal-set-form .button, #cal-finish-exercise{
+#set-form .button, #finish-exercise, #cal-set-form .button, #cal-finish-exercise {
     width: 100%;
 }
 
+/* Zeilenumbruch für "Übung beenden" auf Desktop */
+@media (min-width: 769px) {
+    #finish-exercise, #cal-finish-exercise {
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+        padding: 10px 15px;
+        height: auto;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+}
 
 /* Satzliste */
 #sets-list, #cal-sets-list {
     list-style: none;
     padding: 0;
     margin: 1rem 0;
+    width: 100%;
 }
 
 #sets-list li, #cal-sets-list li {
@@ -433,11 +421,11 @@ footer {
 
 /* Abgeschlossene Übungen */
 .completed-exercise {
-    background-color: var(--card-bg);
-    border-left: 4px solid var(--primary);
+    background-color: var(--accent-dark);
     margin-bottom: 1rem;
     padding: 0.8rem 1rem;
     border-radius: 6px;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .completed-exercise h4 {
@@ -460,57 +448,320 @@ footer {
     justify-content: space-between;
 }
 
-.completed-exercise p{
+.completed-exercise p {
     background-color: var(--accent-dark);
     border-radius: 4px;
     font-size: 0.9rem;
     padding: 0.4rem 0.6rem;
 }
 
-/* Übersicht chronologisch */
-#workout-overview, #cardio-overview {
+/* Übersicht mit farbigen Akzenten */
+#workout-overview {
+    border-left: 4px solid var(--strength-color);
+}
+
+#cardio-overview {
+    border-left: 4px solid var(--cardio-color);
+}
+
+#calistenics-overview {
+    border-left: 4px solid var(--calistenics-color);
+}
+
+#workout-overview h3 {
+    color: var(--strength-color);
+}
+
+#cardio-overview h3 {
+    color: var(--cardio-color);
+}
+
+#calistenics-overview h3 {
+    color: var(--calistenics-color);
+}
+
+#workout-overview, #cardio-overview, #calistenics-overview {
     flex: 1;
-    min-width: 250px;
+    min-width: 280px;
+    margin-top: 2rem;
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+}
+
+#workout-overview h3, #cardio-overview h3, #calistenics-overview h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    text-decoration: underline;
+    font-size: 1.4rem;
+}
+
+/* Workout Type Badges */
+.workout-type-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    text-transform: uppercase;
+}
+
+.workout-type-strength {
+    background-color: var(--strength-color);
+    color: var(--background);
+}
+
+.workout-type-cardio {
+    background-color: var(--cardio-color);
+    color: var(--background);
+}
+
+.workout-type-calestenics {
+    background-color: var(--calistenics-color);
+    color: var(--background);
+}
+
+.workout-type-restday {
+    background-color: var(--restday-color);
+    color: var(--background);
+}
+  
+
+
+
+/* Kalender-spezifische Stile */
+.calendar-container {
+    width: 100%;
+    max-width: 1200px;
     margin-top: 2rem;
 }
-#workout-overview h3, #cardio-overview h3 {
-    text-align: center;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-    text-decoration: underline;
-}
 
-.day-block {
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: var(--card-bg);
-    width: 100%;
-    max-width: 600px;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-bottom: 1rem;
-    margin: 1rem auto;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* rot sieht auch cool aus */
+    box-shadow: var(--box-shadow);
 }
 
-.day-block h3 {
+.month-nav-btn {
+    background: none;
+    border: none;
     color: var(--primary);
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.month-nav-btn:hover {
+    transform: scale(1.1);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: bold;
+    color: var(--secondary);
+    padding: 0.5rem;
+}
+
+.calendar-day {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 10px;
+    height: 120px; /* Feste Höhe für die Zellen */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.calendar-day.inactive {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.calendar-day:hover {
+    transform: translateY(-5px);
+}
+
+.day-number {
+    font-weight: bold;
+    color: var(--primary);
+    text-align: right;
     font-size: 1.2rem;
 }
 
+.workout-summary {
+    font-size: 0.8rem;
+    color: var(--text);
+    margin-top: 5px;
+    overflow-y: auto;
+}
+
+.workout-summary::-webkit-scrollbar {
+    display: none;
+}
+
+.workout-item-mini {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    padding: 3px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+}
+
+.workout-item-mini.calestenics { border-left: 3px solid var(--calistenics-color); }
+.workout-item-mini.cardio { border-left: 3px solid var(--cardio-color); }
+.workout-item-mini.strength { border-left: 3px solid var(--strength-color); }
+
+.workout-icon {
+    font-size: 0.9rem;
+}
+.empty-day {
+    color: #555;
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+.workout-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(5px);
+    z-index: 10;
+    display: none; /* Wird per JavaScript eingeblendet */
+    flex-direction: column;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+.workout-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.workout-details-title {
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.workout-item-full {
+    background-color: var(--accent-dark);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.workout-type {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+.workout-type.strength { color: var(--strength-color); }
+.workout-type.cardio { color: var(--cardio-color); }
+.workout-type.calestenics { color: var(--calistenics-color); }
+
+.workout-sets {
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.set-item {
+    font-size: 0.85rem;
+    padding-left: 10px;
+    border-left: 2px solid var(--primary);
+    margin-top: 5px;
+}
+
+/* Responsiv */
 @media (max-width: 768px) {
-    .overview {
-        flex-direction: column;
-        gap: 20px;
+    .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
+    .main.content {
+        padding: 1rem;
+    }
+}
 
-    #workout-overview, #cardio-overview {
-        max-width: 100%;
-        width: 100%;
+@media (max-width: 480px) {
+    .calendar-grid {
+        grid-template-columns: 1fr;
     }
+}
 
-    #workout-overview h3, #cardio-overview h3 {
-        text-align: center; 
-    }
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-success { color: var(--success); }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--accent-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
 }
 
 /* Profil Card */
@@ -520,16 +771,14 @@ footer {
     padding: 1.5rem;
     border-radius: 12px;
     margin: 1rem 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 500px;
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
     border: 1px solid var(--accent-dark);
+    width: 100%;
+    max-width: 500px;
 }
 
-/* Formular fürs Profil */
 .form-profile {
     display: flex;
     flex-direction: column;
@@ -539,18 +788,16 @@ footer {
 .form-profile input, #gender {
     padding: 10px;
     border-radius: 6px;
-    border: none;   
+    border: none;
     background: var(--accent-dark);
     color: var(--text);
 }
-
-
 
 .form-profile button {
     margin-top: 10px;
 }
 
-.form-profile input:disabled, #gender:disabled{
+.form-profile input:disabled, #gender:disabled {
     -webkit-text-fill-color: var(--text);
     opacity: 1;
 }
@@ -567,7 +814,7 @@ footer {
 .xp-fill {
     height: 100%;
     background-color: var(--success);
-    width: 0; 
+    width: 0;
     transition: width 0.5s ease;
 }
 
@@ -586,7 +833,6 @@ footer {
     display: flex;
     justify-content: space-between;
 }
-
 
 /* Profil Dropdown */
 .nav-user {
@@ -607,7 +853,7 @@ footer {
 }
 
 .pfp {
-    width: 100px; /* Kleinere Größe */
+    width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
@@ -618,7 +864,7 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 auto 20px; 
+    margin: 0 auto 20px;
 }
 
 #profile_pic {
@@ -630,13 +876,11 @@ footer {
     margin-top: 1rem;
 }
 
-.upload-container{
+.upload-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
-
-
 
 /* Leaderboard*/
 .leaderboard {
@@ -644,7 +888,6 @@ footer {
     background: var(--card-bg);
     padding: 1rem;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
     box-shadow: 
         0 0 15px var(--secondary),
         0 4px 15px rgba(0,0,0,0.5);
@@ -686,7 +929,6 @@ footer {
     font-weight: bold;
 }
 
-
 .profile-pic-small {
     width: 40px;
     height: 40px;
@@ -701,7 +943,7 @@ footer {
     margin-right: 5px;
     vertical-align: middle;
     border-radius: 50%;
-    border: 1px solid var(--secondary)
+    border: 1px solid var(--secondary);
 }
 
 .streak-icon {
@@ -712,8 +954,6 @@ footer {
 }
 
 /* SHOP */
-
-/* Shop Bereich */
 .cash {
     background: var(--card-bg);
     padding: 0.8rem 1.2rem;
@@ -805,4 +1045,282 @@ footer {
     color: var(--contrast);
     font-weight: bold;
     margin-bottom: 1rem;
+}
+
+/* Animationen */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .overview {
+        gap: 20px;
+    }
+    
+    #workout-overview, 
+    #cardio-overview, 
+    #calistenics-overview {
+        flex: 1 1 300px;
+        min-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    main.content {
+        padding: 1rem;
+    }
+    
+    .overview {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    #workout-overview, 
+    #cardio-overview, 
+    #calistenics-overview {
+        max-width: 100%;
+        width: 100%;
+        min-width: unset;
+    }
+
+    #btn-row {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    #cardio-btn, 
+    #kraft-training-btn, 
+    #calestenics-btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .cardio-dash {
+        flex-direction: column;
+    }
+
+    .container-header {
+        font-size: 1.5rem;
+    }
+
+    #exercise-container, 
+    #cal-ex-container {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    .completed-exercise {
+        padding: 0.6rem;
+    }
+
+    .profile-card, 
+    .stats-card {
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .workout-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .workout-card .delete-btn {
+        align-self: flex-end;
+    }
+    
+    header.head {
+        padding: 1rem;
+    }
+    
+    header.head .headline {
+        font-size: 1.5rem;
+    }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-success { color: var(--success); }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--accent-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Focus States */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+a:focus {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--secondary);
+    opacity: 0.7;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Versteckt die Navigationsleiste */
+.hidden-header {
+    display: none;
+}
+
+/* ---- Detailansicht Pop-up ---- */
+.workout-details-overlay {
+    position: fixed; /* Fixiert es im Viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Transparente, dunkle Hintergrundfarbe */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Stellt sicher, dass es über allen anderen Elementen liegt */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.workout-details-modal {
+    background-color: var(--card-bg);
+    color: var(--text);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.workout-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.workout-details-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.workout-item-full {
+    background-color: var(--accent-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.workout-item-full.calestenics { border-left: 5px solid var(--calistenics-color); }
+.workout-item-full.strength { border-left: 5px solid var(--strength-color); }
+.workout-item-full.cardio { border-left: 5px solid var(--cardio-color); }
+
+.workout-type {
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.workout-type.calestenics { color: var(--calistenics-color); }
+.workout-type.strength { color: var(--strength-color); }
+.workout-type.cardio { color: var(--cardio-color); }
+
+.workout-details-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.workout-sets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--primary);
+}
+
+/* Animationen */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
