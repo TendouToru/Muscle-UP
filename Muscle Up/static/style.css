@@ -625,6 +625,39 @@ footer {
     overflow-y: auto;
 }
 
+.workout-item-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.delete-workout-form {
+    margin: 0;
+}
+
+.delete-btn-small {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s;
+}
+
+.delete-btn-small:hover {
+    background-color: #b30606;
+}
+
+/* Stile für leere Workout-Tage */
+.empty-workout {
+    text-align: center;
+    padding: 2rem;
+    color: #888;
+    font-style: italic;
+}
 
 .workout-item-mini {
     background-color: var(--accent-dark);
