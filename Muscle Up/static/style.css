@@ -1152,6 +1152,10 @@ footer {
         width: 40px;
         height: 40px;
     }
+
+    .leaderboard{
+        width: 100%;
+    }
     
     .container-header {
         font-size: 1.5rem;
