@@ -1134,6 +1134,9 @@ footer {
         flex-direction: column;
     }
     
+    .leaderboard {
+        width: 400px;
+    }
     
     .leaderboard table {
         min-width: 600px;

@@ -387,9 +387,11 @@ def calculate_xp_for_calestenics(user_id:int, sets:list, action="add"):
         total_xp += reps * 2 * set_factor
 
     if action == "add":
+        user_stats.xp_total = (user_stats.xp_total or 0) + int(total_xp)
         user_stats.attr_endurance = (user_stats.attr_endurance or 0) + endurance_change 
         user_stats.attr_strength = (user_stats.attr_strength or 0) + strength_change
     elif action == "deduct":
+        user_stats.xp_total = max((user_stats.xp_total or 0) - int(total_xp))
         user_stats.attr_endurance = max(0, (user_stats.attr_endurance or 0) - endurance_change)
         user_stats.attr_strength = max(0, (user_stats.attr_strength or 0) - strength_change)
     db.session.commit()
