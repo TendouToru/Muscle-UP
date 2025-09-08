@@ -812,83 +812,8 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+
 # --- Fitness Page (Workouts) ---
-@app.route('/workout', methods=['GET', 'POST'])
-def workout_page():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
-    ruhe = check_restday(session["user_id"])
-
-    if request.method == "POST":
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Invalid JSON"}), 400
-
-        exercise_name = data.get("exercise_name")
-        sets_data = data.get("sets")
-        if not exercise_name or not isinstance(sets_data, list):
-            return jsonify({"error": "Missing data"}), 400
-
-        try:
-            new_workout = Workout(
-                user_id=session["user_id"],
-                exercise=exercise_name,
-                date=today,
-                type='strength'
-            )
-            db.session.add(new_workout)
-            db.session.flush()
-
-            for set_data in sets_data:
-                new_set = Set(
-                    workout_id=new_workout.id,
-                    user_id=session["user_id"],
-                    reps=set_data.get("reps"),
-                    weight=set_data.get("weight")
-                )
-                db.session.add(new_set)
-                
-            xp_gained = calculate_xp_and_strength(session["user_id"], new_workout.sets, "add")
-            user_stats = db.session.get(UserStat, session["user_id"])
-            if user_stats:
-                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
-            
-            update_streak(session["user_id"])
-            db.session.commit()
-
-            return jsonify({"message": "Workout added successfully!", "xp_gained": xp_gained}), 200
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"error": str(e)}), 500
-
-    try:
-        today_workouts = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='strength'
-        ).all()
-        
-        today_cardio_workouts_raw = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='cardio'
-        ).all()
-
-        today_calistenics_workouts = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='calestenics'
-        ).all()
-
-
-
-        today_cardio_workouts = []
-        for workout in today_cardio_workouts_raw:
-            workout_data = {
-                'id': workout.id,
-                'exercise': workout.exercise,
-                'type': workout.type,
-                'duration': 0,
-                'distance': 0
-            }
-            if workout.sets:
-                cardio_set = work# --- Fitness Page (Workouts) ---
 @app.route('/workout', methods=['GET', 'POST'])
 def workout_page():
     if "user_id" not in session:
