@@ -1058,19 +1058,6 @@ footer {
     to { transform: translateX(0); }
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .overview {
-        gap: 20px;
-    }
-    
-    #workout-overview, 
-    #cardio-overview, 
-    #calistenics-overview {
-        flex: 1 1 300px;
-        min-width: 300px;
-    }
-}
 
 @media (max-width: 768px) {
     main.content {
@@ -1086,6 +1073,7 @@ footer {
     #cardio-overview, 
     #calistenics-overview {
         max-width: 100%;
+        flex: 1 1 300px;
         width: 100%;
         min-width: unset;
     }
@@ -1323,4 +1311,29 @@ a:focus {
 @keyframes scaleIn {
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
+}
+
+/* ---- Responsive Anpassungen für den Kalender ---- */
+@media (max-width: 768px) {
+    .kalendar-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Einzelne Spalte für Handys */
+        gap: 1rem;
+    }
+
+    .day-card {
+        padding: 0.75rem; /* Reduzierter Innenabstand für Handys */
+    }
+
+    .kalendar-head {
+        display: none; /* Blendet die Wochen-Überschrift auf Handys aus */
+    }
+
+    .day-number {
+        font-size: 1.5rem;
+    }
+
+    .workout-item {
+        font-size: 0.9rem;
+    }
 }
