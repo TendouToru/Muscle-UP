@@ -135,17 +135,8 @@
 
             const dateString = `${String(i).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
             const workoutsForDay = workoutsData[dateString] || [];
-            const hasRestday = workoutsForDay.some(workout => workout.type === 'restday');
-        
-            if (hasRestday) {
-                dayDiv.classList.add('rest-day');
-                const restItem = document.createElement('div');
-                restItem.classList.add('workout-item-mini', 'restday');
-                restItem.innerHTML = `<span class="workout-icon">🛌</span> Ruhetag`;
-                workoutSummary.appendChild(restItem);
-            }
             
-            else if (workoutsForDay.length > 0) {
+            if (workoutsForDay.length > 0) {
                 workoutsForDay.forEach(workout => {
                     const workoutItem = document.createElement('div');
                     workoutItem.classList.add('workout-item-mini', workout.type);
@@ -157,6 +148,8 @@
                         icon = '🏃';
                     } else if (workout.type === 'strength') {
                         icon = '🏋️';
+                    } else if (workout.type === 'restday') {
+                        icon = '🛌';
                     }
                     
                     workoutItem.innerHTML = `<span class="workout-icon">${icon}</span> ${workout.exercise}`;
@@ -203,31 +196,63 @@
         const detailsModal = document.createElement('div');
         detailsModal.classList.add('workout-details-modal');
         
-        const detailsHtml = `
+        let detailsHtml = `
         <div class="workout-details-header">
             <h3 class="workout-details-title">Workouts am ${date}</h3>
             <button class="close-btn" onclick="hideWorkoutDetails()">&times;</button>
         </div>
-        <div class="workout-list">
-            ${workouts.map(w => `
+        <div class="workout-list">`;
+        
+        if (workouts.length > 0) {
+            workouts.forEach(w => {
+                detailsHtml += `
                 <div class="workout-item-full ${w.type}">
-                    <span class="workout-type ${w.type}">
-                        ${w.type === 'calestenics' ? '💪 Calisthenics' : w.type === 'cardio' ? '🏃 Cardio' : '🏋️ Krafttraining'}
-                    </span>
+                    <div class="workout-item-header">
+                        <span class="workout-type ${w.type}">
+                            ${w.type === 'calestenics' ? '💪 Calisthenics' : 
+                              w.type === 'cardio' ? '🏃 Cardio' : 
+                              w.type === 'strength' ? '🏋️ Krafttraining' :
+                              w.type === 'restday' ? '🛌 Ruhetag' : w.type}
+                        </span>
+                        <form method="post" action="/delete_workout_from_calendar/${w.id}" class="delete-workout-form">
+                            <button type="submit" class="delete-btn-small">Löschen</button>
+                        </form>
+                    </div>
                     <div class="workout-details-text">${w.exercise}</div>
-                    <ul class="workout-sets">
-                        ${w.sets ? w.sets.map(s => `
-                            <li class="set-item">${s.reps} Wiederholungen ${s.weight ? ' | ' + s.weight + 'kg' : ''}</li>
-                        `).join('') : ''}
-                        ${w.type === 'cardio' ? `<li class="set-item">Dauer: ${w.duration} Min, Distanz: ${w.distance} Km</li>` : ''}
+                    <ul class="workout-sets">`;
+                
+                if (w.type === 'cardio') {
+                    detailsHtml += `<li class="set-item">Dauer: ${w.duration} Min, Distanz: ${w.distance} Km</li>`;
+                } else if (w.sets) {
+                    w.sets.forEach(s => {
+                        detailsHtml += `<li class="set-item">${s.reps} Wiederholungen ${s.weight ? ' | ' + s.weight + 'kg' : ''}</li>`;
+                    });
+                }
+                
+                detailsHtml += `
                     </ul>
-                </div>
-            `).join('')}
-        </div>
-        `;
+                </div>`;
+            });
+        } else {
+            detailsHtml += `<div class="empty-workout">Keine Workouts an diesem Tag</div>`;
+        }
+        
+        detailsHtml += `</div>`;
+        
         detailsModal.innerHTML = detailsHtml;
         detailsOverlay.appendChild(detailsModal);
         document.body.appendChild(detailsOverlay);
+        
+        // Event-Listener für Lösch-Buttons hinzufügen
+        const deleteForms = detailsModal.querySelectorAll('.delete-workout-form');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (confirm('Möchtest du dieses Workout wirklich löschen?')) {
+                    this.submit();
+                }
+            });
+        });
     }
     
     function hideWorkoutDetails() {

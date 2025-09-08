@@ -1156,6 +1156,7 @@ footer {
 
     .leaderboard{
         width: 300px;
+        overflow-x: scroll;
     }
     
     .container-header {
