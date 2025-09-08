@@ -13,8 +13,8 @@
     --cardio-color: #FF6B6B;
     --strength-color: #00aaff;
     --restday-color: #9b59b6;
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Grundlayout */
 * {
@@ -27,163 +27,47 @@ body {
     background-color: var(--background);
     color: var(--text);
     font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
     line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 .wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    width: 100%;
 }
 
 /* Kopfzeile */
 header.head {
     background-color: var(--background);
     border-bottom: 2px solid var(--primary);
-    padding: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.head .headline {
+    padding: 1rem 2rem;
     text-align: center;
+}
+
+header.head .headline {
     margin: 0;
-    font-size: 1.8rem;
-    color: var(--primary);
-}
-
-/* Navigation */
-.nav-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-}
-
-.nav-top {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.nav-top a {
-    color: var(--secondary);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.nav-top a:hover {
-    color: var(--primary);
-}
-
-.nav-user {
-    display: flex;
-    align-items: center;
-}
-
-.profile-pic {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--secondary);
-    cursor: pointer;
-}
-
-/* Dropdown Menü */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background-color: var(--card-bg);
-    min-width: 160px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 0.5rem;
-}
-
-.dropdown-content a {
-    color: var(--text);
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    transition: background-color 0.3s;
-}
-
-.dropdown-content a:hover {
-    background-color: var(--accent-dark);
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.username {
-    padding: 8px 16px;
-    color: var(--secondary);
-    font-weight: bold;
-    border-bottom: 1px solid var(--accent-dark);
-}
-
-/* Hamburger Menu (mobile) */
-.hamburger {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: var(--secondary);
-    cursor: pointer;
-}
-
-.mobile-menu {
-    display: none;
-    flex-direction: column;
-    background: var(--card-bg);
-    padding: 1rem;
-    margin-top: 1rem;
-    border-radius: 8px;
-}
-
-.mobile-menu.active {
-    display: flex;
-}
-
-.mobile-menu a {
-    color: var(--secondary);
-    text-decoration: none;
-    padding: 0.8rem 0;
-    border-bottom: 1px solid var(--accent-dark);
-    transition: color 0.3s;
-}
-
-.mobile-menu a:last-child {
-    border-bottom: none;
-}
-
-.mobile-menu a:hover {
+    font-size: 2rem;
     color: var(--primary);
 }
 
 /* Hauptinhalt */
 main.content {
     flex: 1;
-    padding: 2rem 1rem;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Footer */
+footer {
+    background-color: var(--card-bg);
+    color: var(--text);
+    text-align: center;
+    padding: 1rem;
+    border-top: 2px solid var(--primary);
 }
 
 /* Buttons */
@@ -197,9 +81,9 @@ main.content {
     font-weight: bold;
     text-transform: uppercase;
     transition: all 0.3s ease;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
 }
 
 .button:hover {
@@ -213,30 +97,51 @@ main.content {
     background-color: var(--success);
     border-color: var(--success);
     font-size: large;
-    width: 100%;
-    max-width: 400px;
-    margin: 1rem auto;
-    display: block;
+    width: 400px;
 }
 
-/* Training Buttons */
+/* Löschen-Button */
+.delete-btn {
+    background-color: var(--secondary);
+    color: var(--background);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: var(--error);
+    color: var(--text);
+}
+
 #btn-row {
+    max-width: 400px;
+    background-color: var(--accent-dark);
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
     display: flex;
-    gap: 1rem;
+    gap: 12px;
     justify-content: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
 }
 
 #cardio-btn, #kraft-training-btn, #calestenics-btn {
-    background-color: var(--card-bg);
     color: var(--secondary);
-    border: 2px solid var(--secondary);
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
+    background-color: var(--card-bg);
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    margin: 0;
 }
 
 #cardio-btn:hover, #kraft-training-btn:hover, #calestenics-btn:hover {
@@ -244,62 +149,112 @@ main.content {
     color: var(--primary);
 }
 
-/* Container für Trainingstypen */
+#saveBtn, #uploadBtn {
+    border-color: var(--success);
+    background-color: var(--success);
+}
+
+
+/* Formulare */
+.form-login {
+    display: flex;
+    background-color: var(--card-bg);
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    padding: 15px 15px 10px;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+}
+
+.form-login input {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: var(--background);
+    color: var(--text);
+}
+
+.form-login label {
+    text-decoration: underline;
+    color: var(--text);
+}
+
+#login-form {
+    align-items: center;
+    background-color: var(--card-bg);
+}
+
+#login-form input {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+.a-tag {
+    text-decoration: underline;
+    color: var(--primary);
+}
+
+
+/* Workouts Styling */
 .container {
     display: none;
+    justify-content: center;
     flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 2rem;
 }
 
 .container-header {
     color: var(--primary);
     text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
+    margin-top: 2rem;
     text-decoration: underline;
+    font-size: 2rem;
 }
 
-/* Formulare */
-.form-login {
+
+/* Workout-Kalender */
+.workout-calendar {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    max-width: 400px;
-    padding: 1.5rem;
+    gap: 20px;
+}
+
+.workout-card {
     background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: var(--box-shadow);
-    margin-bottom: 1.5rem;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
 }
 
-.form-login input {
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    background-color: var(--accent-dark);
-    color: var(--text);
-}
 
-.form-login input::placeholder {
-    color: #aaa;
-}
 
-/* Cardio Dashboard */
+
+
+/* Cardio Container */
 .cardio-dash {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    margin-bottom: 1rem;
 }
 
 .cardio-card {
     flex: 1;
-    min-width: 120px;
     padding: 1.2rem;
     background-color: var(--card-bg);
     border-radius: 10px;
@@ -308,7 +263,9 @@ main.content {
     font-weight: bold;
     color: var(--secondary);
     transition: all 0.2s ease;
-    box-shadow: var(--box-shadow);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
     border: 1px solid var(--accent-dark);
 }
 
@@ -320,105 +277,149 @@ main.content {
 
 .cardio-form {
     display: none;
-    flex-direction: column;
-    width: 100%;
-    max-width: 400px;
-    padding: 1.5rem;
+    padding: 0 1rem 1rem;
     background-color: var(--card-bg);
     border-radius: 10px;
-    box-shadow: var(--box-shadow);
-    margin-bottom: 1.5rem;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 .cardio-header {
     color: var(--secondary);
     text-align: center;
-    margin-bottom: 1rem;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
 }
 
 .cardio-form form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+    border-radius: 12px;
+    padding: 1rem 0;
+    background-color: var(--accent-dark);
 }
 
-.cardio-form input {
-    padding: 12px;
-    border: none;
+.cardio-form form input {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
     border-radius: 6px;
-    background-color: var(--accent-dark);
+    width: 80%;
+    background-color: var(--background);
     color: var(--text);
 }
 
-/* Übungscontainer */
-#exercise-container, #cal-ex-container {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    max-width: 500px;
-    padding: 1.5rem;
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: var(--box-shadow);
-    margin-bottom: 1.5rem;
+/* Container für die Übung */
+#kraft-training, #calestenics {
+    align-items: center;
 }
 
-#current-exercise, #cal-current-ex {
+#exercise-form, #cal-ex-form {
+    margin: 0;
+}
+
+#exercise-name, #cal-ex-name {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+#exercise-container, #cal-ex-container {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 0;
+}
+
+#exercise-container h2, #cal-ex-container h2 {
     color: var(--primary);
     text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
 }
 
 #set-form, #cal-set-form {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.8rem;
+    box-sizing: border-box;
 }
 
 #set-form input, #cal-set-form input {
-    padding: 12px;
-    border: none;
+    width: 100%;
+    padding: 10px;
     border-radius: 6px;
-    background-color: var(--accent-dark);
+    font-size: 16px;
+    border: none;
+    box-sizing: border-box;
+    background-color: var(--background);
     color: var(--text);
 }
 
-/* Satzlisten */
+#set-form .button, #finish-exercise, #cal-set-form .button, #cal-finish-exercise {
+    width: 100%;
+}
+
+
+
+/* Satzliste */
 #sets-list, #cal-sets-list {
     list-style: none;
-    margin-bottom: 1.5rem;
+    padding: 0;
+    margin: 1rem 0;
     width: 100%;
 }
 
 #sets-list li, #cal-sets-list li {
     background-color: var(--accent-dark);
-    padding: 0.8rem;
-    border-radius: 6px;
     margin-bottom: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--text);
 }
 
-.delete-set {
-    background-color: var(--error);
-    color: white;
+#sets-list li button, #cal-sets-list li button {
+    background-color: var(--primary);
+    color: var(--background);
     border: none;
-    padding: 0.4rem 0.8rem;
     border-radius: 4px;
+    padding: 2px 6px;
     cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.2s;
 }
 
-/* Übersicht der Workouts */
+#sets-list li button:hover, #cal-sets-list li button:hover {
+    background-color: var(--secondary);
+    color: var(--background);
+}
+
+
+/* Übersicht der Workouts*/
 .overview {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: center;
     margin-top: 2rem;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 #workout-overview, #cardio-overview, #calistenics-overview {
@@ -428,9 +429,14 @@ main.content {
     padding: 1.5rem;
     background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: var(--box-shadow);
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+    margin-bottom: 1rem;
 }
 
+/* Übersicht mit farbigen Akzenten */
 #workout-overview {
     border-left: 4px solid var(--strength-color);
 }
@@ -455,33 +461,86 @@ main.content {
     color: var(--calistenics-color);
 }
 
+
+#workout-overview h3, #cardio-overview h3, #calistenics-overview h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    text-decoration: underline;
+    font-size: 1.4rem;
+
+}
+
+/* Abgeschlossene Übungen */
 .completed-exercise {
     background-color: var(--accent-dark);
-    padding: 1rem;
-    border-radius: 8px;
     margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .completed-exercise h4 {
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem 0;
     color: var(--secondary);
 }
 
 .completed-exercise ul {
     list-style: none;
-    margin-bottom: 1rem;
+    padding-left: 0;
 }
 
-.completed-exercise li {
-    padding: 0.3rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.completed-exercise ul li {
+    background-color: var(--accent-dark);
+    margin-bottom: 0.3rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
 }
 
 .completed-exercise p {
-    margin-bottom: 1rem;
+    background-color: var(--accent-dark);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
 }
 
-/* Kalender */
+
+/* Workout Type Badges */
+.workout-type-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    text-transform: uppercase;
+}
+
+.workout-type-strength {
+    background-color: var(--strength-color);
+    color: var(--background);
+}
+
+.workout-type-cardio {
+    background-color: var(--cardio-color);
+    color: var(--background);
+}
+
+.workout-type-calestenics {
+    background-color: var(--calistenics-color);
+    color: var(--background);
+}
+
+.workout-type-restday {
+    background-color: var(--restday-color);
+    color: var(--background);
+}
+  
+
+
+/* Kalender-spezifische Stile */
 .calendar-container {
     width: 100%;
     margin-top: 2rem;
@@ -491,10 +550,10 @@ main.content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
     background-color: var(--card-bg);
+    padding: 1rem;
     border-radius: 12px;
+    margin-bottom: 1.5rem;
     box-shadow: var(--box-shadow);
 }
 
@@ -504,21 +563,25 @@ main.content {
     color: var(--primary);
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.month-nav-btn:hover {
+    transform: scale(1.1);
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
+    gap: 0,5rem;
 }
 
 .weekday {
     text-align: center;
     font-weight: bold;
-    padding: 0.8rem;
     color: var(--secondary);
     background-color: var(--card-bg);
+    padding: 0.8rem;
     border-radius: 8px;
 }
 
@@ -526,28 +589,29 @@ main.content {
     background-color: var(--card-bg);
     border-radius: 8px;
     padding: 0.8rem;
-    min-height: 120px;
+    min-height: 120px; 
     display: flex;
     flex-direction: column;
     box-shadow: var(--box-shadow);
-    cursor: pointer;
     transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.calendar-day.inactive {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .calendar-day:hover {
     transform: translateY(-3px);
 }
 
-.calendar-day.inactive {
-    opacity: 0.3;
-    pointer-events: none;
-}
-
 .day-number {
     font-weight: bold;
     color: var(--primary);
-    margin-bottom: 0.5rem;
     text-align: right;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
 }
 
 .workout-summary {
@@ -555,40 +619,34 @@ main.content {
     overflow-y: auto;
 }
 
+
 .workout-item-mini {
-    font-size: 0.8rem;
-    padding: 0.3rem;
-    margin-bottom: 0.3rem;
-    border-radius: 4px;
     background-color: var(--accent-dark);
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    font-size: 0.8rem;
+    padding: 0.3rem;
+    border-radius: 4px;
+    margin-bottom: 0.3rem;
 }
 
-.workout-item-mini.strength {
-    border-left: 3px solid var(--strength-color);
-}
+.workout-item-mini.calestenics { border-left: 3px solid var(--calistenics-color); }
+.workout-item-mini.cardio { border-left: 3px solid var(--cardio-color); }
+.workout-item-mini.strength { border-left: 3px solid var(--strength-color); }
+.workout-item-mini.restday{ border-left: 3px solid var(--restday-color); color: var(--restday-color);}
 
-.workout-item-mini.cardio {
-    border-left: 3px solid var(--cardio-color);
-}
 
-.workout-item-mini.calestenics {
-    border-left: 3px solid var(--calistenics-color);
-}
-
-.workout-item-mini.restday {
-    border-left: 3px solid var(--restday-color);
-    color: var(--restday-color);
+.workout-icon {
+    font-size: 0.9rem;
 }
 
 .empty-day {
     color: #777;
     font-style: italic;
     text-align: center;
-    margin-top: 0.5rem;
     font-size: 0.8rem;
+    margin-top: 0.5rem;
 }
 
 /* Ruhetag-Stile */
@@ -612,7 +670,7 @@ main.content {
     padding: 1rem;
 }
 
-.workout-details-modal {
+.workout-details-modal{
     background-color: var(--card-bg);
     border-radius: 12px;
     padding: 1.5rem;
@@ -633,8 +691,8 @@ main.content {
 }
 
 .workout-details-title {
-    color: var(--primary);
     font-size: 1.5rem;
+    color: var(--primary);
 }
 
 .close-btn {
@@ -673,26 +731,15 @@ main.content {
     border-left: 5px solid var(--restday-color);
 }
 
+
 .workout-type {
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    text-transform: capitalize;
 }
-
-.workout-type.strength {
-    color: var(--strength-color);
-}
-
-.workout-type.cardio {
-    color: var(--cardio-color);
-}
-
-.workout-type.calestenics {
-    color: var(--calistenics-color);
-}
-
-.workout-type.restday {
-    color: var(--restday-color);
-}
+.workout-type.strength { color: var(--strength-color); }
+.workout-type.cardio { color: var(--cardio-color); }
+.workout-type.calestenics { color: var(--calistenics-color); }
+.workout-type.restday{color: var(--restday-color);}
 
 .workout-details-text {
     margin-bottom: 0.5rem;
@@ -709,157 +756,171 @@ main.content {
     font-size: 0.9rem;
 }
 
-/* Profilseite */
-.profile-card, .stats-card {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--box-shadow);
-}
 
-.profile-card h3, .stats-card h3 {
-    color: var(--primary);
-    margin-bottom: 1.5rem;
-    text-align: center;
+
+/* Profil Card */
+.profile-card, .stats-card {
+    position: relative;
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+    width: 100%;
+    max-width: 500px;
 }
 
 .form-profile {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 12px;
 }
 
-.form-profile label {
-    font-weight: bold;
-    color: var(--secondary);
-}
-
-.form-profile input, .form-profile select {
-    padding: 12px;
-    border: none;
+.form-profile input, #gender {
+    padding: 10px;
     border-radius: 6px;
-    background-color: var(--accent-dark);
+    border: none;
+    background: var(--accent-dark);
     color: var(--text);
 }
 
-.form-profile input:disabled, .form-profile select:disabled {
-    opacity: 0.7;
+.form-profile button {
+    margin-top: 10px;
+}
+
+.form-profile input:disabled, #gender:disabled {
+    -webkit-text-fill-color: var(--text);
+    opacity: 1;
+}
+
+/* XP-Bar */
+.xp-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.xp-fill {
+    height: 100%;
+    background-color: var(--success);
+    width: 0;
+    transition: width 0.5s ease;
+}
+
+/* Attribute Anzeige */
+.attributes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+.attr {
+    background: var(--accent-dark);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Profil Dropdown */
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--secondary);
+    cursor: pointer;
+    margin: 0 auto;
+    display: block;
+}
+
+.pfp {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--secondary);
 }
 
 .profile-pic-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 20px;
 }
 
-.pfp {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--secondary);
-    margin-bottom: 1rem;
-}
-
-.form-buttons {
-    display: flex;
-    gap: 1rem;
+#profile_pic {
+    all: unset;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 12px;
+    text-align: center;
     margin-top: 1rem;
 }
 
-#uploadBtn {
-    margin-top: 0.5rem;
-}
-
-.upload-message {
-    text-align: center;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-}
-
-/* Stats */
-.stats-card {
-    text-align: center;
-}
-
-.xp-bar {
-    width: 100%;
-    height: 20px;
-    background-color: var(--accent-dark);
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 1rem 0;
-}
-
-.xp-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-    width: 0%;
-    transition: width 0.5s ease;
-}
-
-.attributes {
+.upload-container {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-    margin-top: 1.5rem;
+    gap: 20px;
 }
 
-.attr {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.8rem;
-    background-color: var(--accent-dark);
-    border-radius: 8px;
-}
-
-/* Leaderboard */
+/* Leaderboard*/
 .leaderboard {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    padding: 1.5rem;
     margin-top: 2rem;
-    box-shadow: var(--box-shadow);
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
 }
 
 .leaderboard h2 {
-    color: var(--primary);
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--secondary);
 }
 
 .leaderboard table {
     width: 100%;
     border-collapse: collapse;
+    color: var(--text);
 }
 
 .leaderboard th, .leaderboard td {
-    padding: 0.8rem;
-    text-align: left;
-    border-bottom: 1px solid var(--accent-dark);
+    padding: 0.5rem;
+    text-align: center;
 }
 
-.leaderboard th {
-    color: var(--secondary);
+.leaderboard #trb:nth-child(1) {
+    background: gold;
+    color: black;
     font-weight: bold;
 }
 
-.leaderboard tr:hover {
-    background-color: var(--accent-dark);
+.leaderboard #trb:nth-child(2) {
+    background: #c9d3d6;
+    color: black;
+    font-weight: bold;
 }
 
-.leaderboard tr:nth-child(1) {
-    background-color: rgba(255, 215, 0, 0.1);
-}
-
-.leaderboard tr:nth-child(2) {
-    background-color: rgba(192, 192, 192, 0.1);
-}
-
-.leaderboard tr:nth-child(3) {
-    background-color: rgba(205, 127, 50, 0.1);
+.leaderboard #trb:nth-child(3) {
+    background: #B87333;
+    color: black;
+    font-weight: bold;
 }
 
 .profile-pic-small {
@@ -867,26 +928,117 @@ main.content {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--secondary);
+    border: 1px solid var(--secondary);
 }
 
 .rank-pic {
     width: 30px;
     height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 0.5rem;
+    margin-right: 5px;
     vertical-align: middle;
+    border-radius: 50%;
+    border: 1px solid var(--secondary);
 }
 
-/* Footer */
-footer {
-    background-color: var(--card-bg);
-    color: var(--text);
+.streak-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* SHOP */
+.cash {
+    background: var(--card-bg);
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    font-weight: bold;
+    color: var(--contrast);
+    box-shadow: var(--glow-effect);
+    margin-bottom: 1.5rem;
     text-align: center;
-    padding: 1.5rem;
-    margin-top: auto;
-    border-top: 2px solid var(--primary);
+}
+
+.shop-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+.shop-search input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent-dark);
+    color: var(--text);
+}
+
+.shop-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.shop-cat {
+    background: var(--card-bg);
+    border: 1px solid var(--secondary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--secondary);
+    transition: 0.2s;
+}
+
+.shop-cat:hover {
+    background: var(--accent-dark);
+    color: var(--primary);
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.shop-card {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--glow-effect);
+    border: 1px solid var(--accent-dark);
+    transition: transform 0.2s;
+}
+
+.shop-card:hover {
+    transform: translateY(-4px);
+}
+
+.shop-card img {
+    width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.shop-card h3 {
+    margin: 0.5rem 0;
+    color: var(--primary);
+}
+
+.price {
+    color: var(--contrast);
+    font-weight: bold;
+    margin-bottom: 1rem;
 }
 
 /* Hilfsklassen */
@@ -900,16 +1052,16 @@ footer {
 
 /* Animationen */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .nav-bar {
         flex-wrap: wrap;
@@ -1016,6 +1168,29 @@ footer {
         padding: 10px 20px;
     }
 }
+
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-success { color: var(--success); }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
