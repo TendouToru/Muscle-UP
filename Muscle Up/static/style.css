@@ -1337,3 +1337,23 @@ a:focus {
         font-size: 0.9rem;
     }
 }
+
+/* Stil für Ruhetage im Kalender */
+.calendar-day.rest-day {
+    background-color: rgba(155, 89, 182, 0.2); /* Leichtes Lila für Ruhetage */
+    border: 2px solid var(--restday-color);
+}
+
+.workout-item-mini.restday {
+    border-left: 3px solid var(--restday-color);
+    color: var(--restday-color);
+}
+
+/* Ruhetag in der Detailansicht */
+.workout-item-full.restday {
+    border-left: 5px solid var(--restday-color);
+}
+
+.workout-type.restday {
+    color: var(--restday-color);
+}

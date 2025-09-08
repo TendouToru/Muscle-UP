@@ -135,8 +135,17 @@
 
             const dateString = `${String(i).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
             const workoutsForDay = workoutsData[dateString] || [];
+            const hasRestday = workoutsForDay.some(workout => workout.type === 'restday');
+        
+            if (hasRestday) {
+                dayDiv.classList.add('rest-day');
+                const restItem = document.createElement('div');
+                restItem.classList.add('workout-item-mini', 'restday');
+                restItem.innerHTML = `<span class="workout-icon">🛌</span> Ruhetag`;
+                workoutSummary.appendChild(restItem);
+            }
             
-            if (workoutsForDay.length > 0) {
+            else if (workoutsForDay.length > 0) {
                 workoutsForDay.forEach(workout => {
                     const workoutItem = document.createElement('div');
                     workoutItem.classList.add('workout-item-mini', workout.type);

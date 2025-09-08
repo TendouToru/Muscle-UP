@@ -1118,6 +1118,7 @@ def post_restday():
         return redirect(url_for("workout_page"))
 
 # --- Fitness Calendar ---
+# In der fitness_kalendar Route:
 @app.route('/fitness-kalendar')
 def fitness_kalendar():
     if "user_id" not in session:
@@ -1125,41 +1126,89 @@ def fitness_kalendar():
 
     try:
         workouts = Workout.query.filter_by(user_id=session["user_id"]).order_by(Workout.date.desc()).all()
+        
+        # Alle Daten des Benutzers abrufen, um Ruhetage zu identifizieren
+        all_dates = set()
+        workout_dates = set()
+        
+        # Mindest- und Maximum-Datum bestimmen (letzte 30 Tage)
+        today = datetime.now(pytz.utc).date()
+        thirty_days_ago = today - timedelta(days=30)
+        
+        # Alle Workout-Daten sammeln
+        for workout in workouts:
+            workout_date = datetime.strptime(workout.date, "%Y-%m-%d").date()
+            if thirty_days_ago <= workout_date <= today:
+                workout_dates.add(workout.date)
+        
+        # Ruhetage identifizieren (Tage ohne Workout in den letzten 30 Tagen)
+        rest_days = {}
+        current_date = thirty_days_ago
+        while current_date <= today:
+            date_str = current_date.strftime("%Y-%m-%d")
+            if date_str not in workout_dates:
+                # Prüfen, ob es ein Ruhetag ist (kein Workout an diesem Tag)
+                rest_day_workout = Workout.query.filter_by(
+                    user_id=session["user_id"], 
+                    date=date_str, 
+                    exercise='Restday'
+                ).first()
+                
+                if rest_day_workout:
+                    # Als Ruhetag markieren
+                    display_date = current_date.strftime("%d.%m.%Y")
+                    rest_days[display_date] = [{
+                        "id": rest_day_workout.id,
+                        "exercise": "Ruhetag",
+                        "type": "restday"
+                    }]
+            
+            current_date += timedelta(days=1)
+            
     except Exception as e:
         flash(f"An error occurred: {e}", "error")
         workouts = []
+        rest_days = {}
 
     grouped_workouts = defaultdict(list)
     for workout_item in workouts:
         workout_date = datetime.strptime(workout_item.date, "%Y-%m-%d")
         display_date = workout_date.strftime("%d.%m.%Y")
         
-        workout_data = {
-            "id": workout_item.id,
-            "exercise": workout_item.exercise,
-            "type": workout_item.type
-        }
-        
-        if workout_item.type == "cardio":
-            if workout_item.sets:
-                cardio_set = workout_item.sets[0]
-                workout_data["duration"] = cardio_set.reps
-                workout_data["distance"] = cardio_set.weight
-            else:
-                workout_data["duration"] = 0
-                workout_data["distance"] = 0
-        elif workout_item.type == "calestenics":  
-            workout_data["sets"] = [
-                {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
-            ]
-            workout_data["bodyweight"] = workout_item.sets[0].weight if workout_item.sets else 0
-
-        else:
-            workout_data["sets"] = [
-                {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
-            ]
+        # Nur Workouts der letzten 30 Tage anzeigen
+        if thirty_days_ago <= workout_date.date() <= today:
+            workout_data = {
+                "id": workout_item.id,
+                "exercise": workout_item.exercise,
+                "type": workout_item.type
+            }
             
-        grouped_workouts[display_date].append(workout_data)
+            if workout_item.type == "cardio":
+                if workout_item.sets:
+                    cardio_set = workout_item.sets[0]
+                    workout_data["duration"] = cardio_set.reps
+                    workout_data["distance"] = cardio_set.weight
+                else:
+                    workout_data["duration"] = 0
+                    workout_data["distance"] = 0
+            elif workout_item.type == "calestenics":  
+                workout_data["sets"] = [
+                    {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
+                ]
+                workout_data["bodyweight"] = workout_item.sets[0].weight if workout_item.sets else 0
+            else:
+                workout_data["sets"] = [
+                    {"reps": s.reps, "weight": s.weight} for s in workout_item.sets
+                ]
+                
+            grouped_workouts[display_date].append(workout_data)
+    
+    # Ruhetage zu den Workouts hinzufügen
+    for date, rest_workouts in rest_days.items():
+        if date in grouped_workouts:
+            grouped_workouts[date].extend(rest_workouts)
+        else:
+            grouped_workouts[date] = rest_workouts
     
     sorted_workouts = sorted(grouped_workouts.items(), key=lambda item: datetime.strptime(item[0], "%d.%m.%Y"), reverse=True)
 
