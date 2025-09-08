@@ -293,6 +293,7 @@ footer {
     color: var(--secondary);
     text-align: center;
     font-size: 1.6rem;
+    margin-bottom: 0.5rem;
 }
 
 .cardio-form form {
