@@ -118,6 +118,10 @@ footer {
     color: var(--text);
 }
 
+.delete-set{
+    margin-left: 5px;
+}
+
 #btn-row {
     max-width: 400px;
     background-color: var(--accent-dark);
