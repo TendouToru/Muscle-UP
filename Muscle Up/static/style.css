@@ -368,7 +368,7 @@ footer {
     width: 100%;
 }
 
-/* Zeilenumbruch für "Übung beenden" auf Desktop 
+/* Zeilenumbruch für "Übung beenden" auf Desktop */
 @media (min-width: 769px) {
     #finish-exercise, #cal-finish-exercise {
         white-space: normal;
@@ -382,7 +382,7 @@ footer {
         justify-content: center;
         text-align: center;
     }
-}*/
+}
 
 /* Satzliste */
 #sets-list, #cal-sets-list {
@@ -712,6 +712,21 @@ footer {
     margin-top: 5px;
 }
 
+/* Responsiv */
+@media (max-width: 768px) {
+    .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .main.content {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* Utility Classes */
 .text-center { text-align: center; }
