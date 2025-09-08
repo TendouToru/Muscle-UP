@@ -815,12 +815,244 @@ def logout():
     return redirect(url_for("index"))
 
 
+# Route zum Abrufen von Workouts für ein bestimmtes Datum
+@app.route('/get_workouts_for_date')
+def get_workouts_for_date():
+    if "user_id" not in session:
+        return jsonify({"error": "Nicht angemeldet"}), 401
+    
+    date = request.args.get('date')
+    if not date:
+        return jsonify({"error": "Datum fehlt"}), 400
+    
+    try:
+        # Workouts für das angegebene Datum abrufen
+        strength_workouts = Workout.query.filter_by(
+            user_id=session["user_id"], 
+            date=date, 
+            type='strength'
+        ).all()
+        
+        cardio_workouts_raw = Workout.query.filter_by(
+            user_id=session["user_id"], 
+            date=date, 
+            type='cardio'
+        ).all()
+        
+        calisthenics_workouts = Workout.query.filter_by(
+            user_id=session["user_id"], 
+            date=date, 
+            type='calistenics'
+        ).all()
+        
+        # Workouts für das Frontend aufbereiten
+        strength_data = []
+        for workout in strength_workouts:
+            strength_data.append({
+                'id': workout.id,
+                'exercise': workout.exercise,
+                'sets': [{'reps': s.reps, 'weight': s.weight} for s in workout.sets]
+            })
+        
+        cardio_data = []
+        for workout in cardio_workouts_raw:
+            workout_data = {
+                'id': workout.id,
+                'exercise': workout.exercise,
+                'type': workout.type,
+                'duration': 0,
+                'distance': 0
+            }
+            if workout.sets:
+                cardio_set = workout.sets[0]
+                workout_data['duration'] = cardio_set.reps
+                workout_data['distance'] = cardio_set.weight
+            
+            cardio_data.append(workout_data)
+        
+        calisthenics_data = []
+        for workout in calisthenics_workouts:
+            calisthenics_data.append({
+                'id': workout.id,
+                'exercise': workout.exercise,
+                'sets': [{'reps': s.reps, 'weight': s.weight} for s in workout.sets]
+            })
+        
+        return jsonify({
+            'strength_workouts': strength_data,
+            'cardio_workouts': cardio_data,
+            'calisthenics_workouts': calisthenics_data,
+            'date': date
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Route zum Hinzufügen von Workouts für ein bestimmtes Datum
+@app.route('/add_workout_for_date', methods=['POST'])
+def add_workout_for_date():
+    if "user_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+    
+    workout_date = data.get("date")
+    if not workout_date:
+        return jsonify({"error": "Datum fehlt"}), 400
+    
+    # Je nach Workout-Typ die entsprechende Verarbeitung durchführen
+    workout_type = data.get("type")
+    
+    try:
+        if workout_type == "strength":
+            # Verarbeitung für Krafttraining
+            exercise_name = data.get("exercise_name")
+            sets_data = data.get("sets")
+            
+            if not exercise_name or not isinstance(sets_data, list):
+                return jsonify({"error": "Missing data"}), 400
+
+            new_workout = Workout(
+                user_id=session["user_id"],
+                exercise=exercise_name,
+                date=workout_date,
+                type='strength'
+            )
+            db.session.add(new_workout)
+            db.session.flush()
+
+            for set_data in sets_data:
+                new_set = Set(
+                    workout_id=new_workout.id,
+                    user_id=session["user_id"],
+                    reps=set_data.get("reps"),
+                    weight=set_data.get("weight")
+                )
+                db.session.add(new_set)
+                
+            xp_gained = calculate_xp_and_strength(session["user_id"], new_workout.sets, "add")
+            user_stats = db.session.get(UserStat, session["user_id"])
+            if user_stats:
+                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
+            
+            update_streak(session["user_id"])
+            db.session.commit()
+
+            return jsonify({"message": "Workout added successfully!", "xp_gained": xp_gained}), 200
+            
+        elif workout_type == "cardio":
+            # Verarbeitung für Cardio
+            exercise_type = data.get("exercise_type")
+            duration = data.get("duration")
+            exercise_name = data.get("exercise_name", exercise_type)
+            
+            if not exercise_type or not duration:
+                return jsonify({"error": "Missing data"}), 400
+
+            cardio_data = {}
+            if exercise_type == "Laufen":
+                distance = data.get("distance")
+                if distance is None:
+                    return jsonify({"error": "Distance missing"}), 400
+                cardio_data = {"type": exercise_type, "duration": duration, "distance": distance}
+            elif exercise_type == "Schwimmen":
+                distance = data.get("distance")
+                if distance is None:
+                    return jsonify({"error": "Distance missing"}), 400
+                cardio_data = {"type": exercise_type, "duration": duration, "distance": distance}
+            elif exercise_type == "Spielsport":
+                sportart = data.get("sportart")
+                if sportart is None:
+                    return jsonify({"error": "Sport type missing"}), 400
+                cardio_data = {"type": exercise_type, "duration": duration, "distance": 0, "sportart": sportart}
+                exercise_name = sportart
+            else:
+                return jsonify({"error": "Invalid workout type"}), 400
+            
+            xp_gained = calculate_xp_and_endurance(session["user_id"], cardio_data, "add")
+
+            new_workout = Workout(
+                user_id=session["user_id"],
+                exercise=exercise_name,
+                type='cardio',
+                date=workout_date,
+            )
+            db.session.add(new_workout)
+            db.session.flush()
+
+            new_set = Set(
+                workout_id=new_workout.id,
+                user_id=session["user_id"],
+                reps=duration,
+                weight=cardio_data.get("distance", 0)
+            )
+            db.session.add(new_set)
+            
+            user_stats = db.session.get(UserStat, session["user_id"])
+            if user_stats:
+                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
+
+            update_streak(session["user_id"])
+            db.session.commit()
+            
+            return jsonify({"message": "Cardio workout added successfully!", "xp_gained": xp_gained}), 200
+            
+        elif workout_type == "calistenics":
+            # Verarbeitung für Calisthenics
+            exercise_name = data.get("exercise_name")
+            sets_data = data.get("sets")
+            
+            if not exercise_name or not isinstance(sets_data, list):
+                return jsonify({"error": "Missing data"}), 400
+            
+            user_profile = UserProfile.query.filter_by(user_id=session["user_id"]).first()
+            bodyweight = user_profile.bodyweight if user_profile else 70
+
+            new_workout = Workout(
+                user_id=session["user_id"],
+                exercise=exercise_name,
+                date=workout_date,
+                type='calistenics'
+            )
+            db.session.add(new_workout)
+            db.session.flush()
+
+            for set_data in sets_data:
+                new_set = Set(
+                    workout_id=new_workout.id,
+                    user_id=session["user_id"],
+                    reps=set_data.get("reps"),
+                    weight=bodyweight
+                )
+                db.session.add(new_set)
+            
+            xp_gained = calculate_xp_for_calestenics(session["user_id"], new_workout.sets, "add")
+            user_stats = db.session.get(UserStat, session["user_id"])
+            if user_stats:
+                user_stats.xp_total = (user_stats.xp_total or 0) + xp_gained
+            
+            update_streak(session["user_id"])
+            db.session.commit()
+            return jsonify({"message": "Workout added successfully!", "xp_gained": xp_gained}), 200
+            
+        else:
+            return jsonify({"error": "Invalid workout type"}), 400
+            
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
 # --- Fitness Page (Workouts) ---
 @app.route('/workout', methods=['GET', 'POST'])
 def workout_page():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
+
+    selected_date = request.args.get('date', datetime.now(pytz.utc).date().strftime("%Y-%m-%d"))
     today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
     ruhe = check_restday(session["user_id"])
 
@@ -868,15 +1100,15 @@ def workout_page():
 
     try:
         today_workouts = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='strength'
+            user_id=session["user_id"], date=selected_date, type='strength'
         ).all()
         
         today_cardio_workouts_raw = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='cardio'
+            user_id=session["user_id"], date=selected_date, type='cardio'
         ).all()
 
         today_calistenics_workouts = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, type='calestenics'
+            user_id=session["user_id"], date=selected_date, type='calestenics'
         ).all()
 
 
@@ -903,7 +1135,7 @@ def workout_page():
         today_cardio_workouts = []
 
     return render_template("workouts.html", today_workouts=today_workouts, today_cardio_workouts=today_cardio_workouts,
-                            today_calistenics_workouts=today_calistenics_workouts, ruhe=ruhe)
+                            today_calistenics_workouts=today_calistenics_workouts, ruhe=ruhe, today=selected_date)
 
 # --- Cardio Route ---
 @app.route('/add_cardio_workout', methods=['POST'])
@@ -1087,21 +1319,21 @@ def post_restday():
         return redirect(url_for("login"))
     
     try:
-        today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
+        selected_date = request.form.get("selected_date", datetime.now(pytz.utc).date().strftime("%Y-%m-%d"))
         
         restday_exists = Workout.query.filter_by(
-            user_id=session["user_id"], date=today, exercise='Restday'
+            user_id=session["user_id"], date=selected_date, exercise='Restday'
         ).first() is not None
 
         if restday_exists:
-            flash("You have already logged a rest day for today.", "error")
+            flash("You have already logged a rest day for this date.", "error")
             return redirect(url_for("workout_page"))
 
         if check_restday(session["user_id"]):
             new_restday = Workout(
                 user_id=session["user_id"],
                 exercise="Restday",
-                date=today,
+                date=selected_date,
                 type='restday'
             )
             db.session.add(new_restday)
@@ -1112,6 +1344,11 @@ def post_restday():
         else:
             flash("A rest day is only possible after at least 2 consecutive training days.", "error")
 
+        return redirect(url_for("workout_page"))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error logging rest day: {str(e)}", "error")
         return redirect(url_for("workout_page"))
 
     except Exception as e:

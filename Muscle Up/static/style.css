@@ -206,6 +206,49 @@ footer {
     color: var(--primary);
 }
 
+/* Datumsauswahl */
+.date-selection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.date-selection label {
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.date-selection input[type="date"] {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--accent-dark);
+    color: var(--text);
+    font-size: 1rem;
+}
+
+#set-date-btn {
+    padding: 0.8rem 1.5rem;
+    white-space: nowrap;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .date-selection {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .date-selection label {
+        text-align: center;
+    }
+}
 
 /* Workouts Styling */
 .container {
