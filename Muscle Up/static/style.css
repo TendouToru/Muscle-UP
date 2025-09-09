@@ -714,7 +714,7 @@ footer {
     margin-bottom: 0.3rem;
 }
 
-.workout-item-mini.calestenics { border-left: 3px solid var(--calistenics-color); }
+.workout-item-mini.calistenics { border-left: 3px solid var(--calistenics-color); }
 .workout-item-mini.cardio { border-left: 3px solid var(--cardio-color); }
 .workout-item-mini.strength { border-left: 3px solid var(--strength-color); }
 .workout-item-mini.restday{ border-left: 3px solid var(--restday-color); color: var(--restday-color);}
@@ -806,7 +806,7 @@ footer {
     border-left: 5px solid var(--cardio-color);
 }
 
-.workout-item-full.calestenics {
+.workout-item-full.calistenics {
     border-left: 5px solid var(--calistenics-color);
 }
 
@@ -821,7 +821,7 @@ footer {
 }
 .workout-type.strength { color: var(--strength-color); }
 .workout-type.cardio { color: var(--cardio-color); }
-.workout-type.calestenics { color: var(--calistenics-color); }
+.workout-type.calistenics { color: var(--calistenics-color); }
 .workout-type.restday{color: var(--restday-color);}
 
 .workout-details-text {
