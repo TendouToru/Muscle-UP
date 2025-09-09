@@ -646,10 +646,12 @@ def profile():
     user = db.session.get(User, session["user_id"])
     if not user:
         return redirect(url_for("logout")) 
+
+    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
         
     kraft = staerke(user.id)
     ausdauerr = ausdauer(user.id)
-    ruhe = check_restday(user.id)
+    ruhe = check_restday(user.id, today)
     rank = calculate_rank(user.id)
 
     if request.method == "POST":
@@ -1058,7 +1060,7 @@ def workout_page():
 
     selected_date = request.args.get('date', datetime.now(pytz.utc).date().strftime("%Y-%m-%d"))
     today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
-    ruhe = check_restday(session["user_id"])
+    ruhe = check_restday(session["user_id"], selected_date)
 
     if request.method == "POST":
         data = request.get_json()
