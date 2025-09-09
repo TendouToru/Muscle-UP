@@ -476,18 +476,22 @@ def update_streak(user_id: int):
         db.session.rollback()
 
 # Restday
-def check_restday(user_id: int):
+def check_restday(user_id: int, today):
     user_stats = db.session.get(UserStat, user_id)
     if not user_stats:
         return False
 
     streak = user_stats.streak_days
-    today = datetime.now(pytz.utc).date().strftime("%Y-%m-%d")
-    restday_exists = Workout.query.filter_by(
+    yesterday = today - timedelta(days=1)
+    restday_exists_1 = Workout.query.filter_by(
         user_id=user_id, date=today, exercise='Restday'
     ).first() is not None
 
-    restday_available = streak >= 2 and not restday_exists
+    restday_exists_2 = Workout.query.filter_by(
+        user_id=user_id, date=yesterday, exercise='Restday'
+    ).first() is not None
+
+    restday_available = streak >= 2 and not restday_exists_1 and not restday_exists_2
     return restday_available
 
 # --- Ranks ---
@@ -1329,7 +1333,10 @@ def post_restday():
             flash("You have already logged a rest day for this date.", "error")
             return redirect(url_for("workout_page"))
 
-        if check_restday(session["user_id"]):
+
+
+
+        if check_restday(session["user_id"], selected_date):
             new_restday = Workout(
                 user_id=session["user_id"],
                 exercise="Restday",
