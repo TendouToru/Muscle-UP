@@ -476,10 +476,11 @@ def update_streak(user_id: int):
         db.session.rollback()
 
 # Restday
-def check_restday(user_id: int, today):
+def check_restday(user_id: int, date_str = None):
     user_stats = db.session.get(UserStat, user_id)
     if not user_stats:
         return False
+
     if date_str:
         today = datetime.strptime(date_str, "%Y-%m-%d").date()
     else:
