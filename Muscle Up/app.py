@@ -491,8 +491,15 @@ def check_restday(user_id: int, date_str = None):
         user_id=user_id, date=today.strftime("%Y-%m-%d"), exercise='Restday'
     ).first() is not None
 
+    yesterday = today - timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    
+    yesterday_restday = Workout.query.filter_by(
+        user_id=user_id, date=yesterday_str, exercise='Restday'
+    ).first() is not None
 
-    restday_available = streak >= 2 and not restday_exists_1 
+
+    restday_available = streak >= 2 and not restday_exists_1 and not yesterday_restday
     return restday_available
 
 # --- Ranks ---
@@ -1333,10 +1340,10 @@ def post_restday():
         ).first() is not None
 
         if restday_exists:
-            flash("You have already logged a rest day for this date.", "error")
+            flash("Du hast bereits einen Ruhetag für dieses Datum eingetragen.", "error")
             return redirect(url_for("workout_page"))
 
-
+        # Ruhetag-Prüfung mit der erweiterten Funktion
         if check_restday(session["user_id"], selected_date):
             new_restday = Workout(
                 user_id=session["user_id"],
@@ -1348,20 +1355,32 @@ def post_restday():
             db.session.commit()
             
             update_streak(session["user_id"])
-            flash("Rest day logged. Your streak will continue.", "success")
+            flash("Ruhetag eingetragen. Deine Serie wird fortgesetzt.", "success")
         else:
-            flash("A rest day is only possible after at least 2 consecutive training days.", "error")
+            # Detaillierte Fehlermeldung basierend auf der Ursache
+            streak = db.session.get(UserStat, session["user_id"]).streak_days
+            
+            # Prüfen, ob gestern ein Ruhetag war
+            selected_date_obj = datetime.strptime(selected_date, "%Y-%m-%d").date()
+            yesterday = selected_date_obj - timedelta(days=1)
+            yesterday_str = yesterday.strftime("%Y-%m-%d")
+            
+            yesterday_restday = Workout.query.filter_by(
+                user_id=session["user_id"], date=yesterday_str, exercise='Restday'
+            ).first() is not None
+            
+            if streak < 2:
+                flash("Ein Ruhetag ist nur nach mindestens 2 aufeinanderfolgenden Trainingstagen möglich.", "error")
+            elif yesterday_restday:
+                flash("Du kannst nicht zwei Tage hintereinander einen Ruhetag einlegen.", "error")
+            else:
+                flash("Ein Ruhetag ist für dieses Datum nicht verfügbar.", "error")
 
         return redirect(url_for("workout_page"))
 
     except Exception as e:
         db.session.rollback()
-        flash(f"Error logging rest day: {str(e)}", "error")
-        return redirect(url_for("workout_page"))
-
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error logging rest day: {str(e)}", "error")
+        flash(f"Fehler beim Eintragen des Ruhetags: {str(e)}", "error")
         return redirect(url_for("workout_page"))
 
 # --- Fitness Calendar ---
