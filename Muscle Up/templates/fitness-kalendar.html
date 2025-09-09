@@ -142,7 +142,7 @@
                     workoutItem.classList.add('workout-item-mini', workout.type);
                     
                     let icon = '';
-                    if (workout.type === 'calestenics') {
+                    if (workout.type === 'calistenics') {
                         icon = '💪';
                     } else if (workout.type === 'cardio') {
                         icon = '🏃';
@@ -210,7 +210,7 @@ function showWorkoutDetails(date, workouts) {
             <div class="workout-item-full ${w.type}">
                 <div class="workout-item-header">
                     <span class="workout-type ${w.type}">
-                        ${w.type === 'calestenics' ? '💪 Calisthenics' : 
+                        ${w.type === 'calistenics' ? '💪 Calisthenics' : 
                           w.type === 'cardio' ? '🏃 Cardio' : 
                           w.type === 'strength' ? '🏋️ Krafttraining' :
                           w.type === 'restday' ? '🛌 Ruhetag' : w.type}
