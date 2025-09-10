@@ -55,7 +55,7 @@
                 {% endif %}
             </nav>
         </header>
-        
+
         <main class="content">
             <h2>Willkommen, {{ profile.name or '' }}!</h2>
             <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten</p>
@@ -63,6 +63,31 @@
             <section class="profile-card">
                 <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
                     <h3>Dein Profil</h3>
+
+
+                     <div class="form-group">
+                        <label>Region:</label>
+                        <div class="flag-dropdown" id="flagDropdown">
+                            <button class="flag-btn" id="selectedFlag" type="button">
+                                <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
+                                     alt="{{ profile.region or 'de' }}" 
+                                     id="selectedFlagImg">
+                                <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
+                            </button>
+                            <div class="flag-menu" id="flagMenu">
+                                <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
+                                <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
+                                <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
+                                <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
+                                <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
+                                <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
+                                <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
+                                <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div class="profile-pic-container">
                         <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
      alt="Profilbild" class="pfp"
@@ -146,6 +171,38 @@
         const profilePicInput = document.getElementById('profile_pic');
         const uploadMessage = document.getElementById('upload-message');
         const profilePicDisplay = document.getElementById('profile-pic-display');
+        const flagDropdown = document.getElementById('flagDropdown');
+        const flagMenu = document.getElementById('flagMenu');
+        const selectedFlagImg = document.getElementById('selectedFlagImg');
+        const regionInput = document.getElementById('regionInput');
+
+        // Flaggen-Dropdown Funktionen
+        document.getElementById('selectedFlag').addEventListener('click', function(e) {
+            e.stopPropagation();
+            flagMenu.classList.toggle('show');
+        });
+        
+        // Flagge auswählen
+        flagMenu.querySelectorAll('div').forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const img = this.querySelector('img').src;
+                const alt = this.querySelector('img').alt;
+                
+                selectedFlagImg.src = img;
+                selectedFlagImg.alt = alt;
+                regionInput.value = value;
+                
+                flagMenu.classList.remove('show');
+            });
+        });
+        
+        // Dropdown schließen wenn woanders hingeklickt wird
+        document.addEventListener('click', function(e) {
+            if (!flagDropdown.contains(e.target)) {
+                flagMenu.classList.remove('show');
+            }
+        });
 
         editBtn.addEventListener('click', function() {
             formFields.forEach(field => {
@@ -153,10 +210,15 @@
                 field.style.boxShadow = '0 0 5px gold';
             });
             profilePicInput.removeAttribute('disabled');
+            regionInput.removeAttribute('disabled');
             profilePicInput.style.display = 'block';
             uploadBtn.style.display = 'block';
             editBtn.style.display = 'none';
             saveBtn.style.display = 'block';
+
+            // Flaggen-Dropdown aktivieren
+            document.getElementById('selectedFlag').style.cursor = 'pointer';
+            document.getElementById('selectedFlag').style.opacity = '1';
         });
 
         profilePicInput.addEventListener('change', function(event) {

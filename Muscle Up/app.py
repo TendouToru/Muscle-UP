@@ -55,6 +55,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     bodyweight = db.Column(db.Float)
     height = db.Column(db.Float)
+    region = db.Column(db.Text, default='de')
     profile_pic = db.Column(db.Text, default='default.png')
     user = db.relationship('User', back_populates='profile')
 
@@ -672,6 +673,7 @@ def profile():
                 age = request.form.get("age")
                 bodyweight_str = request.form.get("bodyweight")
                 height_str = request.form.get("height")
+                region = request.form.get("region")
                 profile_pic_path = request.form.get("profile_pic_path")
 
                 if name:
@@ -687,7 +689,10 @@ def profile():
                     user.profile.bodyweight = float(bodyweight_str)
 
                 if height_str:
-                    user.profile.height = float(height_str)  
+                    user.profile.height = float(height_str) 
+
+                if region:
+                    user.profile.region = region 
 
                 if 'profile_pic' in request.files:
                     file = request.files['profile_pic']

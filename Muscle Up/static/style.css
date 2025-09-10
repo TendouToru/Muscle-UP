@@ -879,6 +879,109 @@ footer {
     opacity: 1;
 }
 
+/* Region-Auswahl Styles */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.flag-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.flag-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    background-color: var(--accent-dark);
+    border: 2px solid var(--secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.flag-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.flag-btn img {
+    width: 30px;
+    height: 20px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+
+.flag-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg);
+    border: 2px solid var(--secondary);
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.flag-menu.show {
+    display: block;
+}
+
+.flag-menu div {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.flag-menu div:hover {
+    background-color: var(--accent-dark);
+}
+
+.flag-menu div img {
+    width: 30px;
+    height: 20px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flag-btn {
+        padding: 0.6rem;
+    }
+    
+    .flag-menu div {
+        padding: 0.6rem;
+    }
+    
+    .flag-btn img,
+    .flag-menu div img {
+        width: 25px;
+        height: 16px;
+        margin-right: 8px;
+    }
+}
+
 /* XP-Bar */
 .xp-bar {
     width: 100%;
