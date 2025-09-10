@@ -250,6 +250,7 @@
             selectedDate = newDate;
             if (restdayDateInput) {
                 restdayDateInput.value = newDate;
+                location.reload(true);
             }
             
             updateHeader(selectedDate);
