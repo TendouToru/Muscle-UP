@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
+    <title>Muscle Up | {{ target_user.username }}'s Profil</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="head">
+            <h1 class="headline">{{ target_user.username }}'s Profil</h1>
+            <div class="nav-bar">
+                <h1 class="headline">Muscle Up</h1>
+                <nav class="nav-top">
+                    <a href="{{ url_for('index') }}" class="link">Home</a>
+                    <a href="{{ url_for('workout_page') }}" class="link">Training</a>
+                    <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
+                </nav>
+                {% if 'user_id' in session %}
+                <div class="nav-user">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                         alt="Profil" class="profile-pic"
+                         onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                        </button>
+                        <div class="dropdown-content">
+                            <span class="username">{{ session['username'] }}</span>
+                            <a href="{{ url_for('profile') }}">Mein Profil</a>
+                            <a href="{{ url_for('shop') }}">Shop</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <nav class="nav-top">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                </nav>
+                {% endif %}
+                <button class="hamburger" onclick="toggleMenu()">☰</button>
+            </div>
+            <nav class="mobile-menu" id="mobileMenu">
+                <a href="{{ url_for('index') }}">Start</a>
+                <a href="{{url_for('shop')}}">Shop</a>
+                <a href="{{ url_for('workout_page') }}">Training</a>
+                <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+                {% if 'user_id' in session %}
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <main class="content">
+
+            
+            <section class="profile-card">
+                <h3>{{ target_user.username }}'s Profil</h3>
+                
+                <div class="profile-pic-container">
+                    <img src="{{ profile.profile_pic_url if profile and profile.profile_pic else url_for('static', filename='profile_pics/default.png') }}" 
+                         alt="Profilbild" class="pfp"
+                         onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                </div>
+                
+                <div class="profile-info">
+                    {% if profile and profile.name %}
+                    <p><strong>Name:</strong> {{ profile.name }}</p>
+                    {% endif %}
+                    
+                    {% if profile and profile.region %}
+                    <p><strong>Region:</strong> 
+                        <img src="https://flagcdn.com/w20/{{ profile.region }}.png" 
+                             alt="{{ profile.region }}" 
+                             class="profile-flag">
+                    </p>
+                    {% endif %}
+                    
+                    {% if profile and profile.gender %}
+                    <p><strong>Geschlecht:</strong> 
+                        {% if profile.gender == "male" %}Männlich
+                        {% elif profile.gender == "female" %}Weiblich
+                        {% elif profile.gender == "divers" %}Divers
+                        {% else %}{{ profile.gender }}{% endif %}
+                    </p>
+                    {% endif %}
+                    
+                    {% if profile and profile.age %}
+                    <p><strong>Alter:</strong> {{ profile.age }}</p>
+                    {% endif %}
+                    
+                    {% if profile and profile.bodyweight %}
+                    <p><strong>Körpergewicht:</strong> {{ profile.bodyweight }} kg</p>
+                    {% endif %}
+                    
+                    {% if profile and profile.height %}
+                    <p><strong>Größe:</strong> {{ profile.height }} cm</p>
+                    {% endif %}
+                </div>
+            </section>
+            
+            <section class="stats-card">
+                <h3>{{ target_user.username }}'s Stats</h3>
+                <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="rank-img">
+                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank }}</strong></p>
+                <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
+                <div class="xp-bar">
+                    <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
+                </div>
+                
+                {% if stats.streak_days == 1 %}
+                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
+                {% else %}
+                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
+                {% endif %}
+                
+                <div class="attributes">
+                    <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
+                    <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
+                    <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
+                </div>
+            </section>
+
+            <!-- Letzte Workouts Sektion -->
+            <section class="recent-workouts">
+                <h3>Letzte Workouts</h3>
+                {% set recent_workouts = get_recent_workouts(target_user.id) %}
+                {% if recent_workouts %}
+                <div class="workout-list">
+                    {% for workout in recent_workouts %}
+                    <div class="workout-item {{ workout.type }}">
+                        <div class="workout-header">
+                            <span class="workout-date">{{ workout.date }}</span>
+                            <span class="workout-type-badge {{ workout.type }}">
+                                {% if workout.type == 'strength' %}🏋️ Kraft
+                                {% elif workout.type == 'cardio' %}🏃 Cardio
+                                {% elif workout.type == 'calistenics' %}💪 Calisthenics
+                                {% elif workout.type == 'restday' %}🛌 Ruhetag
+                                {% else %}{{ workout.type }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="workout-exercise">{{ workout.exercise }}</div>
+                        {% if workout.type == 'cardio' and workout.distance > 0 %}
+                        <div class="workout-details">Distanz: {{ workout.distance }} km, Dauer: {{ workout.duration }} min</div>
+                        {% elif workout.sets %}
+                        <div class="workout-details">{{ workout.sets|length }} Sätze</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-workouts">Noch keine Workouts eingetragen.</p>
+                {% endif %}
+            </section>
+        </main>
+        
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
+    
+    <script>
+    function toggleMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
+    }
+    </script>
+</body>
+</html>

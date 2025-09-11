@@ -532,7 +532,36 @@ def calculate_rank(user_id: int):
     elif 45 < level <= 50:
         return [10, "Sport ist Leben"]
         
+def get_recent_workouts(user_id, limit=5):
+    """Holt die letzten Workouts eines Benutzers"""
+    try:
+        workouts = Workout.query.filter_by(user_id=user_id)\
+                              .order_by(Workout.date.desc())\
+                              .limit(limit)\
+                              .all()
+        
+        workout_data = []
+        for workout in workouts:
+            workout_dict = {
+                'id': workout.id,
+                'date': workout.date,
+                'exercise': workout.exercise,
+                'type': workout.type
+            }
+            
+            if workout.type == 'cardio' and workout.sets:
+                cardio_set = workout.sets[0]
+                workout_dict['duration'] = cardio_set.reps
+                workout_dict['distance'] = cardio_set.weight
+            
+            workout_data.append(workout_dict)
+        
+        return workout_data
+    except Exception as e:
+        print(f"Error getting recent workouts: {e}")
+        return []
 
+        
 # --- Homepage ---
 @app.route("/")
 def index():
@@ -583,6 +612,49 @@ def xpformat_filter(value):
         return f"{value/1_000:.1f}k"
     return str(value)
 
+# --- Anderes Benutzerprofil anzeigen ---
+@app.route("/profile/<username>")
+def user_profile(username):
+    # Aktuellen Benutzer überprüfen
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        return redirect(url_for("login"))
+    
+    # Zielbenutzer finden
+    target_user = User.query.filter_by(username=username).first()
+    if not target_user:
+        flash("Benutzer nicht gefunden.", "error")
+        return redirect(url_for("index"))
+    
+    # Statistiken des Zielbenutzers
+    target_stats = target_user.stats
+    target_profile = target_user.profile
+    
+    # Berechnungen für den Zielbenutzer
+    if target_stats:
+        level, progress, xp_for_next, xp_remaining = calculate_level_and_progress(target_stats.xp_total)
+        rank = calculate_rank(target_user.id)
+        kraft = staerke(target_user.id)
+        ausdauerr = ausdauer(target_user.id)
+    else:
+        level, progress, xp_for_next, xp_remaining, rank, kraft, ausdauerr = 1, 0, 100, 0, 0, 0, 0
+    
+    # Prüfen, ob der aktuelle Benutzer das eigene Profil ansieht
+    is_own_profile = (current_user_id == target_user.id)
+    if is_own_profile:
+        return redirect(url_for("profile"))
+    
+    return render_template("user_profile.html",
+                           target_user=target_user,
+                           profile=target_profile,
+                           stats=target_stats,
+                           level=level,
+                           kraft=kraft,
+                           ausdauer=ausdauerr,
+                           rank=rank,
+                           progress=progress,
+                           xp_for_next=xp_for_next,
+                           xp_remaining=xp_remaining)
 
 # --- Login ---
 @app.route("/login", methods=["GET", "POST"])

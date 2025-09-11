@@ -1400,3 +1400,144 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
+
+/* Profile Link Styling */
+.profile-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.profile-link:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
+
+/* User Profile spezifische Styles */
+.own-profile-notice {
+    background-color: var(--accent-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.own-profile-notice a {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.profile-info {
+    margin-top: 1.5rem;
+}
+
+.profile-info p {
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    background-color: var(--accent-dark);
+    border-radius: 6px;
+}
+
+.profile-flag {
+    width: 20px;
+    height: 15px;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Recent Workouts */
+.recent-workouts {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.workout-item {
+    background-color: var(--accent-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary);
+}
+
+.workout-item.strength {
+    border-left-color: var(--strength-color);
+}
+
+.workout-item.cardio {
+    border-left-color: var(--cardio-color);
+}
+
+.workout-item.calistenics {
+    border-left-color: var(--calistenics-color);
+}
+
+.workout-item.restday {
+    border-left-color: var(--restday-color);
+}
+
+.workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.workout-date {
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.workout-type-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.workout-type-badge.strength {
+    background-color: var(--strength-color);
+    color: white;
+}
+
+.workout-type-badge.cardio {
+    background-color: var(--cardio-color);
+    color: white;
+}
+
+.workout-type-badge.calistenics {
+    background-color: var(--calistenics-color);
+    color: white;
+}
+
+.workout-type-badge.restday {
+    background-color: var(--restday-color);
+    color: white;
+}
+
+.workout-exercise {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.workout-details {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.no-workouts {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 2rem;
+}

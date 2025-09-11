@@ -83,7 +83,10 @@
                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </td>
                         <td> 
-                            {{ player.name or player.username }}</td>
+                            <a href="{{ url_for('user_profile', username=player.username) }}" class="profile-link">
+                                {{ player.name or player.username }}
+                            </a></td>
+
                         <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
                         <td>
                             <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
