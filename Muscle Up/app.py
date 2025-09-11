@@ -658,6 +658,7 @@ def user_profile(username):
                            kraft=kraft,
                            ausdauer=ausdauerr,
                            rank=rank,
+                           rank_name=rank_name,
                            progress=progress,
                            xp_for_next=xp_for_next,
                            xp_remaining=xp_remaining,
