@@ -884,13 +884,6 @@ footer {
     margin-bottom: 1rem;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: var(--secondary);
-}
-
 .flag-dropdown {
     position: relative;
     display: inline-block;
@@ -905,7 +898,7 @@ footer {
     border: 2px solid var(--secondary);
     border-radius: 6px;
     cursor: pointer;
-    width: 100%;
+
     transition: border-color 0.3s;
 }
 

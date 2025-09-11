@@ -66,7 +66,6 @@
 
 
                      <div class="form-group">
-                        <label>Region:</label>
                         <div class="flag-dropdown" id="flagDropdown">
                             <button class="flag-btn" id="selectedFlag" type="button">
                                 <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
@@ -176,8 +175,29 @@
         const selectedFlagImg = document.getElementById('selectedFlagImg');
         const regionInput = document.getElementById('regionInput');
 
+        let flagDropdownEnabled = false;
+
+        // Funktion zum Aktivieren/Deaktivieren des Flaggen-Dropdowns
+        function toggleFlagDropdown(enabled) {
+            flagDropdownEnabled = enabled;
+            if (enabled) {
+                selectedFlag.disabled = false;
+                selectedFlag.classList.add('active');
+            } else {
+                selectedFlag.disabled = true;
+                selectedFlag.classList.remove('active');
+                flagMenu.classList.remove('show');
+            }
+        }
+
+        toggleFlagDropdown(false);
+
         // Flaggen-Dropdown Funktionen
-        document.getElementById('selectedFlag').addEventListener('click', function(e) {
+        selectedFlag.addEventListener('click', function(e) {
+            if (!flagDropdownEnabled) {
+                e.preventDefault();
+                return;
+            }
             e.stopPropagation();
             flagMenu.classList.toggle('show');
         });
@@ -217,8 +237,7 @@
             saveBtn.style.display = 'block';
 
             // Flaggen-Dropdown aktivieren
-            document.getElementById('selectedFlag').style.cursor = 'pointer';
-            document.getElementById('selectedFlag').style.opacity = '1';
+            toggleFlagDropdown(true);
         });
 
         profilePicInput.addEventListener('change', function(event) {
