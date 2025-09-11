@@ -80,6 +80,7 @@
                         <td>
                             <img src="{{ player.profile_pic_url }}" 
                                 alt="Profil" class="profile-pic-small"
+                                href="{{ url_for('user_profile', username=player.username) }}"
                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </td>
                         <td> 

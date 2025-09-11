@@ -1085,11 +1085,6 @@ footer {
     text-align: center;
 }
 
-.leaderboard a{
-    all: unset;
-    cursor: pointer;
-}
-
 .leaderboard #trb:nth-child(1) {
     background: gold;
     color: black;
@@ -1406,17 +1401,11 @@ footer {
     background: var(--primary);
 }
 
-/* Profile Link Styling */
-.profile-link {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
-}
 
 .profile-link:hover {
     color: var(--secondary);
     text-decoration: underline;
+    cursor: pointer;
 }
 
 /* User Profile spezifische Styles */
