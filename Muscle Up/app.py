@@ -514,23 +514,23 @@ def calculate_rank(user_id: int):
     if level <= 5:
         return [1, "Anfänger"]
     elif 5 < level <= 10:
-        return [1, "Gesund"]
+        return [2, "Gesund"]
     elif 10 < level <= 15:
-        return [1, "Sportlich"]
+        return [3, "Sportlich"]
     elif 15 < level <= 20:
-        return [1, "Fit"]
+        return [4, "Fit"]
     elif 20 < level <= 25:
-        return [1, "Sportler"]
+        return [5, "Sportler"]
     elif 25 < level <= 30:
-        return [1, "Top-Fit"]
+        return [6, "Top-Fit"]
     elif 30 < level <= 35:
-        return [1, "Atlet"]
+        return [7, "Atlet"]
     elif 35 < level <= 40:
-        return [1, "Super-Atlet"]
+        return [8, "Super-Atlet"]
     elif 40 < level <= 45:
-        return [1, "Leistungssportler"]
+        return [9, "Leistungssportler"]
     elif 45 < level <= 50:
-        return [1, "Sport ist Leben"]
+        return [10, "Sport ist Leben"]
         
 
 # --- Homepage ---
