@@ -69,6 +69,7 @@
                         <th>Benutzer</th>
                         <th>Level</th>
                         <th>Rang</th>
+                        <th>Region</th>
                         <th>XP</th>
                     </tr>
                 </thead>
@@ -81,12 +82,16 @@
                                 alt="Profil" class="profile-pic-small"
                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </td>
-                        <td>{{ player.name or player.username }}</td>
+                        <td> 
+                            {{ player.name or player.username }}</td>
                         <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
                         <td>
                             <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
                                 alt="{{ player.rank }}" class="rank-pic">
-                            {{ player.rank }}
+                            
+                        </td>
+                        <td>
+                            <img src="https://flagcdn.com/w40/{{ player.region or 'de' }}.png" alt="" class="profile-pic-small">
                         </td>
                         <td>{{ player.xp|xpformat }}</td>
                     </tr>
