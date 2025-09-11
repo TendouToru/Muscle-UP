@@ -1087,6 +1087,7 @@ footer {
 
 .leaderboard a{
     all: unset;
+    cursor: pointer;
 }
 
 .leaderboard #trb:nth-child(1) {
