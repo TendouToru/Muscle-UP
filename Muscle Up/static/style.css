@@ -1427,11 +1427,12 @@ footer {
 }
 
 .profile-flag {
-    width: 30px;
-    height: 20px;
+    width: 50px;
+    height: 40px;
     vertical-align: middle;
     margin-left: 0.5rem;
     border-radius: 2px;
+    margin-bottom: 1rem;
 }
 
 /* Recent Workouts */
