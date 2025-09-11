@@ -663,7 +663,7 @@ def profile():
     ausdauerr = ausdauer(user.id)
     ruhe = check_restday(user.id, today)
     rank = calculate_rank(user.id)[0]
-    rank_name = calculate_rank(user_id)[1]
+    rank_name = calculate_rank(user.id)[1]
 
     if request.method == "POST":
             try:
