@@ -538,7 +538,7 @@ def calculate_rank(user_id: int):
 def index():
     # 1. Daten aus der Datenbank abfragen
     leaderboard = db.session.query(
-        User.id, UserProfile.name, UserProfile.profile_pic, UserProfile.region, User.username, UserStat.xp_total, UserStat.streak_days
+        User.id, UserProfile.name, UserProfile.region, UserProfile.profile_pic, User.username, UserStat.xp_total, UserStat.streak_days
     ).outerjoin(UserStat, User.id == UserStat.user_id) \
      .outerjoin(UserProfile, User.id == UserProfile.user_id) \
      .order_by(UserStat.xp_total.desc()) \
