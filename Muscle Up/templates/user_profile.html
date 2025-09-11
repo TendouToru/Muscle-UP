@@ -60,7 +60,7 @@
 
             
             <section class="profile-card">
-                <h3>{{ target_user.username }}'s Profil</h3>
+                <h3>{{ target_user.profile.name or target_user.username }}'s Profil</h3>
                 
                 <div class="profile-pic-container">
                     <img src="{{ profile.profile_pic_url if profile and profile.profile_pic else url_for('static', filename='profile_pics/default.png') }}" 
@@ -106,7 +106,7 @@
             </section>
             
             <section class="stats-card">
-                <h3>{{ target_user.username }}'s Stats</h3>
+                <h3>{{ target_user.profile.name or target_user.username }}'s Stats</h3>
                 <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
                 <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank_name }}</strong></p>
                 <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
