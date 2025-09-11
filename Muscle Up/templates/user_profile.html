@@ -69,11 +69,16 @@
                 </div>
                 
                 <div class="profile-info">
-                    {% if profile and profile.name %}
-                    <p><strong>Name:</strong> {{ profile.name }}</p>
-                    <img src="https://flagcdn.com/w20/{{ profile.region }}.png" 
+
+                    {% if profile and profile.region %}
+                        <img src="https://flagcdn.com/w20/{{ profile.region or 'de'}}.png" 
                              alt="{{ profile.region }}" 
                              class="profile-flag">
+                    {%endif%}
+
+                    {% if profile and profile.name %}
+                    <p><strong>Name:</strong> {{ profile.name }}</p>
+                    
                     {% endif %}
                     
                     
