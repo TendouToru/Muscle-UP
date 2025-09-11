@@ -512,25 +512,25 @@ def calculate_rank(user_id: int):
         return 0
     
     if level <= 5:
-        return 1
+        return [1, "Beginner"]
     elif 5 < level <= 10:
-        return 2
+        return [1, "Beginner"]
     elif 10 < level <= 15:
-        return 3
+        return [1, "Beginner"]
     elif 15 < level <= 20:
-        return 4
+        return [1, "Beginner"]
     elif 20 < level <= 25:
-        return 5
+        return [1, "Beginner"]
     elif 25 < level <= 30:
-        return 6
+        return [1, "Beginner"]
     elif 30 < level <= 35:
-        return 7
+        return [1, "Beginner"]
     elif 35 < level <= 40:
-        return 8
+        return [1, "Beginner"]
     elif 40 < level <= 45:
-        return 9
+        return [1, "Beginner"]
     elif 45 < level <= 50:
-        return 10
+        return [1, "Beginner"]
         
 
 # --- Homepage ---
@@ -550,7 +550,7 @@ def index():
     for row in leaderboard:
         user_id, name, region, profile_pic, username, xp_total, streak_days = row
         level, _, _, _ = calculate_level_and_progress(xp_total)
-        rank = calculate_rank(user_id)
+        rank = calculate_rank(user_id)[0]
         
         # WICHTIG: Hier get_github_url verwenden!
         profile_pic_url = get_github_url(profile_pic) if profile_pic else get_github_url('default.png')
@@ -662,7 +662,8 @@ def profile():
     kraft = staerke(user.id)
     ausdauerr = ausdauer(user.id)
     ruhe = check_restday(user.id, today)
-    rank = calculate_rank(user.id)
+    rank = calculate_rank(user.id)[0]
+    rank_name = calculate_rank(user_id)[1]
 
     if request.method == "POST":
             try:
@@ -732,6 +733,7 @@ def profile():
                            ausdauer=ausdauerr,
                            ruhe=ruhe,
                            rank=rank,
+                           rank_name=rank_name,
                            progress=progress,
                            xp_for_next=xp_for_next,
                            xp_remaining=xp_remaining,

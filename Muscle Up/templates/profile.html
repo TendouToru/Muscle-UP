@@ -127,7 +127,7 @@
             <section class="stats-card">
                 <h3>Meine Stats</h3>
                 <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
-                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank }}</strong></p>
+                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank_name }}</strong></p>
                 <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
                 <div class="xp-bar">
                     <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
