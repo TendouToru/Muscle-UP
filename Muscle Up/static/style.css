@@ -1419,18 +1419,6 @@ footer {
 }
 
 /* User Profile spezifische Styles */
-.own-profile-notice {
-    background-color: var(--accent-dark);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.own-profile-notice a {
-    color: var(--primary);
-    font-weight: bold;
-}
 
 .profile-info {
     margin-top: 1.5rem;

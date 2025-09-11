@@ -635,7 +635,8 @@ def user_profile(username):
     # Berechnungen für den Zielbenutzer
     if target_stats:
         level, progress, xp_for_next, xp_remaining = calculate_level_and_progress(target_stats.xp_total)
-        rank = calculate_rank(target_user.id)
+        rank = calculate_rank(target_user.id)[0]
+        rank_name = calculate_rank(target_user.id)[1]
         kraft = staerke(target_user.id)
         ausdauerr = ausdauer(target_user.id)
     else:
