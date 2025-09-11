@@ -561,7 +561,7 @@ def get_recent_workouts(user_id, limit=5):
         print(f"Error getting recent workouts: {e}")
         return []
 
-        
+
 # --- Homepage ---
 @app.route("/")
 def index():
@@ -643,6 +643,9 @@ def user_profile(username):
     is_own_profile = (current_user_id == target_user.id)
     if is_own_profile:
         return redirect(url_for("profile"))
+
+    recent_workouts = get_recent_workouts(target_user.id)
+
     
     return render_template("user_profile.html",
                            target_user=target_user,
@@ -654,7 +657,8 @@ def user_profile(username):
                            rank=rank,
                            progress=progress,
                            xp_for_next=xp_for_next,
-                           xp_remaining=xp_remaining)
+                           xp_remaining=xp_remaining,
+                           recent_workouts=recent_workouts)
 
 # --- Login ---
 @app.route("/login", methods=["GET", "POST"])
