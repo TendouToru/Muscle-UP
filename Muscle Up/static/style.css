@@ -1085,6 +1085,11 @@ footer {
     text-align: center;
 }
 
+.leaderboard a{
+    all: unset;
+    cursor: pointer;
+}
+
 .leaderboard #trb:nth-child(1) {
     background: gold;
     color: black;
