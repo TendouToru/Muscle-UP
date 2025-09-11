@@ -129,7 +129,6 @@
             <!-- Letzte Workouts Sektion -->
             <section class="recent-workouts">
                 <h3>Letzte Workouts</h3>
-                {% set recent_workouts = get_recent_workouts(target_user.id) %}
                 {% if recent_workouts %}
                 <div class="workout-list">
                     {% for workout in recent_workouts %}
@@ -145,10 +144,13 @@
                             </span>
                         </div>
                         <div class="workout-exercise">{{ workout.exercise }}</div>
+                        
                         {% if workout.type == 'cardio' and workout.distance > 0 %}
                         <div class="workout-details">Distanz: {{ workout.distance }} km, Dauer: {{ workout.duration }} min</div>
-                        {% elif workout.sets %}
-                        <div class="workout-details">{{ workout.sets|length }} Sätze</div>
+                        {% elif workout.type == 'cardio' and workout.duration > 0 %}
+                        <div class="workout-details">Dauer: {{ workout.duration }} min</div>
+                        {% elif workout.sets_count > 0 %}
+                        <div class="workout-details">{{ workout.sets_count }} Sätze</div>
                         {% endif %}
                     </div>
                     {% endfor %}

@@ -546,9 +546,11 @@ def get_recent_workouts(user_id, limit=5):
                 'id': workout.id,
                 'date': workout.date,
                 'exercise': workout.exercise,
-                'type': workout.type
+                'type': workout.type,
+                'sets_count': len(workout.sets) if workout.sets else 0
             }
             
+            # Für Cardio-Workouts zusätzliche Informationen
             if workout.type == 'cardio' and workout.sets:
                 cardio_set = workout.sets[0]
                 workout_dict['duration'] = cardio_set.reps

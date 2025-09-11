@@ -1085,6 +1085,10 @@ footer {
     text-align: center;
 }
 
+.leaderboard a{
+    all: unset;
+}
+
 .leaderboard #trb:nth-child(1) {
     background: gold;
     color: black;
@@ -1460,14 +1464,17 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-top: 1rem;
 }
 
 .workout-item {
     background-color: var(--accent-dark);
     padding: 1rem;
     border-radius: 8px;
-    border-left: 4px solid var(--secondary);
+    transition: transform 0.2s;
+}
+
+.workout-item:hover {
+    transform: translateY(-2px);
 }
 
 .workout-item.strength {
@@ -1491,18 +1498,23 @@ footer {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .workout-date {
     color: var(--secondary);
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
+
 .workout-type-badge {
-    padding: 0.3rem 0.6rem;
-    border-radius: 12px;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
     font-size: 0.8rem;
     font-weight: bold;
+    text-transform: uppercase;
 }
 
 .workout-type-badge.strength {
@@ -1527,17 +1539,37 @@ footer {
 
 .workout-exercise {
     font-weight: bold;
-    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
 }
 
 .workout-details {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #aaa;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
+
+
 
 .no-workouts {
     text-align: center;
     color: #888;
     font-style: italic;
     padding: 2rem;
+}
+
+/* Responsives Design*/
+@media (max-width: 768px) {
+    .workout-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .workout-details {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
 }
