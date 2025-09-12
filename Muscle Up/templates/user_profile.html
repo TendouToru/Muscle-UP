@@ -135,7 +135,7 @@
                     {% for workout in recent_workouts %}
                     <div class="workout-item {{ workout.type }}">
                         <div class="workout-header">
-                            <span class="workout-date">{{ workout.date }}</span>
+                            <span class="workout-date">{{ workout.date | dateformat }}</span>
                             <span class="workout-type-badge {{ workout.type }}">
                                 {% if workout.type == 'strength' %}🏋️ Kraft
                                 {% elif workout.type == 'cardio' %}🏃 Cardio

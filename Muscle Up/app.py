@@ -613,6 +613,15 @@ def index():
     
     return render_template("index.html", leaderboard=leaderboard_data)
 
+# Jinja2 Filter für Datumsformatierung
+@app.template_filter("dateformat")
+def dateformat_filter(date_string, input_format="%Y-%m-%d", output_format="%d.%m.%Y"):
+    """
+    Jinja2 Filter für Datumsformatierung.
+    Verwendung im Template: {{ workout.date | dateformat }}
+    """
+    return format_date(date_string, input_format, output_format)
+    
 @app.template_filter("xpformat")
 def xpformat_filter(value):
     try:
