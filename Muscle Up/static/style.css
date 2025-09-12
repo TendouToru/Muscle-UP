@@ -1427,7 +1427,7 @@ footer {
 }
 
 .profile-flag {
-    width: 50px;
+    width: 70px;
     height: 40px;
     vertical-align: middle;
     margin-left: 0.5rem;
@@ -1442,6 +1442,12 @@ footer {
     border-radius: 12px;
     margin-top: 2rem;
     box-shadow: var(--box-shadow);
+}
+
+.recent-workouts h3{
+    margin-bottom: 0.2rem;
+    text-align: center;
+    color: var(--secondary);
 }
 
 .workout-list {
