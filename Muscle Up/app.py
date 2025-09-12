@@ -236,7 +236,17 @@ def test_github_config():
     
     return result
 
-
+# Hilfsfunktion für Datumsformatierung
+def format_date(date_string, input_format="%Y-%m-%d", output_format="%d.%m.%Y"):
+    """
+    Formatiert ein Datum von einem Format in ein anderes.
+    Standard: von YYYY-MM-DD zu TT.MM.JJJJ
+    """
+    try:
+        date_obj = datetime.strptime(date_string, input_format)
+        return date_obj.strftime(output_format)
+    except (ValueError, TypeError):
+        return date_string  # Falls Formatierung fehlschlägt, originalen Wert zurückgeben
 
 # --- XP Functions ---
 def calculate_xp_and_strength(user_id: int, sets: list, action="add"):
@@ -542,6 +552,9 @@ def get_recent_workouts(user_id, limit=5):
         
         workout_data = []
         for workout in workouts:
+
+            formatted_date = format_date(workout.date, "%Y-%m-%d", "%d.%m.%Y")
+
             workout_dict = {
                 'id': workout.id,
                 'date': workout.date,
