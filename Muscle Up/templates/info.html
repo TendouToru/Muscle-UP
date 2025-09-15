@@ -5,231 +5,346 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
-    <title>Muscle Up | Infos</title>
+    <title>Muscle Up | Info & Patchnotes</title>
+    <style>
+        .info-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            color: var(--primary);
+            text-align: center;
+            margin: 2rem 0 1rem;
+            font-size: 2rem;
+        }
+        
+        .patchnotes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .patchnote-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-dark);
+        }
+        
+        .patchnote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .patchnote-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .patchnote-date {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .patchnote-content {
+            line-height: 1.6;
+        }
+        
+        .admin-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .editor-container {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-dark);
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .editor-toolbar button {
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-dark);
+            border: 1px solid var(--secondary);
+            border-radius: 4px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .editor-toolbar button:hover {
+            background-color: var(--secondary);
+            color: var(--background);
+        }
+        
+        #patchnote-editor {
+            min-height: 200px;
+            border: 1px solid var(--accent-dark);
+            border-radius: 6px;
+            padding: 1rem;
+            background-color: var(--background);
+            color: var(--text);
+            margin-bottom: 1rem;
+            width: 100%;
+            resize: vertical;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--accent-dark);
+            background-color: var(--background);
+            color: var(--text);
+        }
+        
+        .no-patchnotes {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-style: italic;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+        }
+    </style>
 </head>
 <body>
-    <header class="head">
-        <div class="nav-bar">
-            <!-- Links: Logo -->
-            <h1 class="headline">Muscle Up</h1>
+    <div class="wrapper">
+        <header class="head">
+            <div class="nav-bar">
+                <h1 class="headline">Muscle Up</h1>
 
-        <!-- Rechts: Userbereich / Login -->
-        {% if 'user_id' in session %}
-        <div class="nav-user">
-            <div class="dropdown">
-                <button class="dropbtn">
-                    <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-     alt="Profil" class="profile-pic"
-     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-                </button>
-                <div class="dropdown-content">
-                    <span class="username">{{ session['username'] }}</span>
-                    <a href="{{ url_for('index') }}">Start</a>
+                <!-- Rechts: Userbereich / Login -->
+                {% if 'user_id' in session %}
+                <div class="nav-user">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                                 alt="Profil" class="profile-pic"
+                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                        </button>
+                        <div class="dropdown-content">
+                            <span class="username">{{ session['username'] }}</span>
+                            <a href="{{ url_for('index') }}">Start</a>
+                            <a href="{{ url_for('profile') }}">Mein Profil</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <nav class="nav-top">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                </nav>
+                {% endif %}
+
+                <!-- Hamburger Button (nur Mobile) -->
+                <button class="hamburger" onclick="toggleMenu()">☰</button>
+            </div>
+
+            <!-- Mobile Menü -->
+            <nav class="mobile-menu" id="mobileMenu">
+                <a href="{{ url_for('index') }}">Start</a>
+                {% if 'user_id' in session %}
                     <a href="{{ url_for('profile') }}">Mein Profil</a>
+                    <a href="{{ url_for('workout_page') }}">Training</a>
+                    <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
+                    <a href="{{ url_for('info') }}">Info & Updates</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <nav class="nav-top">
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        </nav>
-        {% endif %}
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                {% endif %}
+            </nav>
+        </header>
 
-        <!-- Hamburger Button (nur Mobile) -->
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-    </div>
-
-    <!-- Mobile Menü -->
-    <nav class="mobile-menu" id="mobileMenu">
-        <a href="{{ url_for('index') }}">Start</a>
-
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('profile') }}">Mein Profil</a>
-            <a href="{{ url_for('workout_page') }}">Training</a>
-            <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        {% endif %}
-    </nav>
-</header>
-
-<main class="content">
-
-    <section class="patch-notes">
-        {% if admin == true %}
-            <h3 class="headline">Post erstellen</h3>
-
-            <!-- Titel -->
-            <div class="postarea" style="margin-bottom:12px;">
-                <label for="title">Titel</label>
-                <input id="title" placeholder="Gib einen Titel ein" />
-                </div>
-
-                <div class="row">
-                <!-- Editor links -->
-                <div class="col card inner">
-                    <label>Editor (Rich-Text)</label>
-
-                    <div class="toolbar">
-                    <button id="b-bold" title="Fett (Ctrl+B)">B</button>
-                    <button id="b-italic" title="Kursiv (Ctrl+I)"><i>I</i></button>
-                    <button id="b-h1" title="Überschrift">H1</button>
-                    <button id="b-ul" title="Aufzählung">• List</button>
-                    <button id="b-clear" title="Alles entfernen">Clear</button>
-                    </div>
-
-                    <div id="editor" class="editor" contenteditable="true" aria-label="Blog Inhalt (Rich Text)" spellcheck="true"></div>
-
-                    <div class="meta">
-                    <div class="small">Rich-Text Editor — Formatierungen möglich</div>
-                    <div class="small" id="charCountRT">0 Zeichen</div>
-                    </div>
-                </div>
-
-                <!-- Textarea rechts -->
-                <div class="col card inner">
-                    <label>Editor (Plain text)</label>
-                    <textarea id="textarea" placeholder="Oder hier normalen Text schreiben..."></textarea>
-                    <div class="meta">
-                    <div class="small">Plain text (kein HTML)</div>
-                    <div class="small" id="charCountTA">0 Zeichen</div>
-                    </div>
-                </div>
-                </div>
-
-                <!-- Aktionen -->
-                <div class="actions">
-                <!--<button id="save" class="btn-primary">Speichern (lokal)</button>-->
-                <button id="previewBtn" class="btn-secondary">Vorschau zeigen</button>
+        <main class="content">
+            <div class="info-container">
+                <h2 class="section-header">Info & Patchnotes</h2>
+                <p class="text-center">Hier findest du alle wichtigen Updates und Informationen zu Muscle Up.</p>
                 
-                </div>
-
-                <!-- Vorschau -->
-                <div class="preview-wrap">
-                <label>Vorschau</label>
-                <div id="preview" class="preview">Die Vorschau erscheint hier — klicke auf <b>Vorschau zeigen</b> oder tippe.</div>
-                </div>
+                <!-- Admin-Bereich zum Erstellen von Patchnotes -->
+                {% if admin == true %}
+                <section class="editor-container">
+                    <h3>Neue Patchnote erstellen</h3>
+                    <form id="patchnote-form" method="POST" action="{{ url_for('save_patchnote') }}">
+                        <div class="form-group">
+                            <label for="patchnote-title">Titel</label>
+                            <input type="text" id="patchnote-title" name="title" placeholder="Titel der Patchnote" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="patchnote-editor">Inhalt</label>
+                            <div class="editor-toolbar">
+                                <button type="button" onclick="formatText('bold')"><strong>B</strong></button>
+                                <button type="button" onclick="formatText('italic')"><em>I</em></button>
+                                <button type="button" onclick="formatText('underline')"><u>U</u></button>
+                                <button type="button" onclick="insertHeading()">Überschrift</button>
+                                <button type="button" onclick="insertList()">Liste</button>
+                                <button type="button" onclick="clearFormatting()">Clear</button>
+                            </div>
+                            <textarea id="patchnote-editor" name="content" placeholder="Inhalt der Patchnote..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="button">Patchnote veröffentlichen</button>
+                    </form>
+                </section>
+                {% endif %}
+                
+                <!-- Anzeige der Patchnotes -->
+                <section class="patchnotes-section">
+                    <h3 class="section-header">Aktuelle Updates</h3>
+                    
+                    <div class="patchnotes-list">
+                        {% if patchnotes %}
+                            {% for note in patchnotes %}
+                            <div class="patchnote-card">
+                                <div class="patchnote-header">
+                                    <h3 class="patchnote-title">{{ note.title }}</h3>
+                                    <span class="patchnote-date">{{ note.date_created.strftime('%d.%m.%Y') }}</span>
+                                </div>
+                                <div class="patchnote-content">
+                                    {{ note.content|safe }}
+                                </div>
+                                {% if admin == true %}
+                                <div class="admin-controls">
+                                    <button class="delete-btn" onclick="deletePatchnote({{ note.id }})">Löschen</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-patchnotes">
+                                <p>Noch keine Patchnotes verfügbar.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
             </div>
-        {%endif%}
-    </section>
-
-</main>
-
-    <footer>
-        &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
-    </footer>
+        </main>
+        
+        <footer>
+            &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
     
     <script>
         function toggleMenu() {
             const menu = document.getElementById("mobileMenu");
             menu.classList.toggle('active');
         }
-
-    // Elemente
-    const editor = document.getElementById('editor');
-    const textarea = document.getElementById('textarea');
-    const charCountRT = document.getElementById('charCountRT');
-    const charCountTA = document.getElementById('charCountTA');
-    const preview = document.getElementById('preview');
-    const titleInput = document.getElementById('title');
-
-    const STORAGE_KEY = 'mini-blog-draft-v1';
-
-    // Toolbar Aktionen (execCommand okay für einfache Fälle)
-    document.getElementById('b-bold').addEventListener('click', () => document.execCommand('bold'));
-    document.getElementById('b-italic').addEventListener('click', () => document.execCommand('italic'));
-    document.getElementById('b-h1').addEventListener('click', () => {
-      document.execCommand('formatBlock', false, 'h1');
-    });
-    document.getElementById('b-ul').addEventListener('click', () => document.execCommand('insertUnorderedList'));
-    document.getElementById('b-clear').addEventListener('click', () => { editor.innerHTML = ''; });
-
-    // Zeichenzähler
-    function updateCounts() {
-      charCountRT.textContent = (editor.innerText || '').trim().length + ' Zeichen';
-      charCountTA.textContent = (textarea.value || '').length + ' Zeichen';
-    }
-
-    editor.addEventListener('input', () => {
-      updateCounts();
-      //autosave();
-    });
-    textarea.addEventListener('input', () => {
-      updateCounts();
-      //autosave();
-    });
-    titleInput.addEventListener('input', autosave);
-
-    // Vorschau zusammenbauen (bevorzugt RichText, sonst Textarea)
-    document.getElementById('previewBtn').addEventListener('click', () => {
-      const title = titleInput.value.trim();
-      const content = editor.innerHTML.trim() || escapeHtml(textarea.value);
-      preview.innerHTML = (title ? '<h1>' + escapeHtml(title) + '</h1>' : '') + content;
-    });
-
-    // Escape plain text to HTML (nur für textarea content)
-    function escapeHtml(unsafe) {
-      return unsafe
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('\n', '<br>');
-    }
-
-    /* Speichern / Laden (localStorage)
-    function autosave() {
-      const payload = {
-        title: titleInput.value,
-        richHtml: editor.innerHTML,
-        plainText: textarea.value,
-        ts: Date.now()
-      };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      } catch (e) { console.warn('Autosave failed', e); }
-    }
-
-    document.getElementById('save').addEventListener('click', () => {
-      autosave();
-      alert('Entwurf lokal gespeichert ✅');
-    });
-
-    function loadDraft() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const obj = JSON.parse(raw);
-        if (obj.title) titleInput.value = obj.title;
-        if (obj.richHtml) editor.innerHTML = obj.richHtml;
-        if (obj.plainText) textarea.value = obj.plainText;
-        updateCounts();
-      } catch (e) { console.warn('Laden fehlgeschlagen', e); }
-    }
-
-    // Beim Laden
-    loadDraft();
-
-     Tastenkürzel: Ctrl+S speichert, Ctrl+B/I für Formatierungen (Browser verarbeitet teilweise)
-    window.addEventListener('keydown', (ev) => {
-      if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') {
-        ev.preventDefault();
-        autosave();
-        alert('Entwurf lokal gespeichert ✅');
-      }
-    });*/
-
-    // Optional: beim Klick außerhalb editor Vorschau automatisch aktualisieren (nicht ersetzen)
-    editor.addEventListener('blur', () => {
-      const content = editor.innerHTML.trim();
-      if (content) preview.innerHTML = content;
-    });
-
-  </script>
-
-
+        
+        // Textformatierungsfunktionen für den Editor
+        function formatText(format) {
+            const editor = document.getElementById('patchnote-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            
+            let formattedText = '';
+            
+            switch(format) {
+                case 'bold':
+                    formattedText = `<strong>${selectedText}</strong>`;
+                    break;
+                case 'italic':
+                    formattedText = `<em>${selectedText}</em>`;
+                    break;
+                case 'underline':
+                    formattedText = `<u>${selectedText}</u>`;
+                    break;
+            }
+            
+            editor.value = editor.value.substring(0, start) + formattedText + editor.value.substring(end);
+            editor.focus();
+            editor.setSelectionRange(start + formattedText.length, start + formattedText.length);
+        }
+        
+        function insertHeading() {
+            const editor = document.getElementById('patchnote-editor');
+            const start = editor.selectionStart;
+            
+            editor.value = editor.value.substring(0, start) + '<h3>Überschrift</h3>' + editor.value.substring(start);
+            editor.focus();
+            editor.setSelectionRange(start + 3, start + 12);
+        }
+        
+        function insertList() {
+            const editor = document.getElementById('patchnote-editor');
+            const start = editor.selectionStart;
+            
+            editor.value = editor.value.substring(0, start) + '<ul>\n<li>Listenelement</li>\n</ul>' + editor.value.substring(start);
+            editor.focus();
+        }
+        
+        function clearFormatting() {
+            const editor = document.getElementById('patchnote-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            
+            // Entfernt HTML-Tags aus dem ausgewählten Text
+            const cleanText = selectedText.replace(/<[^>]*>/g, '');
+            
+            editor.value = editor.value.substring(0, start) + cleanText + editor.value.substring(end);
+            editor.focus();
+            editor.setSelectionRange(start, start + cleanText.length);
+        }
+        
+        function deletePatchnote(id) {
+            if (confirm('Möchtest du diese Patchnote wirklich löschen?')) {
+                fetch('{{ url_for("delete_patchnote") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: id })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Fehler beim Löschen: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Fehler beim Löschen der Patchnote');
+                });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -93,7 +93,15 @@ class Set(db.Model):
     user = db.relationship('User', back_populates='sets')
     workout = db.relationship('Workout', back_populates='sets')
 
-  
+class Patchnote(db.Model):
+    __tablename__ = 'patchnotes'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    user = db.relationship('User', backref='patchnotes')
 
 # --- Flask-Admin Configurations ---
 class MyAdminIndexView(AdminIndexView):
@@ -122,6 +130,12 @@ class SetAdmin(ModelView):
     column_list = ('id', 'user', 'workout', 'reps', 'weight')
     column_searchable_list = ('user.username',)
     column_filters = ('user.username', 'workout.date')
+
+class PatchnoteAdmin(ModelView):
+    column_list = ('id', 'title', 'date_created', 'user')
+    column_searchable_list = ('title', 'content')
+    column_filters = ('date_created', 'user.username')
+    column_default_sort = ('date_created', True)
     
 # --- Admin-Instances ---
 admin = Admin(app, name='Muscle Up Admin', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -130,7 +144,7 @@ admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(WorkoutAdmin(Workout, db.session, name='Workouts'))
 admin.add_view(SetAdmin(Set, db.session, name='Sätze'))
-
+admin.add_view(PatchnoteAdmin(Patchnote, db.session, name='Patchnotes'))
 
 # --- Helper Function for DB und Cloud ---
 def init_db():
@@ -578,12 +592,72 @@ def get_recent_workouts(user_id, limit=5):
 
 
 # --- Infos / Patchnotes
-@app.route("/info")
+@app.route("/info", methods=['GET', 'POST'])
 def info():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     user = db.session.get(User, session["user_id"])
+    if not user:
+        return redirect(url_for('logout'))
+    
     admin = user.is_admin
+    
+    # Patchnotes aus der Datenbank abrufen (neueste zuerst)
+    patchnotes = Patchnote.query.order_by(Patchnote.date_created.desc()).all()
+    
+    # POST-Anfrage verarbeiten (nur für Admins)
+    if request.method == 'POST' and admin:
+        title = request.form.get('title')
+        content = request.form.get('content')
+        
+        if not title or not content:
+            flash('Titel und Inhalt sind erforderlich.', 'error')
+        else:
+            try:
+                new_patchnote = Patchnote(
+                    title=title,
+                    content=content,
+                    user_id=user.id
+                )
+                db.session.add(new_patchnote)
+                db.session.commit()
+                flash('Patchnote erfolgreich veröffentlicht!', 'success')
+                return redirect(url_for('info'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Fehler beim Speichern: {str(e)}', 'error')
+    
+    return render_template("info.html", admin=admin, patchnotes=patchnotes)
 
-    return render_template("info.html", admin=admin)
+# --- Route zum Löschen von Patchnotes (nur für Admins) ---
+@app.route("/delete_patchnote", methods=['POST'])
+def delete_patchnote():
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Nicht angemeldet"}), 401
+    
+    user = db.session.get(User, session["user_id"])
+    if not user or not user.is_admin:
+        return jsonify({"success": False, "error": "Keine Berechtigung"}), 403
+    
+    data = request.get_json()
+    if not data or 'id' not in data:
+        return jsonify({"success": False, "error": "Ungültige Daten"}), 400
+    
+    try:
+        patchnote_id = data['id']
+        patchnote = db.session.get(Patchnote, patchnote_id)
+        
+        if patchnote:
+            db.session.delete(patchnote)
+            db.session.commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({"success": False, "error": "Patchnote nicht gefunden"}), 404
+            
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # --- Homepage ---
