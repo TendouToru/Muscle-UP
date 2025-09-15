@@ -1562,9 +1562,13 @@ footer {
 
 
 /* INFOS UND PATCHNOTS */
+.postarea{
+    background-color: var(--card-bg);
+}
+
 
 .card {
-  background:white;
+  background:black;
   border-radius:12px;
   box-shadow:0 6px 18px rgba(20,20,40,0.06);
   padding:16px;
@@ -1580,6 +1584,7 @@ label {
   display:block;
   font-weight:600;
   margin-bottom:6px;
+  color: black;
 }
 
 input, textarea {
