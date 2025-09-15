@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
-    <title>Muscle Up | Start</title>
+    <title>Muscle Up | Infos</title>
 </head>
 <body>
     <header class="head">
@@ -24,6 +24,7 @@
                 </button>
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
+                    <a href="{{ url_for('index') }}">Start</a>
                     <a href="{{ url_for('profile') }}">Mein Profil</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
@@ -58,9 +59,12 @@
 
 <main class="content">
 
-    {% if 'user_id' in session %}
-        <h3>Neuer Post</h3>
-    {%endif%}
+    <section class="patch-notes">
+        {% if admin == false %}
+            <h3>Post erstellen</h3>
+        {%endif%}
+    </section>
+
 </main>
 
     <footer>

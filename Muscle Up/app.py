@@ -580,7 +580,10 @@ def get_recent_workouts(user_id, limit=5):
 # --- Infos / Patchnotes
 @app.route("/info")
 def info():
-    return render_template("info.html")
+    user = db.session.get(User, session["user_id"])
+    admin = user.is_admin
+
+    return render_template("info.html", admin=admin)
 
 
 # --- Homepage ---
