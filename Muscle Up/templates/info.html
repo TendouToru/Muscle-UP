@@ -25,7 +25,6 @@
                 <div class="dropdown-content">
                     <span class="username">{{ session['username'] }}</span>
                     <a href="{{ url_for('profile') }}">Mein Profil</a>
-                    <a href="{{ url_for('info') }}">Infos</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </div>
@@ -57,54 +56,12 @@
     </nav>
 </header>
 
-    <main class="content">
-        <p>Willkommen bei Muscle Up! Verfolge deine Fitness-Fortschritte und werde zum Sigma 💪</p>
+<main class="content">
 
-        <section class="leaderboard">
-            <h2>🏆 Globale Rangliste</h2>
-            <table>
-                <thead>
-                    <tr id="trh">
-                        <th>Platz</th>
-                        <th>Profil</th>
-                        <th>Benutzer</th>
-                        <th>Level</th>
-                        <th>Rang</th>
-                        <th>Region</th>
-                        <th>XP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for player in leaderboard %}
-                    <tr id="trb">
-                        <td>{{ loop.index }}</td>
-                        <td>
-                            <img src="{{ player.profile_pic_url }}" 
-                                alt="Profil" class="profile-pic-small"
-                                href="{{ url_for('user_profile', username=player.username) }}"
-                                onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-                        </td>
-                        <td> 
-                            <a href="{{ url_for('user_profile', username=player.username) }}" class="profile-link">
-                                {{ player.name or player.username }}
-                            </a></td>
-
-                        <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
-                        <td>
-                            <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
-                                alt="{{ player.rank }}" class="profile-pic-small">
-                            
-                        </td>
-                        <td>
-                            <img src="https://flagcdn.com/w40/{{ player.region or 'de' }}.png" alt="" class="profile-pic-small">
-                        </td>
-                        <td>{{ player.xp|xpformat }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </main>
+    {% if 'user_id' in session %}
+        <h3>Neuer Post</h3>
+    {%endif%}
+</main>
 
     <footer>
         &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
@@ -116,5 +73,6 @@
         menu.classList.toggle('active');
     }
     </script>
+
 </body>
 </html>

@@ -577,6 +577,12 @@ def get_recent_workouts(user_id, limit=5):
         return []
 
 
+# --- Infos / Patchnotes
+@app.route("/info")
+def info():
+    return render_template("info.html")
+
+
 # --- Homepage ---
 @app.route("/")
 def index():
