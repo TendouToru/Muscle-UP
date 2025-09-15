@@ -59,6 +59,20 @@
             line-height: 1.6;
         }
         
+        .patchnote-content h1, .patchnote-content h2, .patchnote-content h3 {
+            color: var(--primary);
+            margin-top: 1rem;
+        }
+        
+        .patchnote-content ul, .patchnote-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .patchnote-content strong {
+            color: var(--secondary);
+        }
+        
         .admin-controls {
             margin-top: 1rem;
             display: flex;
@@ -97,7 +111,7 @@
             color: var(--background);
         }
         
-        #patchnote-editor {
+        #patchnote-content {
             min-height: 200px;
             border: 1px solid var(--accent-dark);
             border-radius: 6px;
@@ -107,6 +121,7 @@
             margin-bottom: 1rem;
             width: 100%;
             resize: vertical;
+            font-family: inherit;
         }
         
         .form-group {
@@ -120,13 +135,14 @@
             font-weight: bold;
         }
         
-        .form-group input {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 0.8rem;
             border-radius: 6px;
             border: 1px solid var(--accent-dark);
             background-color: var(--background);
             color: var(--text);
+            font-family: inherit;
         }
         
         .no-patchnotes {
@@ -136,6 +152,28 @@
             font-style: italic;
             background-color: var(--card-bg);
             border-radius: 12px;
+        }
+        
+        .flash-messages {
+            margin: 1rem 0;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .flash-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+        
+        .flash-error {
+            background-color: rgba(205, 7, 27, 0.2);
+            border: 1px solid #cd071b;
+            color: #cd071b;
         }
     </style>
 </head>
@@ -194,18 +232,29 @@
                 <h2 class="section-header">Info & Patchnotes</h2>
                 <p class="text-center">Hier findest du alle wichtigen Updates und Informationen zu Muscle Up.</p>
                 
+                <!-- Flash-Nachrichten anzeigen -->
+                <div class="flash-messages">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                
                 <!-- Admin-Bereich zum Erstellen von Patchnotes -->
                 {% if admin == true %}
                 <section class="editor-container">
                     <h3>Neue Patchnote erstellen</h3>
-                    <form id="patchnote-form" method="POST" action="{{ url_for('save_patchnote') }}">
+                    <form id="patchnote-form" method="POST" action="{{ url_for('info') }}">
                         <div class="form-group">
                             <label for="patchnote-title">Titel</label>
                             <input type="text" id="patchnote-title" name="title" placeholder="Titel der Patchnote" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="patchnote-editor">Inhalt</label>
+                            <label for="patchnote-content">Inhalt</label>
                             <div class="editor-toolbar">
                                 <button type="button" onclick="formatText('bold')"><strong>B</strong></button>
                                 <button type="button" onclick="formatText('italic')"><em>I</em></button>
@@ -214,7 +263,7 @@
                                 <button type="button" onclick="insertList()">Liste</button>
                                 <button type="button" onclick="clearFormatting()">Clear</button>
                             </div>
-                            <textarea id="patchnote-editor" name="content" placeholder="Inhalt der Patchnote..." required></textarea>
+                            <textarea id="patchnote-content" name="content" placeholder="Inhalt der Patchnote..." required></textarea>
                         </div>
                         
                         <button type="submit" class="button">Patchnote veröffentlichen</button>
@@ -262,29 +311,32 @@
     <script>
         function toggleMenu() {
             const menu = document.getElementById("mobileMenu");
-            menu.classList.toggle('active');
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
         }
         
         // Textformatierungsfunktionen für den Editor
         function formatText(format) {
-            const editor = document.getElementById('patchnote-editor');
+            const editor = document.getElementById('patchnote-content');
             const start = editor.selectionStart;
             const end = editor.selectionEnd;
             const selectedText = editor.value.substring(start, end);
             
             let formattedText = '';
+            let tag = '';
             
             switch(format) {
                 case 'bold':
-                    formattedText = `<strong>${selectedText}</strong>`;
+                    tag = 'strong';
                     break;
                 case 'italic':
-                    formattedText = `<em>${selectedText}</em>`;
+                    tag = 'em';
                     break;
                 case 'underline':
-                    formattedText = `<u>${selectedText}</u>`;
+                    tag = 'u';
                     break;
             }
+            
+            formattedText = `<${tag}>${selectedText}</${tag}>`;
             
             editor.value = editor.value.substring(0, start) + formattedText + editor.value.substring(end);
             editor.focus();
@@ -292,7 +344,7 @@
         }
         
         function insertHeading() {
-            const editor = document.getElementById('patchnote-editor');
+            const editor = document.getElementById('patchnote-content');
             const start = editor.selectionStart;
             
             editor.value = editor.value.substring(0, start) + '<h3>Überschrift</h3>' + editor.value.substring(start);
@@ -301,7 +353,7 @@
         }
         
         function insertList() {
-            const editor = document.getElementById('patchnote-editor');
+            const editor = document.getElementById('patchnote-content');
             const start = editor.selectionStart;
             
             editor.value = editor.value.substring(0, start) + '<ul>\n<li>Listenelement</li>\n</ul>' + editor.value.substring(start);
@@ -309,7 +361,7 @@
         }
         
         function clearFormatting() {
-            const editor = document.getElementById('patchnote-editor');
+            const editor = document.getElementById('patchnote-content');
             const start = editor.selectionStart;
             const end = editor.selectionEnd;
             const selectedText = editor.value.substring(start, end);
