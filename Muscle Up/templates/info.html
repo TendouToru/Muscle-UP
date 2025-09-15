@@ -62,6 +62,58 @@
     <section class="patch-notes">
         {% if admin == false %}
             <h3>Post erstellen</h3>
+
+            <!-- Titel -->
+            <div style="margin-bottom:12px;">
+                <label for="title">Titel</label>
+                <input id="title" placeholder="Gib einen Titel ein" />
+                </div>
+
+                <div class="row">
+                <!-- Editor links -->
+                <div class="col card inner">
+                    <label>Editor (Rich-Text)</label>
+
+                    <div class="toolbar">
+                    <button id="b-bold" title="Fett (Ctrl+B)">B</button>
+                    <button id="b-italic" title="Kursiv (Ctrl+I)"><i>I</i></button>
+                    <button id="b-h1" title="Überschrift">H1</button>
+                    <button id="b-ul" title="Aufzählung">• List</button>
+                    <button id="b-clear" title="Alles entfernen">Clear</button>
+                    </div>
+
+                    <div id="editor" class="editor" contenteditable="true" aria-label="Blog Inhalt (Rich Text)" spellcheck="true"></div>
+
+                    <div class="meta">
+                    <div class="small">Rich-Text Editor — Formatierungen möglich</div>
+                    <div class="small" id="charCountRT">0 Zeichen</div>
+                    </div>
+                </div>
+
+                <!-- Textarea rechts -->
+                <div class="col card inner">
+                    <label>Editor (Plain text)</label>
+                    <textarea id="textarea" placeholder="Oder hier normalen Text schreiben..."></textarea>
+                    <div class="meta">
+                    <div class="small">Plain text (kein HTML)</div>
+                    <div class="small" id="charCountTA">0 Zeichen</div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Aktionen -->
+                <div class="actions">
+                <button id="save" class="btn-primary">Speichern (lokal)</button>
+                <button id="previewBtn" class="btn-secondary">Vorschau zeigen</button>
+                
+                </div>
+
+                <!-- Vorschau -->
+                <div class="preview-wrap">
+                <label>Vorschau</label>
+                <div id="preview" class="preview">Die Vorschau erscheint hier — klicke auf <b>Vorschau zeigen</b> oder tippe.</div>
+                </div>
+            </div>
         {%endif%}
     </section>
 
@@ -72,11 +124,112 @@
     </footer>
     
     <script>
-    function toggleMenu() {
-        const menu = document.getElementById("mobileMenu");
-        menu.classList.toggle('active');
+        function toggleMenu() {
+            const menu = document.getElementById("mobileMenu");
+            menu.classList.toggle('active');
+        }
+
+    // Elemente
+    const editor = document.getElementById('editor');
+    const textarea = document.getElementById('textarea');
+    const charCountRT = document.getElementById('charCountRT');
+    const charCountTA = document.getElementById('charCountTA');
+    const preview = document.getElementById('preview');
+    const titleInput = document.getElementById('title');
+
+    const STORAGE_KEY = 'mini-blog-draft-v1';
+
+    // Toolbar Aktionen (execCommand okay für einfache Fälle)
+    document.getElementById('b-bold').addEventListener('click', () => document.execCommand('bold'));
+    document.getElementById('b-italic').addEventListener('click', () => document.execCommand('italic'));
+    document.getElementById('b-h1').addEventListener('click', () => {
+      document.execCommand('formatBlock', false, 'h1');
+    });
+    document.getElementById('b-ul').addEventListener('click', () => document.execCommand('insertUnorderedList'));
+    document.getElementById('b-clear').addEventListener('click', () => { editor.innerHTML = ''; });
+
+    // Zeichenzähler
+    function updateCounts() {
+      charCountRT.textContent = (editor.innerText || '').trim().length + ' Zeichen';
+      charCountTA.textContent = (textarea.value || '').length + ' Zeichen';
     }
-    </script>
+
+    editor.addEventListener('input', () => {
+      updateCounts();
+      //autosave();
+    });
+    textarea.addEventListener('input', () => {
+      updateCounts();
+      //autosave();
+    });
+    titleInput.addEventListener('input', autosave);
+
+    // Vorschau zusammenbauen (bevorzugt RichText, sonst Textarea)
+    document.getElementById('previewBtn').addEventListener('click', () => {
+      const title = titleInput.value.trim();
+      const content = editor.innerHTML.trim() || escapeHtml(textarea.value);
+      preview.innerHTML = (title ? '<h1>' + escapeHtml(title) + '</h1>' : '') + content;
+    });
+
+    // Escape plain text to HTML (nur für textarea content)
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('\n', '<br>');
+    }
+
+    /* Speichern / Laden (localStorage)
+    function autosave() {
+      const payload = {
+        title: titleInput.value,
+        richHtml: editor.innerHTML,
+        plainText: textarea.value,
+        ts: Date.now()
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) { console.warn('Autosave failed', e); }
+    }
+
+    document.getElementById('save').addEventListener('click', () => {
+      autosave();
+      alert('Entwurf lokal gespeichert ✅');
+    });
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (obj.title) titleInput.value = obj.title;
+        if (obj.richHtml) editor.innerHTML = obj.richHtml;
+        if (obj.plainText) textarea.value = obj.plainText;
+        updateCounts();
+      } catch (e) { console.warn('Laden fehlgeschlagen', e); }
+    }
+
+    // Beim Laden
+    loadDraft();
+
+     Tastenkürzel: Ctrl+S speichert, Ctrl+B/I für Formatierungen (Browser verarbeitet teilweise)
+    window.addEventListener('keydown', (ev) => {
+      if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') {
+        ev.preventDefault();
+        autosave();
+        alert('Entwurf lokal gespeichert ✅');
+      }
+    });*/
+
+    // Optional: beim Klick außerhalb editor Vorschau automatisch aktualisieren (nicht ersetzen)
+    editor.addEventListener('blur', () => {
+      const content = editor.innerHTML.trim();
+      if (content) preview.innerHTML = content;
+    });
+
+  </script>
+
 
 </body>
 </html>
