@@ -44,6 +44,7 @@
     <!-- Mobile Menü -->
     <nav class="mobile-menu" id="mobileMenu">
         <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('info') }}">Infos</a>
 
         {% if 'user_id' in session %}
             <a href="{{ url_for('profile') }}">Mein Profil</a>
@@ -62,7 +63,7 @@
 
         <section class="live-box">
             <h2>Live Updates</h2>
-            
+
         </section>
 
         <section class="leaderboard">
