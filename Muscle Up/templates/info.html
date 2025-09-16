@@ -286,7 +286,7 @@
                             <div class="patchnote-card">
                                 <div class="patchnote-header">
                                     <h3 class="patchnote-title">{{ note.title }}</h3>
-                                    <span class="patchnote-date">{{ note.date_created.strftime('%d.%m.%Y') }}</span>
+                                    <span class="patchnote-date">{{ note.created_at.strftime('%d.%m.%Y') }}</span>
                                 </div>
                                 <div class="patchnote-content">
                                     {{ note.content|safe }}
