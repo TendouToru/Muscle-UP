@@ -343,6 +343,7 @@ footer {
     text-align: center;
     font-size: 1.6rem;
     margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .cardio-form form {
@@ -400,6 +401,7 @@ footer {
 #exercise-container h2, #cal-ex-container h2 {
     color: var(--primary);
     text-align: center;
+    margin-bottom: 0.5rem;
 }
 
 #set-form, #cal-set-form {
