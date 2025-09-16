@@ -205,7 +205,7 @@
             }
 
             .live-box-title{
-                padding-bottom: 5px;
+                margin-bottom: 5px;
             }
 
         }
@@ -378,14 +378,8 @@
                         title: "Willkommen bei Muscle Up!",
                         content: "Willkommen in unserer Community! Hier findest du alle wichtigen Updates.",
                         date: new Date().toISOString(),
-                        read: false
-                    },
-                    {
-                        id: 2,
-                        title: "Neues Update verfügbar",
-                        content: "Version 2.0 ist jetzt live mit vielen neuen Funktionen!",
-                        date: new Date(Date.now() - 86400000).toISOString(), // Gestern
-                        read: false
+                        read: false,
+                        type: "welcome"
                     }
                 ];
                 localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
@@ -421,6 +415,15 @@
                     notificationItem.className = 'notification-item';
                     notificationItem.dataset.id = note.id;
                     
+                    // Klick-Event für die gesamte Benachrichtigung
+                    notificationItem.addEventListener('click', function() {
+                        if (note.type === 'patchnote') {
+                            // Zur Info-Seite navigieren
+                            window.location.href = "{{ url_for('info') }}";
+                        }
+                        markAsRead(note.id);
+                    });
+                    
                     notificationItem.innerHTML = `
                         <button class="close-notification" onclick="markAsRead(${note.id})">×</button>
                         <div class="notification-header">
@@ -454,30 +457,44 @@
             updateNotifications(notifications);
         }
         
-        // Funktion zum Hinzufügen einer neuen Benachrichtigung (für Demo-Zwecke)
-        window.addDemoNotification = function() {
+        // Funktion zum Hinzufügen einer Patchnote-Benachrichtigung
+        window.addPatchnoteNotification = function() {
             let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
             
             const newId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1;
             
             const newNotification = {
                 id: newId,
-                title: "Neue Funktion verfügbar",
-                content: "Wir haben eine neue Trainingsstatistik hinzugefügt! Schau sie dir an.",
+                title: "Neue Patchnote",
+                content: "Klicke hier",
                 date: new Date().toISOString(),
-                read: false
+                read: false,
+                type: "patchnote"
             };
             
             notifications.unshift(newNotification);
             localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
             
             updateNotifications(notifications);
+            
+            // Browser-Benachrichtigung anzeigen (falls erlaubt)
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Muscle Up Update", {
+                    body: "Eine neue Patchnote ist verfügbar!",
+                    icon: "{{ url_for('static', filename='profile_pics/default.png') }}"
+                });
+            }
         }
         
         // Initial Benachrichtigungen abrufen
         fetchNotifications();
         
-
+        
+        // Browser-Benachrichtigungen anfordern
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+        
     });
     </script>
 </body>
