@@ -72,6 +72,7 @@
             border-radius: 8px;
             border-left: 4px solid var(--primary);
             animation: fadeIn 0.5s ease-out;
+            position: relative;
         }
         
         .notification-new {
@@ -103,16 +104,39 @@
         }
         
         .notification-badge {
-            background-color: var(--success);
+            background-color: var(--error);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.7rem;
             margin-left: 10px;
+            position: relative;
+        }
+        
+        .notification-badge span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .close-notification {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .close-notification:hover {
+            color: var(--error);
         }
         
         .no-notifications {
@@ -143,12 +167,20 @@
                 flex: 0 0 auto;
                 width: 100%;
                 max-height: none;
+                margin-bottom: 20px;
             }
         }
         
         @media (max-width: 768px) {
             .live-box {
-                position: relative;
+                max-height: 60px;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            
+            .live-box.expanded {
+                max-height: 400px;
+                overflow-y: auto;
             }
             
             .toggle-box {
@@ -161,6 +193,14 @@
             
             .live-box.expanded .notification-list {
                 display: flex;
+            }
+            
+            .no-notifications {
+                display: none;
+            }
+            
+            .live-box.expanded .no-notifications {
+                display: block;
             }
         }
     </style>
@@ -225,26 +265,18 @@
                 <div class="live-box-header">
                     <h2 class="live-box-title">
                         📢 Live Updates
-                        <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                        <span class="notification-badge" id="notificationCount" style="display: none;">
+                            <span id="badgeNumber">0</span>
+                        </span>
                     </h2>
                     <button class="toggle-box" id="toggleBox">▼</button>
                 </div>
                 
                 <div class="notification-list" id="notificationList">
-                    <div class="notification-item notification-new">
-                        <div class="notification-header">
-                            <h3 class="notification-title">Willkommen bei Muscle Up!</h3>
-                            <span class="notification-date">Heute</span>
-                        </div>
-                        <div class="notification-content">
-                            Hier findest du alle wichtigen Updates.
-                        </div>
-                    </div>
-                    
-                    <!-- Hier werden die Patchnotes dynamisch eingefügt -->
+                    <!-- Hier werden die Benachrichtigungen dynamisch eingefügt -->
                 </div>
                 
-                <div class="no-notifications" id="noNotifications" style="display: none;">
+                <div class="no-notifications" id="noNotifications">
                     <p>Keine neuen Benachrichtigungen</p>
                 </div>
             </section>
@@ -314,6 +346,7 @@
         const notificationList = document.getElementById('notificationList');
         const noNotifications = document.getElementById('noNotifications');
         const notificationCount = document.getElementById('notificationCount');
+        const badgeNumber = document.getElementById('badgeNumber');
         
         // Toggle-Funktion für mobile Ansicht
         if (toggleBox) {
@@ -323,68 +356,124 @@
             });
         }
         
-        // Funktion zum Abrufen der Patchnotes
-        function fetchPatchnotes() {
-            fetch('{{ url_for("get_patchnotes") }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.patchnotes.length > 0) {
-                        updateNotifications(data.patchnotes);
-                    } else {
-                        showNoNotifications();
+        // Funktion zum Abrufen der Benachrichtigungen
+        function fetchNotifications() {
+            // Hier würden Sie normalerweise eine API-Anfrage machen
+            // Für dieses Beispiel verwenden wir statische Daten
+            
+            // Prüfen, ob bereits Benachrichtigungen im localStorage gespeichert sind
+            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
+            
+            // Wenn keine Benachrichtigungen vorhanden sind, Demo-Benachrichtigungen hinzufügen
+            if (notifications.length === 0) {
+                notifications = [
+                    {
+                        id: 1,
+                        title: "Willkommen bei Muscle Up!",
+                        content: "Willkommen in unserer Community! Hier findest du alle wichtigen Updates.",
+                        date: new Date().toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 2,
+                        title: "Neues Update verfügbar",
+                        content: "Version 2.0 ist jetzt live mit vielen neuen Funktionen!",
+                        date: new Date(Date.now() - 86400000).toISOString(), // Gestern
+                        read: false
                     }
-                })
-                .catch(error => {
-                    console.error('Fehler beim Abrufen der Patchnotes:', error);
-                });
+                ];
+                localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
+            }
+            
+            updateNotifications(notifications);
         }
         
         // Funktion zum Aktualisieren der Benachrichtigungen
-        function updateNotifications(patchnotes) {
-            // Bestehende Benachrichtigungen löschen (außer der Willkommensnachricht)
-            const existingNotifications = notificationList.querySelectorAll('.notification-item');
-            for (let i = 1; i < existingNotifications.length; i++) {
-                existingNotifications[i].remove();
-            }
+        function updateNotifications(notifications) {
+            // Bestehende Benachrichtigungen löschen
+            notificationList.innerHTML = '';
             
-            // Neue Patchnotes hinzufügen
-            patchnotes.forEach(note => {
-                const notificationItem = document.createElement('div');
-                notificationItem.className = 'notification-item notification-new';
-                notificationItem.innerHTML = `
-                    <div class="notification-header">
-                        <h3 class="notification-title">${note.title}</h3>
-                        <span class="notification-date">${new Date(note.date_created).toLocaleDateString('de-DE')}</span>
-                    </div>
-                    <div class="notification-content">${note.content}</div>
-                `;
-                notificationList.appendChild(notificationItem);
-            });
+            // Ungelesene Benachrichtigungen zählen
+            const unreadCount = notifications.filter(n => !n.read).length;
             
             // Badge-Zahl aktualisieren
-            notificationCount.textContent = patchnotes.length;
-            notificationCount.style.display = 'inline-block';
+            if (unreadCount > 0) {
+                badgeNumber.textContent = unreadCount;
+                notificationCount.style.display = 'inline-block';
+                noNotifications.style.display = 'none';
+                notificationList.style.display = 'flex';
+            } else {
+                notificationCount.style.display = 'none';
+                noNotifications.style.display = 'block';
+                notificationList.style.display = 'none';
+            }
             
-            // Verstecke "Keine Benachrichtigungen"-Nachricht
-            noNotifications.style.display = 'none';
-            notificationList.style.display = 'flex';
+            // Benachrichtigungen anzeigen (nur ungelesene)
+            notifications.forEach(note => {
+                if (!note.read) {
+                    const notificationItem = document.createElement('div');
+                    notificationItem.className = 'notification-item';
+                    notificationItem.dataset.id = note.id;
+                    
+                    notificationItem.innerHTML = `
+                        <button class="close-notification" onclick="markAsRead(${note.id})">×</button>
+                        <div class="notification-header">
+                            <h3 class="notification-title">${note.title}</h3>
+                            <span class="notification-date">${new Date(note.date).toLocaleDateString('de-DE')}</span>
+                        </div>
+                        <div class="notification-content">${note.content}</div>
+                    `;
+                    
+                    notificationList.appendChild(notificationItem);
+                }
+            });
         }
         
-        // Funktion für "Keine Benachrichtigungen" anzeigen
-        function showNoNotifications() {
-            notificationList.style.display = 'none';
-            noNotifications.style.display = 'block';
-            notificationCount.style.display = 'none';
+        // Funktion zum Markieren einer Benachrichtigung als gelesen
+        window.markAsRead = function(id) {
+            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
+            
+            // Benachrichtigung als gelesen markieren
+            notifications = notifications.map(note => {
+                if (note.id === id) {
+                    return {...note, read: true};
+                }
+                return note;
+            });
+            
+            // Aktualisierte Benachrichtigungen speichern
+            localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
+            
+            // UI aktualisieren
+            updateNotifications(notifications);
         }
         
-        // Initial Patchnotes abrufen
-        fetchPatchnotes();
+        // Funktion zum Hinzufügen einer neuen Benachrichtigung (für Demo-Zwecke)
+        window.addDemoNotification = function() {
+            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
+            
+            const newId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1;
+            
+            const newNotification = {
+                id: newId,
+                title: "Neue Funktion verfügbar",
+                content: "Wir haben eine neue Trainingsstatistik hinzugefügt! Schau sie dir an.",
+                date: new Date().toISOString(),
+                read: false
+            };
+            
+            notifications.unshift(newNotification);
+            localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
+            
+            updateNotifications(notifications);
+        }
         
-        // Regelmäßig nach neuen Patchnotes suchen (alle 5 Minuten)
-        setInterval(fetchPatchnotes, 300000);
+        // Initial Benachrichtigungen abrufen
+        fetchNotifications();
         
-        // WebSocket-Verbindung für Echtzeit-Updates (noch nicht implementiert)
-        // setupWebSocketConnection();
+        // Für Demo-Zwecke: Füge alle 30 Sekunden eine neue Benachrichtigung hinzu
+        // In der echten App würde dies durch Server-Ereignisse ausgelöst werden
+        setInterval(addDemoNotification, 30000);
     });
     </script>
 </body>
