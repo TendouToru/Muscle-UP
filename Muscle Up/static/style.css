@@ -262,6 +262,7 @@ footer {
     color: var(--primary);
     text-align: center;
     margin-top: 2rem;
+    margin-bottom: 1rem;
     text-decoration: underline;
     font-size: 2rem;
 }
