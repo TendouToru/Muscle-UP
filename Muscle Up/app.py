@@ -719,6 +719,34 @@ def xpformat_filter(value):
         return f"{value/1_000:.1f}k"
     return str(value)
 
+
+# Route zum Abrufen der Patchnotes
+@app.route("/get_patchnotes")
+def get_patchnotes():
+    try:
+        # Die neuesten 5 Patchnotes abrufen
+        patchnotes = Patchnote.query.order_by(Patchnote.date_created.desc()).limit(5).all()
+        
+        # Patchnotes in ein JSON-formatierbares Format umwandeln
+        patchnotes_data = []
+        for note in patchnotes:
+            patchnotes_data.append({
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'date_created': note.date_created.isoformat()
+            })
+        
+        return jsonify({
+            'success': True,
+            'patchnotes': patchnotes_data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # --- Anderes Benutzerprofil anzeigen ---
 @app.route("/profile/<username>")
 def user_profile(username):

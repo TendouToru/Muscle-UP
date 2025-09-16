@@ -6,6 +6,164 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
     <title>Muscle Up | Start</title>
+    <style>
+        /* Zusätzliche Styles für die Live-Box */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .live-box {
+            flex: 0 0 300px;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-dark);
+            max-height: 600px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .live-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .live-box-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-box {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .notification-item {
+            background-color: var(--accent-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .notification-new {
+            border-left: 4px solid var(--success);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .notification-date {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .notification-content {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .notification-badge {
+            background-color: var(--success);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+        
+        .no-notifications {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* Animation für neue Benachrichtigungen */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .live-box {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .live-box {
+                position: relative;
+            }
+            
+            .toggle-box {
+                display: block;
+            }
+            
+            .notification-list {
+                display: none;
+            }
+            
+            .live-box.expanded .notification-list {
+                display: flex;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="head">
@@ -61,55 +219,82 @@
     <main class="content">
         <p>Willkommen bei Muscle Up! Verfolge deine Fitness-Fortschritte und werde zum Sigma 💪</p>
 
-        <section class="live-box">
-            <h2>Live Updates</h2>
+        <div class="main-container">
+            <!-- Live-Box für Benachrichtigungen -->
+            <section class="live-box" id="liveBox">
+                <div class="live-box-header">
+                    <h2 class="live-box-title">
+                        📢 Live Updates
+                        <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                    </h2>
+                    <button class="toggle-box" id="toggleBox">▼</button>
+                </div>
+                
+                <div class="notification-list" id="notificationList">
+                    <div class="notification-item notification-new">
+                        <div class="notification-header">
+                            <h3 class="notification-title">Willkommen bei Muscle Up!</h3>
+                            <span class="notification-date">Heute</span>
+                        </div>
+                        <div class="notification-content">
+                            Willkommen in unserer Community! Hier findest du alle wichtigen Updates.
+                        </div>
+                    </div>
+                    
+                    <!-- Hier werden die Patchnotes dynamisch eingefügt -->
+                </div>
+                
+                <div class="no-notifications" id="noNotifications" style="display: none;">
+                    <p>Keine neuen Benachrichtigungen</p>
+                </div>
+            </section>
 
-        </section>
+            <!-- Rangliste -->
+            <section class="leaderboard">
+                <h2>🏆 Globale Rangliste</h2>
+                <table>
+                    <thead>
+                        <tr id="trh">
+                            <th>Platz</th>
+                            <th>Profil</th>
+                            <th>Benutzer</th>
+                            <th>Level</th>
+                            <th>Rang</th>
+                            <th>Region</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in leaderboard %}
+                        <tr id="trb">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <img src="{{ player.profile_pic_url }}" 
+                                    alt="Profil" class="profile-pic-small"
+                                    href="{{ url_for('user_profile', username=player.username) }}"
+                                    onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                            </td>
+                            <td> 
+                                <a href="{{ url_for('user_profile', username=player.username) }}" class="profile-link">
+                                    {{ player.name or player.username }}
+                                </a></td>
 
-        <section class="leaderboard">
-            <h2>🏆 Globale Rangliste</h2>
-            <table>
-                <thead>
-                    <tr id="trh">
-                        <th>Platz</th>
-                        <th>Profil</th>
-                        <th>Benutzer</th>
-                        <th>Level</th>
-                        <th>Rang</th>
-                        <th>Region</th>
-                        <th>XP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for player in leaderboard %}
-                    <tr id="trb">
-                        <td>{{ loop.index }}</td>
-                        <td>
-                            <img src="{{ player.profile_pic_url }}" 
-                                alt="Profil" class="profile-pic-small"
-                                href="{{ url_for('user_profile', username=player.username) }}"
-                                onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-                        </td>
-                        <td> 
-                            <a href="{{ url_for('user_profile', username=player.username) }}" class="profile-link">
-                                {{ player.name or player.username }}
-                            </a></td>
-
-                        <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
-                        <td>
-                            <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
-                                alt="{{ player.rank }}" class="profile-pic-small">
-                            
-                        </td>
-                        <td>
-                            <img src="https://flagcdn.com/w40/{{ player.region or 'de' }}.png" alt="" class="profile-pic-small">
-                        </td>
-                        <td>{{ player.xp|xpformat }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
+                            <td>{% if player.streak >= 3 %}🔥{% endif %}{{ player.level }}</td>
+                            <td>
+                                <img src="{{ url_for('static', filename='ranks/' ~ player.rank ~ '.jpg') }}" 
+                                    alt="{{ player.rank }}" class="profile-pic-small">
+                                
+                            </td>
+                            <td>
+                                <img src="https://flagcdn.com/w40/{{ player.region or 'de' }}.png" alt="" class="profile-pic-small">
+                            </td>
+                            <td>{{ player.xp|xpformat }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
     </main>
 
     <footer>
@@ -121,6 +306,86 @@
         const menu = document.getElementById("mobileMenu");
         menu.classList.toggle('active');
     }
+    
+    // Live-Box Funktionen
+    document.addEventListener('DOMContentLoaded', function() {
+        const liveBox = document.getElementById('liveBox');
+        const toggleBox = document.getElementById('toggleBox');
+        const notificationList = document.getElementById('notificationList');
+        const noNotifications = document.getElementById('noNotifications');
+        const notificationCount = document.getElementById('notificationCount');
+        
+        // Toggle-Funktion für mobile Ansicht
+        if (toggleBox) {
+            toggleBox.addEventListener('click', function() {
+                liveBox.classList.toggle('expanded');
+                toggleBox.textContent = liveBox.classList.contains('expanded') ? '▲' : '▼';
+            });
+        }
+        
+        // Funktion zum Abrufen der Patchnotes
+        function fetchPatchnotes() {
+            fetch('{{ url_for("get_patchnotes") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.patchnotes.length > 0) {
+                        updateNotifications(data.patchnotes);
+                    } else {
+                        showNoNotifications();
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler beim Abrufen der Patchnotes:', error);
+                });
+        }
+        
+        // Funktion zum Aktualisieren der Benachrichtigungen
+        function updateNotifications(patchnotes) {
+            // Bestehende Benachrichtigungen löschen (außer der Willkommensnachricht)
+            const existingNotifications = notificationList.querySelectorAll('.notification-item');
+            for (let i = 1; i < existingNotifications.length; i++) {
+                existingNotifications[i].remove();
+            }
+            
+            // Neue Patchnotes hinzufügen
+            patchnotes.forEach(note => {
+                const notificationItem = document.createElement('div');
+                notificationItem.className = 'notification-item notification-new';
+                notificationItem.innerHTML = `
+                    <div class="notification-header">
+                        <h3 class="notification-title">${note.title}</h3>
+                        <span class="notification-date">${new Date(note.date_created).toLocaleDateString('de-DE')}</span>
+                    </div>
+                    <div class="notification-content">${note.content}</div>
+                `;
+                notificationList.appendChild(notificationItem);
+            });
+            
+            // Badge-Zahl aktualisieren
+            notificationCount.textContent = patchnotes.length;
+            notificationCount.style.display = 'inline-block';
+            
+            // Verstecke "Keine Benachrichtigungen"-Nachricht
+            noNotifications.style.display = 'none';
+            notificationList.style.display = 'flex';
+        }
+        
+        // Funktion für "Keine Benachrichtigungen" anzeigen
+        function showNoNotifications() {
+            notificationList.style.display = 'none';
+            noNotifications.style.display = 'block';
+            notificationCount.style.display = 'none';
+        }
+        
+        // Initial Patchnotes abrufen
+        fetchPatchnotes();
+        
+        // Regelmäßig nach neuen Patchnotes suchen (alle 5 Minuten)
+        setInterval(fetchPatchnotes, 300000);
+        
+        // WebSocket-Verbindung für Echtzeit-Updates (noch nicht implementiert)
+        // setupWebSocketConnection();
+    });
     </script>
 </body>
 </html>
