@@ -176,6 +176,7 @@
                 max-height: 60px;
                 overflow: hidden;
                 transition: max-height 0.3s ease;
+                margin-top: 1rem;
             }
             
             .live-box.expanded {
@@ -202,6 +203,11 @@
             .live-box.expanded .no-notifications {
                 display: block;
             }
+
+            .live-box-title{
+                padding-bottom: 5px;
+            }
+
         }
     </style>
 </head>
@@ -471,9 +477,7 @@
         // Initial Benachrichtigungen abrufen
         fetchNotifications();
         
-        // Für Demo-Zwecke: Füge alle 30 Sekunden eine neue Benachrichtigung hinzu
-        // In der echten App würde dies durch Server-Ereignisse ausgelöst werden
-        setInterval(addDemoNotification, 30000);
+
     });
     </script>
 </body>
