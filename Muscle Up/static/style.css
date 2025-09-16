@@ -1074,6 +1074,7 @@ footer {
     width: 100%;
     border-collapse: collapse;
     color: var(--text);
+    flex: 1;
 }
 
 .leaderboard th, .leaderboard td {
