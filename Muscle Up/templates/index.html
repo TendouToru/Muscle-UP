@@ -73,6 +73,11 @@
             border-left: 4px solid var(--primary);
             animation: fadeIn 0.5s ease-out;
             position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0, 170, 255, 0.1);
         }
         
         .notification-new {
@@ -203,11 +208,6 @@
             .live-box.expanded .no-notifications {
                 display: block;
             }
-
-            .live-box-title{
-                margin-bottom: 5px;
-            }
-
         }
     </style>
 </head>
@@ -346,156 +346,108 @@
     }
     
     // Live-Box Funktionen
-    document.addEventListener('DOMContentLoaded', function() {
-        const liveBox = document.getElementById('liveBox');
-        const toggleBox = document.getElementById('toggleBox');
-        const notificationList = document.getElementById('notificationList');
-        const noNotifications = document.getElementById('noNotifications');
-        const notificationCount = document.getElementById('notificationCount');
-        const badgeNumber = document.getElementById('badgeNumber');
-        
-        // Toggle-Funktion für mobile Ansicht
-        if (toggleBox) {
-            toggleBox.addEventListener('click', function() {
-                liveBox.classList.toggle('expanded');
-                toggleBox.textContent = liveBox.classList.contains('expanded') ? '▲' : '▼';
+document.addEventListener('DOMContentLoaded', function() {
+    const liveBox = document.getElementById('liveBox');
+    const toggleBox = document.getElementById('toggleBox');
+    const notificationList = document.getElementById('notificationList');
+    const noNotifications = document.getElementById('noNotifications');
+    const notificationCount = document.getElementById('notificationCount');
+    const badgeNumber = document.getElementById('badgeNumber');
+    
+    // Toggle-Funktion für mobile Ansicht
+    if (toggleBox) {
+        toggleBox.addEventListener('click', function() {
+            liveBox.classList.toggle('expanded');
+            toggleBox.textContent = liveBox.classList.contains('expanded') ? '▲' : '▼';
+        });
+    }
+    
+    // Funktion zum Abrufen der Benachrichtigungen
+    function fetchNotifications() {
+        fetch('{{ url_for("get_notifications") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateNotifications(data.notifications);
+                } else {
+                    showNoNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Fehler:', error);
+                showNoNotifications();
             });
-        }
+    }
+    
+    // Funktion zum Aktualisieren der Benachrichtigungen
+    function updateNotifications(notifications) {
+        notificationList.innerHTML = '';
         
-        // Funktion zum Abrufen der Benachrichtigungen
-        function fetchNotifications() {
-            // Hier würden Sie normalerweise eine API-Anfrage machen
-            // Für dieses Beispiel verwenden wir statische Daten
+        if (notifications.length > 0) {
+            badgeNumber.textContent = notifications.length;
+            notificationCount.style.display = 'inline-block';
+            noNotifications.style.display = 'none';
+            notificationList.style.display = 'flex';
             
-            // Prüfen, ob bereits Benachrichtigungen im localStorage gespeichert sind
-            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
-            
-            // Wenn keine Benachrichtigungen vorhanden sind, Demo-Benachrichtigungen hinzufügen
-            if (notifications.length === 0) {
-                notifications = [
-                    {
-                        id: 1,
-                        title: "Willkommen bei Muscle Up!",
-                        content: "Willkommen in unserer Community! Hier findest du alle wichtigen Updates.",
-                        date: new Date().toISOString(),
-                        read: false,
-                        type: "welcome"
-                    }
-                ];
-                localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
-            }
-            
-            updateNotifications(notifications);
-        }
-        
-        // Funktion zum Aktualisieren der Benachrichtigungen
-        function updateNotifications(notifications) {
-            // Bestehende Benachrichtigungen löschen
-            notificationList.innerHTML = '';
-            
-            // Ungelesene Benachrichtigungen zählen
-            const unreadCount = notifications.filter(n => !n.read).length;
-            
-            // Badge-Zahl aktualisieren
-            if (unreadCount > 0) {
-                badgeNumber.textContent = unreadCount;
-                notificationCount.style.display = 'inline-block';
-                noNotifications.style.display = 'none';
-                notificationList.style.display = 'flex';
-            } else {
-                notificationCount.style.display = 'none';
-                noNotifications.style.display = 'block';
-                notificationList.style.display = 'none';
-            }
-            
-            // Benachrichtigungen anzeigen (nur ungelesene)
             notifications.forEach(note => {
-                if (!note.read) {
-                    const notificationItem = document.createElement('div');
-                    notificationItem.className = 'notification-item';
-                    notificationItem.dataset.id = note.id;
-                    
-                    // Klick-Event für die gesamte Benachrichtigung
-                    notificationItem.addEventListener('click', function() {
-                        if (note.type === 'patchnote') {
-                            // Zur Info-Seite navigieren
-                            window.location.href = "{{ url_for('info') }}";
-                        }
-                        markAsRead(note.id);
-                    });
-                    
-                    notificationItem.innerHTML = `
-                        <button class="close-notification" onclick="markAsRead(${note.id})">×</button>
-                        <div class="notification-header">
-                            <h3 class="notification-title">${note.title}</h3>
-                            <span class="notification-date">${new Date(note.date).toLocaleDateString('de-DE')}</span>
-                        </div>
-                        <div class="notification-content">${note.content}</div>
-                    `;
-                    
-                    notificationList.appendChild(notificationItem);
-                }
-            });
-        }
-        
-        // Funktion zum Markieren einer Benachrichtigung als gelesen
-        window.markAsRead = function(id) {
-            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
-            
-            // Benachrichtigung als gelesen markieren
-            notifications = notifications.map(note => {
-                if (note.id === id) {
-                    return {...note, read: true};
-                }
-                return note;
-            });
-            
-            // Aktualisierte Benachrichtigungen speichern
-            localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
-            
-            // UI aktualisieren
-            updateNotifications(notifications);
-        }
-        
-        // Funktion zum Hinzufügen einer Patchnote-Benachrichtigung
-        window.addPatchnoteNotification = function() {
-            let notifications = JSON.parse(localStorage.getItem('muscleup_notifications')) || [];
-            
-            const newId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1;
-            
-            const newNotification = {
-                id: newId,
-                title: "Neue Patchnote",
-                content: "Klicke hier",
-                date: new Date().toISOString(),
-                read: false,
-                type: "patchnote"
-            };
-            
-            notifications.unshift(newNotification);
-            localStorage.setItem('muscleup_notifications', JSON.stringify(notifications));
-            
-            updateNotifications(notifications);
-            
-            // Browser-Benachrichtigung anzeigen (falls erlaubt)
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Muscle Up Update", {
-                    body: "Eine neue Patchnote ist verfügbar!",
-                    icon: "{{ url_for('static', filename='profile_pics/default.png') }}"
+                const notificationItem = document.createElement('div');
+                notificationItem.className = 'notification-item';
+                notificationItem.dataset.id = note.id;
+                
+                notificationItem.addEventListener('click', function() {
+                    if (note.type === 'patchnote') {
+                        window.location.href = "{{ url_for('info') }}";
+                    }
+                    markAsRead(note.id);
                 });
+                
+                notificationItem.innerHTML = `
+                    <button class="close-notification" onclick="event.stopPropagation(); markAsRead(${note.id})">×</button>
+                    <div class="notification-header">
+                        <h3 class="notification-title">${note.title}</h3>
+                        <span class="notification-date">${new Date(note.date).toLocaleDateString('de-DE')}</span>
+                    </div>
+                    <div class="notification-content">${note.content}</div>
+                `;
+                
+                notificationList.appendChild(notificationItem);
+            });
+        } else {
+            showNoNotifications();
+        }
+    }
+    
+    function showNoNotifications() {
+        notificationCount.style.display = 'none';
+        noNotifications.style.display = 'block';
+        notificationList.style.display = 'none';
+    }
+    
+    // Funktion zum Markieren als gelesen
+    window.markAsRead = function(id) {
+        fetch('{{ url_for("mark_notification_read") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchNotifications();
             }
-        }
-        
-        // Initial Benachrichtigungen abrufen
-        fetchNotifications();
-        
-        
-        // Browser-Benachrichtigungen anfordern
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission();
-        }
-        
-    });
+        })
+        .catch(error => {
+            console.error('Fehler:', error);
+        });
+    }
+    
+    // Initial abrufen und regelmäßig aktualisieren
+    fetchNotifications();
+    setInterval(fetchNotifications, 30000);
+});
+
     </script>
 </body>
 </html>

@@ -93,14 +93,24 @@ class Set(db.Model):
     user = db.relationship('User', back_populates='sets')
     workout = db.relationship('Workout', back_populates='sets')
 
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+    title = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    type = db.Column(db.Text, default='patchnote')
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Datenbankmodell für Patchnotes
 class Patchnote(db.Model):
     __tablename__ = 'patchnotes'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref='patchnotes')
 
 # --- Flask-Admin Configurations ---
@@ -131,11 +141,6 @@ class SetAdmin(ModelView):
     column_searchable_list = ('user.username',)
     column_filters = ('user.username', 'workout.date')
 
-class PatchnoteAdmin(ModelView):
-    column_list = ('id', 'title', 'date_created', 'user')
-    column_searchable_list = ('title', 'content')
-    column_filters = ('date_created', 'user.username')
-    column_default_sort = ('date_created', True)
     
 # --- Admin-Instances ---
 admin = Admin(app, name='Muscle Up Admin', template_mode='bootstrap3', index_view=MyAdminIndexView())
@@ -144,7 +149,7 @@ admin.add_view(ModelView(UserProfile, db.session, name='Profile'))
 admin.add_view(ModelView(UserStat, db.session, name='Statistiken'))
 admin.add_view(WorkoutAdmin(Workout, db.session, name='Workouts'))
 admin.add_view(SetAdmin(Set, db.session, name='Sätze'))
-admin.add_view(PatchnoteAdmin(Patchnote, db.session, name='Patchnotes'))
+
 
 # --- Helper Function for DB und Cloud ---
 def init_db():
@@ -598,13 +603,10 @@ def info():
         return redirect(url_for('login'))
     
     user = db.session.get(User, session["user_id"])
-    if not user:
-        return redirect(url_for('logout'))
+    admin = user.is_admin if user else False
     
-    admin = user.is_admin
-    
-    # Patchnotes aus der Datenbank abrufen (neueste zuerst)
-    patchnotes = Patchnote.query.order_by(Patchnote.date_created.desc()).all()
+    # Patchnotes aus der Datenbank abrufen
+    patchnotes = Patchnote.query.order_by(Patchnote.created_at.desc()).all()
     
     # POST-Anfrage verarbeiten (nur für Admins)
     if request.method == 'POST' and admin:
@@ -622,6 +624,10 @@ def info():
                 )
                 db.session.add(new_patchnote)
                 db.session.commit()
+                
+                # BENACHRICHTIGUNG FÜR ALLE USER ERSTELLEN
+                create_patchnote_notification(title)
+                
                 flash('Patchnote erfolgreich veröffentlicht!', 'success')
                 return redirect(url_for('info'))
             except Exception as e:
@@ -720,32 +726,83 @@ def xpformat_filter(value):
     return str(value)
 
 
-# Route zum Abrufen der Patchnotes
-@app.route("/get_patchnotes")
-def get_patchnotes():
+# Route zum Abrufen der Benachrichtigungen
+@app.route("/get_notifications")
+def get_notifications():
     try:
-        # Die neuesten 5 Patchnotes abrufen
-        patchnotes = Patchnote.query.order_by(Patchnote.date_created.desc()).limit(5).all()
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Nicht angemeldet"}), 401
         
-        # Patchnotes in ein JSON-formatierbares Format umwandeln
-        patchnotes_data = []
-        for note in patchnotes:
-            patchnotes_data.append({
+        # Benachrichtigungen für den aktuellen Benutzer abrufen
+        notifications = Notification.query.filter_by(
+            user_id=session["user_id"], is_read=False
+        ).order_by(Notification.created_at.desc()).limit(10).all()
+        
+        # Formatieren der Benachrichtigungen
+        notifications_data = []
+        for note in notifications:
+            notifications_data.append({
                 'id': note.id,
                 'title': note.title,
                 'content': note.content,
-                'date_created': note.date_created.isoformat()
+                'type': note.type,
+                'date': note.created_at.isoformat()
             })
         
         return jsonify({
             'success': True,
-            'patchnotes': patchnotes_data
+            'notifications': notifications_data
         })
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
+
+# Route zum Markieren als gelesen
+@app.route("/mark_notification_read", methods=["POST"])
+def mark_notification_read():
+    try:
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Nicht angemeldet"}), 401
+        
+        data = request.get_json()
+        notification_id = data.get('id')
+        
+        # Benachrichtigung als gelesen markieren
+        notification = Notification.query.filter_by(
+            id=notification_id, 
+            user_id=session["user_id"]
+        ).first()
+        
+        if notification:
+            notification.is_read = True
+            db.session.commit()
+        
+        return jsonify({
+            'success': True
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+def create_patchnote_notification(patchnote_title):
+    # Benachrichtigung für ALLE Benutzer erstellen
+    all_users = User.query.all()
+    
+    for user in all_users:
+        new_notification = Notification(
+            user_id=user.id,
+            title="Neue Patchnote",
+            content="Klicke hier",
+            type="patchnote"
+        )
+        db.session.add(new_notification)
+    
+    db.session.commit()
 
 # --- Anderes Benutzerprofil anzeigen ---
 @app.route("/profile/<username>")
