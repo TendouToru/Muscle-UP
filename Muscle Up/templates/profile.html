@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
     <title>Muscle Up | Profil</title>
+
+    <style>
+
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -58,98 +62,111 @@
 
         <main class="content">
             <h2>Willkommen, {{ profile.name or '' }}!</h2>
-            <p>Hier kannst du deine Fortschritte einsehen und dein Profil verwalten</p>
-            
-            <section class="profile-card">
-                <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
-                    <h3>Dein Profil</h3>
+
+            <div class="profile-container">
+
+                <!-- Tab Navigation -->
+                <div class="tab-container">
+                    <div class="tab active" data-tab="profile">Profil</div>
+                    <div class="tab" data-tab="stats">Stats</div>
+                </div>
+
+                <div class="tab-content active" id="profile-tab">
+                    <section class="profile-card">
+                        <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
+                            <h3>Dein Profil</h3>
 
 
-                     <div class="form-group">
-                        <div class="flag-dropdown" id="flagDropdown">
-                            <button class="flag-btn" id="selectedFlag" type="button">
-                                <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
-                                     alt="{{ profile.region or 'de' }}" 
-                                     id="selectedFlagImg">
-                                <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
-                            </button>
-                            <div class="flag-menu" id="flagMenu">
-                                <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
-                                <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
-                                <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
-                                <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
-                                <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
-                                <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
-                                <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
-                                <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
-                                <div data-value="ir"><img src="https://flagcdn.com/w40/ir.png" alt="Iran"> Iran</div>
+                            <div class="form-group">
+                                <div class="flag-dropdown" id="flagDropdown">
+                                    <button class="flag-btn" id="selectedFlag" type="button">
+                                        <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
+                                            alt="{{ profile.region or 'de' }}" 
+                                            id="selectedFlagImg">
+                                        <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
+                                    </button>
+                                    <div class="flag-menu" id="flagMenu">
+                                        <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
+                                        <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
+                                        <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
+                                        <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
+                                        <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
+                                        <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
+                                        <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
+                                        <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
+                                        <div data-value="ir"><img src="https://flagcdn.com/w40/ir.png" alt="Iran"> Iran</div>
+                                    </div>
+                                </div>
                             </div>
+
+
+                            <div class="profile-pic-container">
+                                <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+            alt="Profilbild" class="pfp"
+            onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+
+                                <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
+                                <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
+                            </div>
+                            <div id="upload-message" class="upload-message"></div>
+                            
+                            <label>Anzeigename:</label>
+                            <input type="text" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
+                            
+                            <label>Geschlecht:</label>
+                            <select name="gender" id="gender" disabled>
+                                <option value="">Wähle...</option>
+                                <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
+                                <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
+                                <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
+                            </select>
+                            
+                            <label>Alter:</label>
+                            <input type="number" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
+                            
+                            <label>Körpergewicht (kg):</label>
+                            <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
+                            
+                            <label>Größe (cm):</label>
+                            <input type="number" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
+                            
+                            <div class="form-buttons">
+                                <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
+                                <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+                  
+                <div class="tab-content" id="stats-profile">
+                    <section class="stats-card">
+                        <h3>Meine Stats</h3>
+                        <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
+                        <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank_name }}</strong></p>
+                        <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
+                        <div class="xp-bar">
+                            <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
                         </div>
-                    </div>
-
-
-                    <div class="profile-pic-container">
-                        <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-     alt="Profilbild" class="pfp"
-     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-
-                        <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
-                        <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
-                    </div>
-                    <div id="upload-message" class="upload-message"></div>
-                    
-                    <label>Anzeigename:</label>
-                    <input type="text" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
-                    
-                    <label>Geschlecht:</label>
-                    <select name="gender" id="gender" disabled>
-                        <option value="">Wähle...</option>
-                        <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
-                        <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
-                        <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
-                    </select>
-                    
-                    <label>Alter:</label>
-                    <input type="number" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
-                    
-                    <label>Körpergewicht (kg):</label>
-                    <input type="number" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
-                    
-                    <label>Größe (cm):</label>
-                    <input type="number" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
-                    
-                    <div class="form-buttons">
-                        <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
-                        <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
-                    </div>
-                </form>
-            </section>
-            
-            <section class="stats-card">
-                <h3>Meine Stats</h3>
-                <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
-                <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank_name }}</strong></p>
-                <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
-                <div class="xp-bar">
-                    <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
+                        
+                        {% if stats.streak_days == 1 %}
+                            <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
+                        {% else %}
+                            <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
+                        {% endif %}
+                        
+                        {% if ruhe == True %}
+                            <p>Restday Verfügbar ✅</p>
+                        {% endif %}
+                        
+                        <div class="attributes">
+                            <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
+                            <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
+                            <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
+                        </div>
+                    </section>
                 </div>
-                
-                {% if stats.streak_days == 1 %}
-                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
-                {% else %}
-                    <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
-                {% endif %}
-                
-                {% if ruhe == True %}
-                    <p>Restday Verfügbar ✅</p>
-                {% endif %}
-                
-                <div class="attributes">
-                    <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
-                    <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
-                    <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
-                </div>
-            </section>
+            </div>
+
         </main>
         
         <footer>
@@ -162,6 +179,20 @@
         const mobileMenu = document.getElementById("mobileMenu");
         mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
     }
+
+    // Tab-Funktionalität
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Tabs deaktivieren
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Aktiven Tab aktivieren
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         const editBtn = document.getElementById('editBtn');
