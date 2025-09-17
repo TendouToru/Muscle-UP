@@ -127,26 +127,6 @@
             text-align: center;
         }
         
-        .view-options {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .view-btn {
-            padding: 0.5rem 1rem;
-            background: var(--accent-dark);
-            border: none;
-            border-radius: 6px;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .view-btn.active {
-            background: var(--primary);
-            color: var(--background);
-        }
-        
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -178,7 +158,6 @@
         .calendar-day:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            /* Blauer Balken entfernt */
         }
         
         .day-number {
@@ -466,6 +445,56 @@
             text-align: center;
         }
         
+        /* Mobile Calendar App Style */
+        .mobile-calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0.3rem;
+            border-radius: 8px;
+            background-color: var(--accent-dark);
+            position: relative;
+        }
+        
+        .mobile-day-number {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .mobile-calendar-day.today .mobile-day-number {
+            background-color: var(--primary);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-workout-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+            width: 100%;
+        }
+        
+        .mobile-workout-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .mobile-workout-dot.strength { background-color: var(--strength-color); }
+        .mobile-workout-dot.cardio { background-color: var(--cardio-color); }
+        .mobile-workout-dot.calistenics { background-color: var(--calistenics-color); }
+        .mobile-workout-dot.restday { background-color: var(--restday-color); }
+        
         /* Responsive Design */
         @media (max-width: 968px) {
             .calendar-controls {
@@ -475,10 +504,6 @@
             }
             
             .month-nav {
-                justify-content: center;
-            }
-            
-            .view-options {
                 justify-content: center;
             }
             
@@ -529,51 +554,71 @@
             
             .weekday-header {
                 padding: 0.5rem 0.2rem;
-                font-size: 0.8rem;
+                font-size: 0.7rem;
+                font-weight: bold;
             }
             
+            /* Mobile Calendar Grid */
+            .calendar-grid {
+                gap: 0.2rem;
+            }
+            
+            /* Standard Desktop-Tage ausblenden */
             .calendar-day {
-                min-height: 80px;
-            }
-            
-            .day-number {
-                font-size: 0.9rem;
-            }
-            
-            .workout-item-mini {
                 display: none;
             }
             
-            .workout-icon {
-                display: block;
+            /* Mobile Tage anzeigen */
+            .mobile-calendar-day {
+                display: flex;
+            }
+            
+            .mobile-day-number {
+                font-size: 0.9rem;
+            }
+            
+            .month-nav-btn {
+                width: 35px;
+                height: 35px;
                 font-size: 1rem;
-                text-align: center;
-                margin-bottom: 0.2rem;
             }
             
-            .calendar-day.has-workouts::after {
-                content: "";
-                width: 6px;
-                height: 6px;
-                background-color: var(--primary);
-                border-radius: 50%;
-                position: absolute;
-                bottom: 5px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            
-            .workout-details-modal {
-                padding: 1.5rem;
-            }
-            
-            .workout-details-title {
+            .current-month {
                 font-size: 1.2rem;
+                min-width: 160px;
             }
             
             .calendar-tab {
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .workout-details-modal {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            
+            .workout-details-title {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Desktop: Mobile Tage ausblenden */
+        @media (min-width: 641px) {
+            .mobile-calendar-day {
+                display: none;
+            }
+            
+            .calendar-day {
+                display: flex;
             }
         }
         
@@ -667,11 +712,6 @@
                             <div class="current-month" id="currentMonthYear"></div>
                             <button class="month-nav-btn" onclick="nextMonth()">→</button>
                         </div>
-                        
-                        <div class="view-options">
-                            <button class="view-btn active">Monat</button>
-                            <button class="view-btn">Woche</button>
-                        </div>
                     </div>
                     
                     <div class="calendar-grid" id="calendarGrid">
@@ -708,7 +748,7 @@
                         <div class="workout-type-stats">
                             <div class="workout-type-stat">
                                 <div class="workout-type-name">
-                                    <span class="workout-icon">💪</span>
+                                    <span class="workout-icon">🏋️</span>
                                     <span>Krafttraining</span>
                                 </div>
                                 <span id="strength-count">0</span>
@@ -722,7 +762,7 @@
                             </div>
                             <div class="workout-type-stat">
                                 <div class="workout-type-name">
-                                    <span class="workout-icon">🔥</span>
+                                    <span class="workout-icon">💪</span>
                                     <span>Calisthenics</span>
                                 </div>
                                 <span id="calisthenics-count">0</span>
@@ -820,26 +860,51 @@
         for (let i = 0; i < startDayIndex; i++) {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('calendar-day', 'inactive');
+            
+            const mobileDayDiv = document.createElement('div');
+            mobileDayDiv.classList.add('mobile-calendar-day', 'inactive');
+            mobileDayDiv.innerHTML = '<div class="mobile-day-number"></div>';
+            
             grid.appendChild(dayDiv);
+            grid.appendChild(mobileDayDiv);
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
+            // Desktop-Tag erstellen
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('calendar-day');
+            
+            // Mobile-Tag erstellen
+            const mobileDayDiv = document.createElement('div');
+            mobileDayDiv.classList.add('mobile-calendar-day');
             
             // Heutigen Tag markieren
             if (i === today.getDate() && month === today.getMonth() + 1 && year === today.getFullYear()) {
                 dayDiv.classList.add('today');
+                mobileDayDiv.classList.add('today');
             }
 
+            // Desktop-Tag-Nummer
             const dayNumber = document.createElement('div');
             dayNumber.classList.add('day-number');
             dayNumber.textContent = i;
             dayDiv.appendChild(dayNumber);
 
+            // Mobile-Tag-Nummer
+            const mobileDayNumber = document.createElement('div');
+            mobileDayNumber.classList.add('mobile-day-number');
+            mobileDayNumber.textContent = i;
+            mobileDayDiv.appendChild(mobileDayNumber);
+
+            // Workout-Zusammenfassung für Desktop
             const workoutSummary = document.createElement('div');
             workoutSummary.classList.add('workout-summary');
             dayDiv.appendChild(workoutSummary);
+
+            // Workout-Indikatoren für Mobile
+            const mobileWorkoutIndicators = document.createElement('div');
+            mobileWorkoutIndicators.classList.add('mobile-workout-indicators');
+            mobileDayDiv.appendChild(mobileWorkoutIndicators);
 
             const dateString = `${String(i).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
             const workoutsForDay = workoutsData[dateString] || [];
@@ -854,6 +919,7 @@
                         workoutTypeCount[workout.type]++;
                     }
                     
+                    // Desktop: Vollständiges Workout-Item
                     const workoutItem = document.createElement('div');
                     workoutItem.classList.add('workout-item-mini', workout.type);
                     
@@ -870,6 +936,11 @@
                     
                     workoutItem.innerHTML = `<span class="workout-icon">${icon}</span> ${workout.exercise}`;
                     workoutSummary.appendChild(workoutItem);
+                    
+                    // Mobile: Nur Punkte für Workout-Typen
+                    const workoutDot = document.createElement('div');
+                    workoutDot.classList.add('mobile-workout-dot', workout.type);
+                    mobileWorkoutIndicators.appendChild(workoutDot);
                 });
             } else {
                 const emptyText = document.createElement('div');
@@ -878,10 +949,12 @@
                 workoutSummary.appendChild(emptyText);
             }
 
-            // Klick-Event für Workout-Details
+            // Klick-Event für Workout-Details (für beide Ansichten)
             dayDiv.addEventListener('click', () => showWorkoutDetails(dateString, workoutsForDay));
+            mobileDayDiv.addEventListener('click', () => showWorkoutDetails(dateString, workoutsForDay));
 
             grid.appendChild(dayDiv);
+            grid.appendChild(mobileDayDiv);
         }
 
         // Leere Zellen am Ende hinzufügen
@@ -891,7 +964,13 @@
             for (let i = 0; i < (35 - totalCells); i++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.classList.add('calendar-day', 'inactive');
+                
+                const mobileDayDiv = document.createElement('div');
+                mobileDayDiv.classList.add('mobile-calendar-day', 'inactive');
+                mobileDayDiv.innerHTML = '<div class="mobile-day-number"></div>';
+                
                 grid.appendChild(dayDiv);
+                grid.appendChild(mobileDayDiv);
             }
         }
         
