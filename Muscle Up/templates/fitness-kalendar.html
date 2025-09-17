@@ -560,6 +560,7 @@
             
             /* Mobile Calendar Grid */
             .calendar-grid {
+                grid-template-columns: repeat(7, minmax(0, 1fr));
                 gap: 0.2rem;
             }
             
@@ -574,7 +575,7 @@
             }
             
             .mobile-day-number {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }
             
             .month-nav-btn {
@@ -784,15 +785,6 @@
                                 <span>Noch keine Daten</span>
                                 <span>-</span>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <h3>Wöchentliches Ziel</h3>
-                        <div class="stat-value" id="weekly-goal">3/5</div>
-                        <div class="stat-label">Trainings erreicht</div>
-                        <div class="xp-bar" style="margin-top: 1rem;">
-                            <div class="xp-progress" style="width: 60%;"></div>
                         </div>
                     </div>
                     
@@ -1096,20 +1088,13 @@
         // Zur Workout-Seite navigieren mit Datum als Parameter
         window.location.href = `/workout?date=${formattedDate}`;
     }
-    
-    function hideWorkoutDetails() {
-        toggleHeaderVisibility(true);
-        const detailsOverlay = document.querySelector('.workout-details-overlay');
-        if (detailsOverlay) {
-            detailsOverlay.remove();
-        }
-    }
 
-    function updateDate() {
-        const today = new Date();
-        currentYear = today.getFullYear();
-        currentMonth = today.getMonth() + 1;
-        generateCalendar(currentYear, currentMonth);
+    function hideWorkoutDetails() {
+        const overlay = document.querySelector('.workout-details-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        toggleHeaderVisibility(true);
     }
 
     function prevMonth() {
@@ -1130,12 +1115,27 @@
         generateCalendar(currentYear, currentMonth);
     }
 
-    function toggleMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('active');
-    }
+    // Initialisierung
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth() + 1;
+        
+        generateCalendar(currentYear, currentMonth);
+        
+        // Event-Listener für Klicks außerhalb des Modals
+        document.addEventListener('click', (e) => {
+            const overlay = document.querySelector('.workout-details-overlay');
+            if (overlay && e.target === overlay) {
+                hideWorkoutDetails();
+            }
+        });
+    });
 
-    document.addEventListener('DOMContentLoaded', updateDate);
+    function toggleMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('active');
+    }
 </script>
 </body>
 </html>
