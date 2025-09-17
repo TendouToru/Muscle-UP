@@ -38,6 +38,7 @@
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 2rem;
+            align-items: start;
         }
         
         .profile-sidebar {
@@ -58,6 +59,12 @@
             padding: 1.5rem;
             box-shadow: var(--glow-effect);
             border: 1px solid var(--accent-dark);
+        }
+
+        .profile-card h2{
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
         }
         
         .profile-pic-container {
@@ -406,11 +413,15 @@
             }
             
             .profile-sidebar {
+                order: 1;
+            }
+
+            .profile-card{
                 order: 2;
             }
             
             .profile-main {
-                order: 1;
+                order: 3;
             }
             
             .stats-grid,
@@ -532,7 +543,7 @@
                         <div class="profile-card">
                             <div class="profile-nav">
                                 <button class="profile-nav-btn active" data-tab="profile">
-                                    <i>👤</i> Profil bearbeiten
+                                    <i>👤</i> Mein Profil
                                 </button>
                                 <button class="profile-nav-btn" data-tab="stats">
                                     <i>📊</i> Statistiken
@@ -544,7 +555,7 @@
                     <div class="profile-main">
                         <!-- Profil Bearbeiten Tab -->
                         <div class="profile-card tab-content active" id="profile-tab">
-                            <h2>Profil bearbeiten</h2>
+                            <h2>Meine Daten</h2>
                             <form method="post" class="profile-form" id="profileForm" enctype="multipart/form-data">
                                 <div class="flag-selector">
                                     <button type="button" class="flag-button" id="flagButton">
@@ -555,6 +566,9 @@
                                             {% if profile.region == 'de' %}Deutschland
                                             {% elif profile.region == 'at' %}Österreich
                                             {% elif profile.region == 'ch' %}Schweiz
+                                            {% elif profile.region == 'us' %}USA
+                                            {% elif profile.region == 'gb' %}Großbritannien
+                                            {% elif profile.region == 'fr' %}Frankreich
                                             {% else %}Land auswählen{% endif %}
                                         </span>
                                     </button>
@@ -658,8 +672,14 @@
                                     <div class="xp-progress" style="width: {{ (progress * 100)|round(1) }}%;"></div>
                                 </div>
                             </div>
-                            
-                            {% if stats.streak_days > 0 %}
+
+                            {% if stats.streak_days ==0 %}
+                            <div class="streak-display">
+                                <div class="streak-count">{{ stats.streak_days }}</div>
+                                <div class="streak-label">Tag aktive Serie 🔥</div>
+                            </div>
+                            {% endif %}
+                            {% if stats.streak_days > 1 %}
                             <div class="streak-display">
                                 <div class="streak-count">{{ stats.streak_days }}</div>
                                 <div class="streak-label">Tage aktive Serie 🔥</div>
