@@ -6,208 +6,358 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css')}}">
     <title>Muscle Up | Profil</title>
-
     <style>
-        :root {
-            --primary: #4caf50;
-            --primary-light: #80e27e;
-            --primary-dark: #087f23;
-            --secondary: #2196F3;
-            --accent: #FF9800;
-            --background: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text: #ffffff;
-            --text-secondary: #b0b0b0;
-            --border: #444444;
-            --success: #4CAF50;
-            --warning: #FFC107;
-        }
-        
-        .content {
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .welcome-heading {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--text);
-            font-size: 28px;
-        }
-        
+        /* Profile-spezifische Styles */
         .profile-container {
             display: flex;
-            gap: 20px;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
         }
         
-        .tabs-container {
-            width: 200px;
-            flex-shrink: 0;
-        }
-        
-        .tab {
-            padding: 15px 20px;
-            cursor: pointer;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-bottom: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            color: var(--text-secondary);
-        }
-        
-        .tab:first-child {
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-        }
-        
-        .tab:last-child {
-            border-bottom: 1px solid var(--border);
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-        
-        .tab.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary-dark);
-        }
-        
-        .tab-content-container {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .profile-card, .stats-card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-        }
-        
-        .card-title {
-            color: var(--primary);
+        .profile-header {
             text-align: center;
-            margin: 0 0 25px 0;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary);
-            font-size: 24px;
+            margin-bottom: 1.5rem;
         }
         
-        .form-profile {
+        .profile-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-header p {
+            color: var(--text);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        .profile-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 1.5rem;
         }
         
-        .form-group {
+        .profile-main {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 1.5rem;
         }
         
-        .form-profile label {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 16px;
-        }
-        
-        .form-profile input, .form-profile select {
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: rgba(0, 0, 0, 0.2);
-            color: var(--text);
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-profile input:focus, .form-profile select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--glow-effect);
+            border: 1px solid var(--accent-dark);
         }
         
         .profile-pic-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 1rem;
         }
         
-        .profile-pic-container img.pfp {
+        .profile-pic-large {
             width: 150px;
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--primary);
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
         }
         
-        .form-buttons {
+        .profile-actions {
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
         }
         
-        .button {
-            padding: 12px 25px;
-            border-radius: 8px;
+        .profile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .profile-nav-btn {
+            padding: 1rem;
+            background-color: var(--accent-dark);
             border: none;
-            font-weight: 600;
+            border-radius: 8px;
+            color: var(--text);
+            text-align: left;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
         }
         
-        #editBtn {
+        .profile-nav-btn:hover {
+            background-color: var(--secondary);
+            color: var(--background);
+        }
+        
+        .profile-nav-btn.active {
             background-color: var(--primary);
-            color: white;
+            color: var(--background);
         }
         
-        #editBtn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
+        .profile-nav-btn i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
         }
         
-        #saveBtn {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            background-color: var(--accent-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text);
+            opacity: 0.8;
+        }
+        
+        .xp-container {
+            margin: 1.5rem 0;
+        }
+        
+        .xp-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .xp-label {
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .xp-values {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .xp-bar {
+            height: 20px;
+            background-color: var(--accent-dark);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .xp-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .attribute-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .attribute-card {
+            background-color: var(--accent-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .attribute-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .attribute-name {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .attribute-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--accent-dark);
+            background-color: var(--background);
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3);
+        }
+        
+        .form-group input:disabled,
+        .form-group select:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .flag-selector {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .flag-button {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            background-color: var(--background);
+            border: 1px solid var(--accent-dark);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .flag-button img {
+            width: 30px;
+            height: 20px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+        
+        .flag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-dark);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .flag-dropdown.show {
+            display: block;
+        }
+        
+        .flag-option {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .flag-option:hover {
+            background-color: var(--accent-dark);
+        }
+        
+        .flag-option img {
+            width: 25px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+        
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .upload-btn {
+            padding: 0.8rem 1.5rem;
             background-color: var(--secondary);
             color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
         }
         
-        #saveBtn:hover {
-            background-color: #0b7dda;
-            transform: translateY(-2px);
+        .upload-btn:hover {
+            background-color: var(--primary);
         }
         
-        #uploadBtn {
-            background-color: var(--accent);
-            color: white;
-            margin-top: 10px;
-            padding: 10px 20px;
-        }
-        
-        #uploadBtn:hover {
-            background-color: #e68900;
-        }
-        
-        .stats-content {
+        .upload-status {
+            font-size: 0.9rem;
             text-align: center;
+            min-height: 1.5rem;
+        }
+        
+        .rank-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         .rank-badge {
@@ -215,225 +365,104 @@
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            margin: 0 auto 20px;
-            display: block;
             border: 3px solid var(--primary);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
         }
         
-        .stat-item {
-            margin: 15px 0;
-            font-size: 18px;
-        }
-        
-        .stat-value {
-            color: var(--primary);
+        .rank-name {
+            font-size: 1.2rem;
             font-weight: bold;
-            font-size: 20px;
+            color: var(--primary);
+            text-align: center;
         }
         
-        .xp-container {
-            margin: 20px 0;
-        }
-        
-        .xp-bar {
-            width: 100%;
-            height: 25px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
-        .xp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-light), var(--primary));
-            transition: width 0.5s ease;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
-        }
-        
-        .xp-text {
+        .streak-display {
             display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        
-        .attributes {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        .attribute-card {
-            background: linear-gradient(145deg, #2d2d2d, #252525);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border);
-        }
-        
-        .attribute-icon {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
-        
-        .attribute-name {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-        }
-        
-        .attribute-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .streak-info {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
             background-color: rgba(255, 193, 7, 0.1);
-            border: 1px solid var(--warning);
             border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: center;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            margin: 1rem 0;
         }
         
         .streak-count {
-            font-size: 24px;
+            font-size: 2rem;
             font-weight: bold;
-            color: var(--warning);
+            color: gold;
         }
         
-        .restday-available {
-            background-color: rgba(76, 175, 80, 0.1);
-            border: 1px solid var(--success);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: center;
-            color: var(--success);
-            font-weight: bold;
-        }
-        
-        .flag-dropdown {
-            position: relative;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .flag-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .streak-label {
+            font-size: 0.9rem;
             color: var(--text);
         }
         
-        .flag-btn:hover, .flag-btn.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                order: 2;
+            }
+            
+            .profile-main {
+                order: 1;
+            }
+            
+            .stats-grid,
+            .attribute-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
-        .flag-btn img {
-            width: 30px;
-            height: 20px;
-            object-fit: cover;
-            border-radius: 2px;
-        }
-        
-        .flag-menu {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            max-height: 250px;
-            overflow-y: auto;
-            display: none;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            margin-top: 5px;
-        }
-        
-        .flag-menu.show {
-            display: block;
-        }
-        
-        .flag-menu div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            color: var(--text);
-        }
-        
-        .flag-menu div:hover {
-            background-color: rgba(76, 175, 80, 0.2);
-        }
-        
-        .flag-menu div img {
-            width: 25px;
-            height: 15px;
-            object-fit: cover;
-            border-radius: 2px;
-        }
-        
-        .upload-message {
-            text-align: center;
-            margin: 10px 0;
-            font-weight: 600;
-            padding: 10px;
-            border-radius: 6px;
-        }
-        
-        @media (max-width: 768px) {
-            .profile-container {
+        @media (max-width: 640px) {
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid,
+            .attribute-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
                 flex-direction: column;
             }
             
-            .tabs-container {
-                width: 100%;
-                display: flex;
-                margin-bottom: 20px;
+            .profile-pic-large {
+                width: 120px;
+                height: 120px;
             }
-            
-            .tab {
-                flex: 1;
-                text-align: center;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                margin-right: 10px;
-            }
-            
-            .tab:last-child {
-                margin-right: 0;
-            }
-            
-            .attributes {
-                grid-template-columns: 1fr;
-            }
+        }
+        
+        /* Animationen */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .profile-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <header class="head">
-            <h1 class="headline">Mein Profil</h1>
             <div class="nav-bar">
                 <h1 class="headline">Muscle Up</h1>
                 <nav class="nav-top">
@@ -446,8 +475,8 @@
                     <div class="dropdown">
                         <button class="dropbtn">
                             <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-     alt="Profil" class="profile-pic"
-     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                                 alt="Profil" class="profile-pic"
+                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
                         </button>
                         <div class="dropdown-content">
                             <span class="username">{{ session['username'] }}</span>
@@ -480,62 +509,94 @@
         </header>
 
         <main class="content">
-            <h2 class="welcome-heading">Willkommen, {{ profile.name or '' }}!</h2>
-
             <div class="profile-container">
-                <!-- Tabs auf der linken Seite -->
-                <div class="tabs-container">
-                    <div class="tab active" data-tab="profile">Profil</div>
-                    <div class="tab" data-tab="stats">Stats</div>
+                <div class="profile-header">
+                    <h1>Mein Profil</h1>
+                    <p>Verwalte deine persönlichen Daten und verfolge deine Fortschritte</p>
                 </div>
-
-                <!-- Tab-Inhalte zentriert -->
-                <div class="tab-content-container">
-                    <!-- Profile Tab Content -->
-                    <div class="tab-content active" id="profile-tab">
-                        <section class="profile-card">
-                            <h3 class="card-title">Dein Profil</h3>
-
-                            <div class="profile-pic-container">
-                                <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-            alt="Profilbild" class="pfp"
-            onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-
+                
+                <div class="profile-content">
+                    <div class="profile-sidebar">
+                        <div class="profile-card profile-pic-container">
+                            <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                                 alt="Profilbild" class="profile-pic-large"
+                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                            
+                            <div class="profile-actions">
                                 <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
-                                <button type="button" class="button" id="uploadBtn" style="display: none;">Profilbild hochladen</button>
-                                <div id="upload-message" class="upload-message"></div>
+                                <button type="button" class="upload-btn" id="uploadBtn" style="display: none;">Bild hochladen</button>
+                                <div id="upload-status" class="upload-status"></div>
                             </div>
-
-                            <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
-                                <div class="flag-dropdown" id="flagDropdown">
-                                    <button class="flag-btn" id="selectedFlag" type="button">
+                        </div>
+                        
+                        <div class="profile-card">
+                            <div class="profile-nav">
+                                <button class="profile-nav-btn active" data-tab="profile">
+                                    <i>👤</i> Profil bearbeiten
+                                </button>
+                                <button class="profile-nav-btn" data-tab="stats">
+                                    <i>📊</i> Statistiken
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-main">
+                        <!-- Profil Bearbeiten Tab -->
+                        <div class="profile-card tab-content active" id="profile-tab">
+                            <h2>Profil bearbeiten</h2>
+                            <form method="post" class="profile-form" id="profileForm" enctype="multipart/form-data">
+                                <div class="flag-selector">
+                                    <button type="button" class="flag-button" id="flagButton">
                                         <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
-                                            alt="{{ profile.region or 'de' }}" 
-                                            id="selectedFlagImg">
-                                        <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
+                                             alt="{{ profile.region or 'de' }}" 
+                                             id="selectedFlagImg">
+                                        <span id="selectedFlagText">
+                                            {% if profile.region == 'de' %}Deutschland
+                                            {% elif profile.region == 'at' %}Österreich
+                                            {% elif profile.region == 'ch' %}Schweiz
+                                            {% else %}Land auswählen{% endif %}
+                                        </span>
                                     </button>
-                                    <div class="flag-menu" id="flagMenu">
-                                        <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
-                                        <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
-                                        <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
-                                        <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
-                                        <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
-                                        <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
-                                        <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
-                                        <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
-                                        <div data-value="ir"><img src="https://flagcdn.com/w40/ir.png" alt="Iran"> Iran</div>
+                                    <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
+                                    
+                                    <div class="flag-dropdown" id="flagDropdown">
+                                        <div class="flag-option" data-value="de">
+                                            <img src="https://flagcdn.com/w40/de.png" alt="Deutschland">
+                                            <span>Deutschland</span>
+                                        </div>
+                                        <div class="flag-option" data-value="at">
+                                            <img src="https://flagcdn.com/w40/at.png" alt="Österreich">
+                                            <span>Österreich</span>
+                                        </div>
+                                        <div class="flag-option" data-value="ch">
+                                            <img src="https://flagcdn.com/w40/ch.png" alt="Schweiz">
+                                            <span>Schweiz</span>
+                                        </div>
+                                        <div class="flag-option" data-value="us">
+                                            <img src="https://flagcdn.com/w40/us.png" alt="USA">
+                                            <span>USA</span>
+                                        </div>
+                                        <div class="flag-option" data-value="gb">
+                                            <img src="https://flagcdn.com/w40/gb.png" alt="UK">
+                                            <span>Großbritannien</span>
+                                        </div>
+                                        <div class="flag-option" data-value="fr">
+                                            <img src="https://flagcdn.com/w40/fr.png" alt="Frankreich">
+                                            <span>Frankreich</span>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="username">Anzeigename:</label>
-                                    <input type="text" id="username" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
+                                    <label for="username">Anzeigename</label>
+                                    <input type="text" id="username" placeholder="Dein Anzeigename" name="username" value="{{ profile.name or '' }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="gender">Geschlecht:</label>
+                                    <label for="gender">Geschlecht</label>
                                     <select name="gender" id="gender" disabled>
-                                        <option value="">Wähle...</option>
+                                        <option value="">Bitte auswählen</option>
                                         <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
                                         <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
                                         <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
@@ -543,82 +604,98 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="age">Alter:</label>
-                                    <input type="number" id="age" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
+                                    <label for="age">Alter</label>
+                                    <input type="number" id="age" placeholder="Dein Alter" name="age" value="{{ profile.age }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="bodyweight">Körpergewicht (kg):</label>
-                                    <input type="number" id="bodyweight" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
+                                    <label for="bodyweight">Körpergewicht (kg)</label>
+                                    <input type="number" id="bodyweight" placeholder="Gewicht in kg" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="height">Größe (cm):</label>
-                                    <input type="number" id="height" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
+                                    <label for="height">Größe (cm)</label>
+                                    <input type="number" id="height" placeholder="Größe in cm" name="height" value="{{ profile.height or '' }}" disabled>
                                 </div>
                                 
-                                <div class="form-buttons">
-                                    <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
+                                <div class="form-actions">
+                                    <button type="button" class="button" id="editBtn">Profil bearbeiten</button>
                                     <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
                                 </div>
                             </form>
-                        </section>
-                    </div>
-                      
-                    <!-- Stats Tab Content -->
-                    <div class="tab-content" id="stats-tab">
-                        <section class="stats-card">
-                            <h3 class="card-title">Meine Stats</h3>
+                        </div>
+                        
+                        <!-- Statistiken Tab -->
+                        <div class="profile-card tab-content" id="stats-tab">
+                            <h2>Meine Statistiken</h2>
                             
-                            <div class="stats-content">
+                            <div class="rank-display">
                                 <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="rank-badge">
-                                
+                                <div class="rank-name">{{ rank_name }}</div>
+                            </div>
+                            
+                            <div class="stats-grid">
                                 <div class="stat-item">
-                                    Level: <span class="stat-value">{{ level }}</span> | Rang: <span class="stat-value">{{ rank_name }}</span>
+                                    <div class="stat-value">{{ level }}</div>
+                                    <div class="stat-label">Level</div>
                                 </div>
-                                
-                                <div class="xp-container">
-                                    <div class="xp-text">
-                                        <span>Fortschritt:</span>
-                                        <span>{{ xp_remaining }} / {{ xp_for_next }} XP</span>
-                                    </div>
-                                    <div class="xp-bar">
-                                        <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
-                                    </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ xp_remaining }}</div>
+                                    <div class="stat-label">Aktuelle XP</div>
                                 </div>
-                                
-                                <div class="streak-info">
-                                    <div class="streak-count">{{ stats.streak_days if stats else 0 }} Tage</div>
-                                    <div>🔥 Aktive Serie 🔥</div>
-                                </div>
-                                
-                                {% if ruhe == True %}
-                                <div class="restday-available">
-                                    ✅ Ruhetag verfügbar
-                                </div>
-                                {% endif %}
-                                
-                                <div class="attributes">
-                                    <div class="attribute-card">
-                                        <div class="attribute-icon">💪</div>
-                                        <div class="attribute-name">Stärke</div>
-                                        <div class="attribute-value">{{ kraft }}</div>
-                                    </div>
-                                    
-                                    <div class="attribute-card">
-                                        <div class="attribute-icon">🏃</div>
-                                        <div class="attribute-name">Ausdauer</div>
-                                        <div class="attribute-value">{{ stats.attr_endurance if stats else 0 }}</div>
-                                    </div>
-                                    
-                                    <div class="attribute-card">
-                                        <div class="attribute-icon">🧠</div>
-                                        <div class="attribute-name">Intelligenz</div>
-                                        <div class="attribute-value">{{ stats.attr_intelligence if stats else 0 }}</div>
-                                    </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ xp_for_next }}</div>
+                                    <div class="stat-label">XP bis Level {{ level + 1 }}</div>
                                 </div>
                             </div>
-                        </section>
+                            
+                            <div class="xp-container">
+                                <div class="xp-header">
+                                    <span class="xp-label">Fortschritt</span>
+                                    <span class="xp-values">{{ (progress * 100)|round(1) }}%</span>
+                                </div>
+                                <div class="xp-bar">
+                                    <div class="xp-progress" style="width: {{ (progress * 100)|round(1) }}%;"></div>
+                                </div>
+                            </div>
+                            
+                            {% if stats.streak_days > 0 %}
+                            <div class="streak-display">
+                                <div class="streak-count">{{ stats.streak_days }}</div>
+                                <div class="streak-label">Tage aktive Serie 🔥</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if ruhe == True %}
+                            <div class="profile-card" style="background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.3);">
+                                <div style="text-align: center; color: var(--success);">
+                                    <strong>✅ Ruhetag verfügbar</strong>
+                                    <p>Du kannst heute einen Ruhetag einlegen, ohne deine Serie zu verlieren.</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <h3 style="margin-top: 1.5rem;">Attribute</h3>
+                            <div class="attribute-grid">
+                                <div class="attribute-card">
+                                    <div class="attribute-icon">💪</div>
+                                    <div class="attribute-name">Stärke</div>
+                                    <div class="attribute-value">{{ kraft }}</div>
+                                </div>
+                                
+                                <div class="attribute-card">
+                                    <div class="attribute-icon">🏃</div>
+                                    <div class="attribute-name">Ausdauer</div>
+                                    <div class="attribute-value">{{ stats.attr_endurance if stats else 0 }}</div>
+                                </div>
+                                
+                                <div class="attribute-card">
+                                    <div class="attribute-icon">🧠</div>
+                                    <div class="attribute-name">Intelligenz</div>
+                                    <div class="attribute-value">{{ stats.attr_intelligence if stats else 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -630,162 +707,161 @@
     </div>
     
     <script>
-    function toggleMenu() {
-        const mobileMenu = document.getElementById("mobileMenu");
-        mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
-    }
-
-    // Tab-Funktionalität
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Tabs deaktivieren
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Aktiven Tab aktivieren
-            tab.classList.add('active');
-            const tabId = tab.getAttribute('data-tab');
-            document.getElementById(`${tabId}-tab`).classList.add('active');
-        });
-    });
-
     document.addEventListener('DOMContentLoaded', function() {
+        // Tab-Funktionalität
+        const tabButtons = document.querySelectorAll('.profile-nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Aktiven Tab-Button markieren
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Richtigen Tab-Inhalt anzeigen
+                const tabId = button.getAttribute('data-tab');
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Profilbearbeitungs-Funktionalität
         const editBtn = document.getElementById('editBtn');
         const saveBtn = document.getElementById('saveBtn');
         const uploadBtn = document.getElementById('uploadBtn');
         const formFields = document.querySelectorAll('#profileForm input, #profileForm select');
         const profilePicInput = document.getElementById('profile_pic');
-        const uploadMessage = document.getElementById('upload-message');
+        const uploadStatus = document.getElementById('upload-status');
         const profilePicDisplay = document.getElementById('profile-pic-display');
+        const flagButton = document.getElementById('flagButton');
         const flagDropdown = document.getElementById('flagDropdown');
-        const flagMenu = document.getElementById('flagMenu');
         const selectedFlagImg = document.getElementById('selectedFlagImg');
+        const selectedFlagText = document.getElementById('selectedFlagText');
         const regionInput = document.getElementById('regionInput');
-
-        let flagDropdownEnabled = false;
-
-        // Funktion zum Aktivieren/Deaktivieren des Flaggen-Dropdowns
-        function toggleFlagDropdown(enabled) {
-            flagDropdownEnabled = enabled;
-            if (enabled) {
-                selectedFlag.disabled = false;
-                selectedFlag.classList.add('active');
-            } else {
-                selectedFlag.disabled = true;
-                selectedFlag.classList.remove('active');
-                flagMenu.classList.remove('show');
-            }
-        }
-
-        toggleFlagDropdown(false);
-
-        // Flaggen-Dropdown Funktionen
-        selectedFlag.addEventListener('click', function(e) {
-            if (!flagDropdownEnabled) {
+        const flagOptions = document.querySelectorAll('.flag-option');
+        
+        let isEditing = false;
+        
+        // Flaggen-Dropdown-Funktionalität
+        flagButton.addEventListener('click', function(e) {
+            if (!isEditing) {
                 e.preventDefault();
                 return;
             }
-            e.stopPropagation();
-            flagMenu.classList.toggle('show');
+            flagDropdown.classList.toggle('show');
         });
         
         // Flagge auswählen
-        flagMenu.querySelectorAll('div').forEach(option => {
+        flagOptions.forEach(option => {
             option.addEventListener('click', function() {
                 const value = this.getAttribute('data-value');
                 const img = this.querySelector('img').src;
-                const alt = this.querySelector('img').alt;
+                const text = this.querySelector('span').textContent;
                 
                 selectedFlagImg.src = img;
-                selectedFlagImg.alt = alt;
+                selectedFlagText.textContent = text;
                 regionInput.value = value;
                 
-                flagMenu.classList.remove('show');
+                flagDropdown.classList.remove('show');
             });
         });
         
         // Dropdown schließen wenn woanders hingeklickt wird
         document.addEventListener('click', function(e) {
-            if (!flagDropdown.contains(e.target)) {
-                flagMenu.classList.remove('show');
+            if (!flagButton.contains(e.target) && !flagDropdown.contains(e.target)) {
+                flagDropdown.classList.remove('show');
             }
         });
-
+        
+        // Bearbeitungsmodus umschalten
         editBtn.addEventListener('click', function() {
+            isEditing = !isEditing;
+            
             formFields.forEach(field => {
-                field.removeAttribute('disabled');
-                field.style.boxShadow = '0 0 5px gold';
+                field.disabled = !isEditing;
             });
-            profilePicInput.removeAttribute('disabled');
-            regionInput.removeAttribute('disabled');
-            profilePicInput.style.display = 'block';
-            uploadBtn.style.display = 'block';
-            editBtn.style.display = 'none';
-            saveBtn.style.display = 'block';
-
-            // Flaggen-Dropdown aktivieren
-            toggleFlagDropdown(true);
+            
+            regionInput.disabled = !isEditing;
+            
+            if (isEditing) {
+                editBtn.textContent = 'Abbrechen';
+                saveBtn.style.display = 'block';
+                uploadBtn.style.display = 'block';
+                flagButton.style.cursor = 'pointer';
+            } else {
+                editBtn.textContent = 'Profil bearbeiten';
+                saveBtn.style.display = 'none';
+                uploadBtn.style.display = 'none';
+                flagButton.style.cursor = 'not-allowed';
+                
+                // Formular zurücksetzen
+                document.getElementById('profileForm').reset();
+            }
         });
-
+        
+        // Profilbild hochladen
+        uploadBtn.addEventListener('click', function() {
+            profilePicInput.click();
+        });
+        
         profilePicInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
+                // Vorschau anzeigen
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profilePicDisplay.src = e.target.result;
-                }
+                };
                 reader.readAsDataURL(file);
+                
+                // Hochladen
+                uploadProfilePic(file);
             }
         });
-
-   
-        uploadBtn.addEventListener('click', async function(event) {
-            event.preventDefault();
-
-            const file = profilePicInput.files[0];
-            if (!file) {
-                uploadMessage.textContent = 'Keine Datei ausgewählt!';
-                uploadMessage.style.color = 'red';
-                return;
-            }
-
+        
+        // Profilbild hochladen
+        function uploadProfilePic(file) {
             const formData = new FormData();
             formData.append('profile_pic', file);
-
-            try {
-                uploadMessage.textContent = 'Bild wird hochgeladen...';
-                uploadMessage.style.color = 'blue';
-
-                const response = await fetch("{{ url_for('upload_profile_pic') }}", {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    uploadMessage.textContent = 'Profilbild erfolgreich hochgeladen!';
-                    uploadMessage.style.color = 'green';
+            
+            uploadStatus.textContent = 'Bild wird hochgeladen...';
+            uploadStatus.style.color = 'var(--secondary)';
+            
+            fetch("{{ url_for('upload_profile_pic') }}", {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    uploadStatus.textContent = 'Profilbild erfolgreich hochgeladen!';
+                    uploadStatus.style.color = 'var(--success)';
                     
-                    // ✅ SOFORTIGES NEULADEN für Mobile
-                    profilePicDisplay.src = result.url + '?t=' + new Date().getTime();
-                    
-                    // ✅ Cache-Busting für Mobile Browser
+                    // Cache-Busting für Mobile Browser
                     setTimeout(() => {
-                        location.reload(true); // force reload from server
-                    }, 800);
-                    
+                        profilePicDisplay.src = data.url + '?t=' + new Date().getTime();
+                    }, 100);
                 } else {
-                    uploadMessage.textContent = 'Fehler beim Hochladen: ' + (result.error || 'Unbekannter Fehler');
-                    uploadMessage.style.color = 'red';
+                    uploadStatus.textContent = 'Fehler: ' + (data.error || 'Unbekannter Fehler');
+                    uploadStatus.style.color = 'var(--error)';
                 }
-
-            } catch (e) {
-                uploadMessage.textContent = 'Fehler beim Hochladen: ' + e.message;
-                uploadMessage.style.color = 'red';
-            }
-        });
-
+            })
+            .catch(error => {
+                uploadStatus.textContent = 'Fehler beim Hochladen';
+                uploadStatus.style.color = 'var(--error)';
+                console.error('Upload error:', error);
+            });
+        }
+        
+        // Mobile Menü
+        function toggleMenu() {
+            const mobileMenu = document.getElementById("mobileMenu");
+            mobileMenu.style.display = (mobileMenu.style.display === "flex") ? "none" : "flex";
+        }
     });
     </script>
 </body>
