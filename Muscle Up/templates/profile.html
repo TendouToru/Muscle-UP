@@ -143,7 +143,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem;
+            padding: 0.8rem;
             background-color: var(--background);
             border: 1px solid var(--accent-dark);
             border-radius: 6px;
@@ -151,8 +151,8 @@
         }
         
         .flag-btn img {
-            width: 30px;
-            height: 20px;
+            width: 60px;
+            height: 40px;
             object-fit: cover;
         }
         
@@ -403,6 +403,7 @@
             if (enabled) {
                 selectedFlag.disabled = false;
                 selectedFlag.classList.add('active');
+                selectedFlag.style.boxShadow = '0 0 5px gold';
             } else {
                 selectedFlag.disabled = true;
                 selectedFlag.classList.remove('active');
