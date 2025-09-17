@@ -13,6 +13,37 @@
             margin: 0 auto;
         }
         
+        .tab-container {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-dark);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background-color: var(--primary);
+            color: var(--background);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .section-header {
             color: var(--primary);
             text-align: center;
@@ -27,15 +58,16 @@
             margin-top: 2rem;
         }
         
-        .patchnote-card {
+        .patchnote-card, .info-card {
             background-color: var(--card-bg);
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
             border: 1px solid var(--accent-dark);
+            margin-bottom: 1.5rem;
         }
         
-        .patchnote-header {
+        .patchnote-header, .info-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -44,7 +76,7 @@
             border-bottom: 2px solid var(--primary);
         }
         
-        .patchnote-title {
+        .patchnote-title, .info-title {
             font-size: 1.5rem;
             color: var(--primary);
             margin: 0;
@@ -55,21 +87,23 @@
             font-size: 0.9rem;
         }
         
-        .patchnote-content {
+        .patchnote-content, .info-content {
             line-height: 1.6;
         }
         
-        .patchnote-content h1, .patchnote-content h2, .patchnote-content h3 {
+        .patchnote-content h1, .patchnote-content h2, .patchnote-content h3,
+        .info-content h1, .info-content h2, .info-content h3 {
             color: var(--primary);
             margin-top: 1rem;
         }
         
-        .patchnote-content ul, .patchnote-content ol {
+        .patchnote-content ul, .patchnote-content ol,
+        .info-content ul, .info-content ol {
             margin-left: 1.5rem;
             margin-bottom: 1rem;
         }
         
-        .patchnote-content strong {
+        .patchnote-content strong, .info-content strong {
             color: var(--secondary);
         }
         
@@ -89,7 +123,7 @@
             border: 1px solid var(--accent-dark);
         }
 
-        .ech3{
+        .editor-container h3{
             text-align: center;
             color: var(--secondary);
             text-decoration: underline;
@@ -151,7 +185,7 @@
             font-family: inherit;
         }
         
-        .no-patchnotes {
+        .no-patchnotes, .no-info {
             text-align: center;
             padding: 2rem;
             color: #888;
@@ -180,6 +214,51 @@
             background-color: rgba(205, 7, 27, 0.2);
             border: 1px solid #cd071b;
             color: #cd071b;
+        }
+        
+        .info-section {
+            margin-bottom: 2rem;
+        }
+        
+        .info-section h3 {
+            color: var(--secondary);
+            border-bottom: 1px solid var(--accent-dark);
+            padding-bottom: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--accent-dark);
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .step-by-step {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .step {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .step:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
         }
     </style>
 </head>
@@ -226,7 +305,7 @@
             <!-- Mobile Menü -->
             <nav class="mobile-menu" id="mobileMenu">
                 <a href="{{ url_for('index') }}">Start</a>
-                <a href="{{ url_for('info') }}">Info & Updates</a>
+                <a href="{{ url_for('info') }}">Infos & Updates</a>
                 {% if 'user_id' in session %}
                     <a href="{{ url_for('profile') }}">Mein Profil</a>
                     <a href="{{ url_for('workout_page') }}">Training</a>
@@ -244,63 +323,158 @@
                 <p class="text-center">Hier findest du alle wichtigen Updates und Informationen zu Muscle Up.</p>
                 
                 
-                <!-- Admin-Bereich zum Erstellen von Patchnotes -->
-                {% if admin == true %}
-                <section class="editor-container">
-                    <h3 class="ech3">Neue Patchnote erstellen</h3>
-                    <form id="patchnote-form" method="POST" action="{{ url_for('info') }}">
-                        <div class="form-group">
-                            <label for="patchnote-title">Titel</label>
-                            <input type="text" id="patchnote-title" name="title" placeholder="Titel der Patchnote" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="patchnote-content">Inhalt</label>
-                            <div class="editor-toolbar">
-                                <button type="button" onclick="formatText('bold')"><strong>B</strong></button>
-                                <button type="button" onclick="formatText('italic')"><em>I</em></button>
-                                <button type="button" onclick="formatText('underline')"><u>U</u></button>
-                                <button type="button" onclick="insertHeading()">Überschrift</button>
-                                <button type="button" onclick="insertList()">Liste</button>
-                                <button type="button" onclick="clearFormatting()">Clear</button>
-                            </div>
-                            <textarea id="patchnote-content" name="content" placeholder="Inhalt der Patchnote..." required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="button">Patchnote veröffentlichen</button>
-                    </form>
-                </section>
-                {% endif %}
+                <!-- Tab Navigation -->
+                <div class="tab-container">
+                    <div class="tab active" data-tab="info">Info & Tutorial</div>
+                    <div class="tab" data-tab="patchnotes">Patchnotes</div>
+                </div>
                 
-                <!-- Anzeige der Patchnotes -->
-                <section class="patchnotes-section">
-                    <h4 class="section-header">Aktuelle Updates</h4>
-                    
-                    <div class="patchnotes-list">
-                        {% if patchnotes %}
-                            {% for note in patchnotes %}
-                            <div class="patchnote-card">
-                                <div class="patchnote-header">
-                                    <h3 class="patchnote-title">{{ note.title }}</h3>
-                                    <span class="patchnote-date">{{ note.created_at.strftime('%d.%m.%Y') }}</span>
+                <!-- Info & Tutorial Tab Content -->
+                <div class="tab-content active" id="info-tab">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h3 class="info-title">Willkommen bei Muscle Up!</h3>
+                        </div>
+                        <div class="info-content">
+                            <p>Muscle Up ist eine Fitness-App, die dir hilft, deine Trainingsfortschritte zu verfolgen, XP zu sammeln und deine Fitnessziele zu erreichen.</p>
+                            
+                            <div class="info-section">
+                                <h3>Erste Schritte</h3>
+                                <div class="step-by-step">
+                                    <div class="step">Erstelle ein Konto oder melde dich an, wenn du bereits eines hast.</div>
+                                    <div class="step">Vervollständige dein Profil mit deinen persönlichen Daten (Größe, Gewicht, etc.).</div>
+                                    <div class="step">Beginne mit dem Hinzufügen deiner Workouts!</div>
                                 </div>
-                                <div class="patchnote-content">
-                                    {{ note.content|safe }}
-                                </div>
-                                {% if admin == true %}
-                                <div class="admin-controls">
-                                    <button class="delete-btn" onclick="deletePatchnote({{ note.id }})">Löschen</button>
-                                </div>
-                                {% endif %}
                             </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="no-patchnotes">
-                                <p>Noch keine Patchnotes verfügbar.</p>
+                            
+                            <div class="info-section">
+                                <h3>Workout-Typen</h3>
+                                <ul class="feature-list">
+                                    <li><strong>Krafttraining:</strong> Tracke deine Gewichte und Wiederholungen für verschiedene Übungen.</li>
+                                    <li><strong>Cardio:</strong> Protokolliere Lauf-, Schwimm- oder andere Ausdaueraktivitäten.</li>
+                                    <li><strong>Calisthenics:</strong> Verfolge Körpergewichtsübungen wie Liegestütze, Klimmzüge etc.</li>
+                                    <li><strong>Ruhetage:</strong> Markiere Ruhetage, um deine Trainingsserie beizubehalten.</li>
+                                </ul>
                             </div>
-                        {% endif %}
+                            
+                            <div class="info-section">
+                                <h3>XP-System</h3>
+                                <p>Du verdienst XP durch:</p>
+                                <ul class="feature-list">
+                                    <li><strong>Krafttraining:</strong> Basierend auf Volumen (Gewicht × Wiederholungen) und Intensität</li>
+                                    <li><strong>Cardio:</strong> Basierend auf Dauer und Distanz</li>
+                                    <li><strong>Calisthenics:</strong> Basierend auf Wiederholungen und Satzfaktor</li>
+                                    <li><strong>Streak-Bonus:</strong> Erhalte zusätzliche XP für konsequentes Training</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h3>Attribute</h3>
+                                <ul class="feature-list">
+                                    <li><strong>Stärke:</strong> Erhöht sich durch Krafttraining</li>
+                                    <li><strong>Ausdauer:</strong> Erhöht sich durch Cardio und Calisthenics</li>
+                                    <li><strong>Intelligenz:</strong> Erhöht sich durch taktische Sportarten</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h3>Level & Ränge</h3>
+                                <p>Steige Level auf, indem du XP sammelst. Mit jedem Level steigen die Anforderungen für das nächste Level.</p>
+                                <p>Dein Rang verbessert sich mit deinem Level:</p>
+                                <ul class="feature-list">
+                                    <li>Level 1-5: Anfänger</li>
+                                    <li>Level 6-10: Gesund</li>
+                                    <li>Level 11-15: Sportlich</li>
+                                    <li>Level 16-20: Fit</li>
+                                    <li>Level 21-25: Sportler</li>
+                                    <li>Level 26-30: Top-Fit</li>
+                                    <li>Level 31-35: Atlet</li>
+                                    <li>Level 36-40: Super-Atlet</li>
+                                    <li>Level 41-45: Leistungssportler</li>
+                                    <li>Level 46-50: Sport ist Leben</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h3>Streak-System</h3>
+                                <p>Trainiere konsequent an aufeinanderfolgenden Tagen, um deine Streak zu erhöhen. Eine höhere Streak gibt dir Bonus-XP!</p>
+                                <p>Nach mindestens 2 Trainingstagen kannst du einen Ruhetag einlegen, ohne deine Streak zu verlieren.</p>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h3>Tipps für den Erfolg</h3>
+                                <ul class="feature-list">
+                                    <li>Trage deine Workouts regelmäßig ein, um deine Fortschritte genau zu verfolgen</li>
+                                    <li>Achte auf eine ausgewogene Mischung aus Kraft- und Ausdauertraining</li>
+                                    <li>Plane Ruhetage ein, um Erholung und Muskelwachstum zu ermöglichen</li>
+                                    <li>Setze dir realistische Ziele und steigere dich kontinuierlich</li>
+                                    <li>Vergleiche dich mit anderen auf der Bestenliste für zusätzliche Motivation</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
+                
+                <!-- Patchnotes Tab Content -->
+                <div class="tab-content" id="patchnotes-tab">
+                    <!-- Admin-Bereich zum Erstellen von Patchnotes -->
+                    {% if admin == true %}
+                    <section class="editor-container">
+                        <h3>Neue Patchnote erstellen</h3>
+                        <form id="patchnote-form" method="POST" action="{{ url_for('info') }}">
+                            <div class="form-group">
+                                <label for="patchnote-title">Titel</label>
+                                <input type="text" id="patchnote-title" name="title" placeholder="Titel der Patchnote" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="patchnote-content">Inhalt</label>
+                                <div class="editor-toolbar">
+                                    <button type="button" onclick="formatText('bold')"><strong>B</strong></button>
+                                    <button type="button" onclick="formatText('italic')"><em>I</em></button>
+                                    <button type="button" onclick="formatText('underline')"><u>U</u></button>
+                                    <button type="button" onclick="insertHeading()">Überschrift</button>
+                                    <button type="button" onclick="insertList()">Liste</button>
+                                    <button type="button" onclick="clearFormatting()">Clear</button>
+                                </div>
+                                <textarea id="patchnote-content" name="content" placeholder="Inhalt der Patchnote..." required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="button">Patchnote veröffentlichen</button>
+                        </form>
+                    </section>
+                    {% endif %}
+                    
+                    <!-- Anzeige der Patchnotes -->
+                    <section class="patchnotes-section">
+                        <h4 class="section-header">Aktuelle Updates</h4>
+                        
+                        <div class="patchnotes-list">
+                            {% if patchnotes %}
+                                {% for note in patchnotes %}
+                                <div class="patchnote-card">
+                                    <div class="patchnote-header">
+                                        <h3 class="patchnote-title">{{ note.title }}</h3>
+                                        <span class="patchnote-date">{{ note.created_at.strftime('%d.%m.%Y') }}</span>
+                                    </div>
+                                    <div class="patchnote-content">
+                                        {{ note.content|safe }}
+                                    </div>
+                                    {% if admin == true %}
+                                    <div class="admin-controls">
+                                        <button class="delete-btn" onclick="deletePatchnote({{ note.id }})">Löschen</button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="no-patchnotes">
+                                    <p>Noch keine Patchnotes verfügbar.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                </div>
             </div>
         </main>
         
@@ -314,6 +488,20 @@
             const menu = document.getElementById("mobileMenu");
             menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
         }
+        
+        // Tab-Funktionalität
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Tabs deaktivieren
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Aktiven Tab aktivieren
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
         
         // Textformatierungsfunktionen für den Editor
         function formatText(format) {
