@@ -8,130 +8,171 @@
     <title>Muscle Up | Profil</title>
 
     <style>
-        .tab-container {
+        :root {
+            --primary: #4caf50;
+            --primary-light: #80e27e;
+            --primary-dark: #087f23;
+            --secondary: #2196F3;
+            --accent: #FF9800;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #444444;
+            --success: #4CAF50;
+            --warning: #FFC107;
+        }
+        
+        .content {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .welcome-heading {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text);
+            font-size: 28px;
+        }
+        
+        .profile-container {
             display: flex;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid var(--primary);
-            justify-content: center;
+            gap: 20px;
+        }
+        
+        .tabs-container {
+            width: 200px;
+            flex-shrink: 0;
         }
         
         .tab {
-            padding: 0.8rem 1.5rem;
+            padding: 15px 20px;
             cursor: pointer;
             background-color: var(--card-bg);
-            border: 1px solid var(--accent-dark);
+            border: 1px solid var(--border);
             border-bottom: none;
-            border-radius: 8px 8px 0 0;
-            margin: 0 0.25rem;
-            transition: all 0.3s;
             font-weight: 500;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+        
+        .tab:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .tab:last-child {
+            border-bottom: 1px solid var(--border);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
         
         .tab.active {
             background-color: var(--primary);
-            color: var(--background);
-            font-weight: bold;
-            transform: translateY(1px);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        .tab-content-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
         }
         
         .tab-content {
             display: none;
+            width: 100%;
+            max-width: 600px;
         }
         
         .tab-content.active {
             display: block;
         }
         
-        .profile-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
         .profile-card, .stats-card {
             background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            border: 1px solid var(--accent-dark);
-            margin-bottom: 2rem;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
         }
         
-        .profile-card h3, .stats-card h3 {
+        .card-title {
             color: var(--primary);
             text-align: center;
-            margin: 0 0 1.5rem 0;
-            padding-bottom: 0.75rem;
+            margin: 0 0 25px 0;
+            padding-bottom: 15px;
             border-bottom: 2px solid var(--primary);
-            font-size: 1.5rem;
+            font-size: 24px;
         }
         
         .form-profile {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 20px;
         }
         
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 8px;
         }
         
         .form-profile label {
             font-weight: 600;
-            color: var(--secondary);
-            font-size: 0.95rem;
+            color: var(--text);
+            font-size: 16px;
         }
         
         .form-profile input, .form-profile select {
-            padding: 0.9rem;
+            padding: 12px 15px;
             border-radius: 8px;
-            border: 1px solid var(--accent-dark);
-            background-color: var(--background);
+            border: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.2);
             color: var(--text);
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 16px;
+            transition: all 0.3s;
         }
         
         .form-profile input:focus, .form-profile select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
         }
         
         .profile-pic-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
         
         .profile-pic-container img.pfp {
-            width: 160px;
-            height: 160px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--primary);
-            margin-bottom: 1.25rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 3px solid var(--primary);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         
         .form-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 15px;
             justify-content: center;
-            margin-top: 1.5rem;
+            margin-top: 20px;
         }
         
         .button {
-            padding: 0.9rem 1.5rem;
+            padding: 12px 25px;
             border-radius: 8px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 16px;
         }
         
         #editBtn {
@@ -140,71 +181,147 @@
         }
         
         #editBtn:hover {
-            background-color: var(--secondary);
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
         }
         
         #saveBtn {
-            background-color: #4caf50;
+            background-color: var(--secondary);
             color: white;
         }
         
         #saveBtn:hover {
-            background-color: #3d8b40;
+            background-color: #0b7dda;
             transform: translateY(-2px);
         }
         
         #uploadBtn {
-            background-color: #2196F3;
+            background-color: var(--accent);
             color: white;
-            margin-top: 0.5rem;
-            padding: 0.7rem 1.2rem;
+            margin-top: 10px;
+            padding: 10px 20px;
         }
         
         #uploadBtn:hover {
-            background-color: #0b7dda;
+            background-color: #e68900;
+        }
+        
+        .stats-content {
+            text-align: center;
+        }
+        
+        .rank-badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+            border: 3px solid var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-item {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+        
+        .stat-value {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .xp-container {
+            margin: 20px 0;
         }
         
         .xp-bar {
             width: 100%;
-            height: 22px;
-            background-color: var(--background);
-            border-radius: 11px;
+            height: 25px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
             overflow: hidden;
-            margin: 0.75rem 0;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            margin: 10px 0;
         }
         
         .xp-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
             transition: width 0.5s ease;
-            border-radius: 11px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+        }
+        
+        .xp-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
         
         .attributes {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
         }
         
-        .attr {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem;
-            background-color: rgba(0, 0, 0, 0.08);
+        .attribute-card {
+            background: linear-gradient(145deg, #2d2d2d, #252525);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+        }
+        
+        .attribute-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .attribute-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .attribute-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .streak-info {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning);
             border-radius: 8px;
-            font-size: 1.05rem;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
         }
         
-        .attr span {
-            font-weight: 600;
+        .streak-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--warning);
+        }
+        
+        .restday-available {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: var(--success);
+            font-weight: bold;
         }
         
         .flag-dropdown {
             position: relative;
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
             display: flex;
             justify-content: center;
         }
@@ -212,23 +329,24 @@
         .flag-btn {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background-color: var(--background);
-            border: 1px solid var(--accent-dark);
+            gap: 10px;
+            padding: 12px 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
+            color: var(--text);
         }
         
         .flag-btn:hover, .flag-btn.active {
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
         }
         
         .flag-btn img {
-            width: 36px;
-            height: 24px;
+            width: 30px;
+            height: 20px;
             object-fit: cover;
             border-radius: 2px;
         }
@@ -240,14 +358,14 @@
             transform: translateX(-50%);
             width: 200px;
             background-color: var(--card-bg);
-            border: 1px solid var(--accent-dark);
+            border: 1px solid var(--border);
             border-radius: 8px;
             max-height: 250px;
             overflow-y: auto;
             display: none;
             z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 5px;
         }
         
         .flag-menu.show {
@@ -257,76 +375,57 @@
         .flag-menu div {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
+            gap: 10px;
+            padding: 10px 15px;
             cursor: pointer;
             transition: background-color 0.2s;
+            color: var(--text);
         }
         
         .flag-menu div:hover {
-            background-color: var(--accent-dark);
+            background-color: rgba(76, 175, 80, 0.2);
         }
         
         .flag-menu div img {
-            width: 30px;
-            height: 20px;
+            width: 25px;
+            height: 15px;
             object-fit: cover;
             border-radius: 2px;
         }
         
         .upload-message {
             text-align: center;
-            margin: 0.75rem 0;
+            margin: 10px 0;
             font-weight: 600;
-            padding: 0.5rem;
+            padding: 10px;
             border-radius: 6px;
-        }
-        
-        .stats-content {
-            text-align: center;
-        }
-        
-        .stats-content p {
-            margin: 0.75rem 0;
-            font-size: 1.1rem;
-        }
-        
-        .stats-content strong {
-            color: var(--primary);
-        }
-        
-        .stats-card img.pfp {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 1.5rem;
-            display: block;
-            border: 3px solid var(--primary);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
         @media (max-width: 768px) {
             .profile-container {
-                padding: 0 0.5rem;
-            }
-            
-            .profile-card, .stats-card {
-                padding: 1.5rem;
-            }
-            
-            .profile-pic-container img.pfp {
-                width: 140px;
-                height: 140px;
-            }
-            
-            .form-buttons {
                 flex-direction: column;
             }
             
+            .tabs-container {
+                width: 100%;
+                display: flex;
+                margin-bottom: 20px;
+            }
+            
             .tab {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.9rem;
+                flex: 1;
+                text-align: center;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin-right: 10px;
+            }
+            
+            .tab:last-child {
+                margin-right: 0;
+            }
+            
+            .attributes {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -381,21 +480,21 @@
         </header>
 
         <main class="content">
-            <h2 style="text-align: center; margin-bottom: 1.5rem;">Willkommen, {{ profile.name or '' }}!</h2>
+            <h2 class="welcome-heading">Willkommen, {{ profile.name or '' }}!</h2>
 
             <div class="profile-container">
-
-                <!-- Tab Navigation -->
-                <div class="tab-container">
+                <!-- Tabs auf der linken Seite -->
+                <div class="tabs-container">
                     <div class="tab active" data-tab="profile">Profil</div>
                     <div class="tab" data-tab="stats">Stats</div>
                 </div>
 
-                <!-- Profile Tab Content -->
-                <div class="tab-content active" id="profile-tab">
-                    <section class="profile-card">
-                        <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
-                            <h3>Dein Profil</h3>
+                <!-- Tab-Inhalte zentriert -->
+                <div class="tab-content-container">
+                    <!-- Profile Tab Content -->
+                    <div class="tab-content active" id="profile-tab">
+                        <section class="profile-card">
+                            <h3 class="card-title">Dein Profil</h3>
 
                             <div class="profile-pic-container">
                                 <img id="profile-pic-display" src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
@@ -407,97 +506,122 @@
                                 <div id="upload-message" class="upload-message"></div>
                             </div>
 
-                            <div class="flag-dropdown" id="flagDropdown">
-                                <button class="flag-btn" id="selectedFlag" type="button">
-                                    <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
-                                        alt="{{ profile.region or 'de' }}" 
-                                        id="selectedFlagImg">
-                                    <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
-                                </button>
-                                <div class="flag-menu" id="flagMenu">
-                                    <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
-                                    <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
-                                    <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
-                                    <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
-                                    <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
-                                    <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
-                                    <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
-                                    <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
-                                    <div data-value="ir"><img src="https://flagcdn.com/w40/ir.png" alt="Iran"> Iran</div>
+                            <form method="post" class="form-profile" id="profileForm" enctype="multipart/form-data">
+                                <div class="flag-dropdown" id="flagDropdown">
+                                    <button class="flag-btn" id="selectedFlag" type="button">
+                                        <img src="https://flagcdn.com/w40/{{ profile.region or 'de' }}.png" 
+                                            alt="{{ profile.region or 'de' }}" 
+                                            id="selectedFlagImg">
+                                        <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
+                                    </button>
+                                    <div class="flag-menu" id="flagMenu">
+                                        <div data-value="de"><img src="https://flagcdn.com/w40/de.png" alt="Deutschland"> Deutschland</div>
+                                        <div data-value="at"><img src="https://flagcdn.com/w40/at.png" alt="Österreich"> Österreich</div>
+                                        <div data-value="ch"><img src="https://flagcdn.com/w40/ch.png" alt="Schweiz"> Schweiz</div>
+                                        <div data-value="us"><img src="https://flagcdn.com/w40/us.png" alt="USA"> USA</div>
+                                        <div data-value="gb"><img src="https://flagcdn.com/w40/gb.png" alt="UK"> Großbritannien</div>
+                                        <div data-value="fr"><img src="https://flagcdn.com/w40/fr.png" alt="Frankreich"> Frankreich</div>
+                                        <div data-value="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanien"> Spanien</div>
+                                        <div data-value="it"><img src="https://flagcdn.com/w40/it.png" alt="Italien"> Italien</div>
+                                        <div data-value="ir"><img src="https://flagcdn.com/w40/ir.png" alt="Iran"> Iran</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="username">Anzeigename:</label>
+                                    <input type="text" id="username" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gender">Geschlecht:</label>
+                                    <select name="gender" id="gender" disabled>
+                                        <option value="">Wähle...</option>
+                                        <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
+                                        <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
+                                        <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="age">Alter:</label>
+                                    <input type="number" id="age" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="bodyweight">Körpergewicht (kg):</label>
+                                    <input type="number" id="bodyweight" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="height">Größe (cm):</label>
+                                    <input type="number" id="height" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
+                                </div>
+                                
+                                <div class="form-buttons">
+                                    <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
+                                    <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                      
+                    <!-- Stats Tab Content -->
+                    <div class="tab-content" id="stats-tab">
+                        <section class="stats-card">
+                            <h3 class="card-title">Meine Stats</h3>
+                            
+                            <div class="stats-content">
+                                <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="rank-badge">
+                                
+                                <div class="stat-item">
+                                    Level: <span class="stat-value">{{ level }}</span> | Rang: <span class="stat-value">{{ rank_name }}</span>
+                                </div>
+                                
+                                <div class="xp-container">
+                                    <div class="xp-text">
+                                        <span>Fortschritt:</span>
+                                        <span>{{ xp_remaining }} / {{ xp_for_next }} XP</span>
+                                    </div>
+                                    <div class="xp-bar">
+                                        <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="streak-info">
+                                    <div class="streak-count">{{ stats.streak_days if stats else 0 }} Tage</div>
+                                    <div>🔥 Aktive Serie 🔥</div>
+                                </div>
+                                
+                                {% if ruhe == True %}
+                                <div class="restday-available">
+                                    ✅ Ruhetag verfügbar
+                                </div>
+                                {% endif %}
+                                
+                                <div class="attributes">
+                                    <div class="attribute-card">
+                                        <div class="attribute-icon">💪</div>
+                                        <div class="attribute-name">Stärke</div>
+                                        <div class="attribute-value">{{ kraft }}</div>
+                                    </div>
+                                    
+                                    <div class="attribute-card">
+                                        <div class="attribute-icon">🏃</div>
+                                        <div class="attribute-name">Ausdauer</div>
+                                        <div class="attribute-value">{{ stats.attr_endurance if stats else 0 }}</div>
+                                    </div>
+                                    
+                                    <div class="attribute-card">
+                                        <div class="attribute-icon">🧠</div>
+                                        <div class="attribute-name">Intelligenz</div>
+                                        <div class="attribute-value">{{ stats.attr_intelligence if stats else 0 }}</div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="username">Anzeigename:</label>
-                                <input type="text" id="username" placeholder="Gib deinen Anzeigenamen ein!" name="username" value="{{ profile.name or '' }}" disabled>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="gender">Geschlecht:</label>
-                                <select name="gender" id="gender" disabled>
-                                    <option value="">Wähle...</option>
-                                    <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
-                                    <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
-                                    <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="age">Alter:</label>
-                                <input type="number" id="age" placeholder="Gib dein Alter ein!" name="age" value="{{ profile.age }}" disabled>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="bodyweight">Körpergewicht (kg):</label>
-                                <input type="number" id="bodyweight" placeholder="Gib dein Gewicht ein!" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="height">Größe (cm):</label>
-                                <input type="number" id="height" placeholder="Gib deine Größe ein!" name="height" value="{{ profile.height or '' }}" disabled>
-                            </div>
-                            
-                            <div class="form-buttons">
-                                <button type="button" class="button" id="editBtn">✏️ Profil bearbeiten</button>
-                                <button type="submit" class="button" id="saveBtn" style="display: none;">Änderungen speichern</button>
-                            </div>
-                        </form>
-                    </section>
-                </div>
-                  
-                <!-- Stats Tab Content -->
-                <div class="tab-content" id="stats-tab">
-                    <section class="stats-card">
-                        <h3>Meine Stats</h3>
-                        
-                        <div class="stats-content">
-                            <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="pfp">
-                            <p>Level: <strong>{{ level }}</strong> | Rang: <strong>{{ rank_name }}</strong></p>
-                            <p>XP: <strong>{{ xp_remaining }}</strong> / <strong>{{ xp_for_next }}</strong></p>
-                            <div class="xp-bar">
-                                <div class="xp-fill" style="width: {{ (progress * 100)|round(1) }}%;"></div>
-                            </div>
-                            
-                            {% if stats.streak_days == 1 %}
-                                <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tag 🔥</p>
-                            {% else %}
-                                <p>Streak: <strong>{{ stats.streak_days if stats else 0 }}</strong> Tage 🔥</p>
-                            {% endif %}
-                            
-                            {% if ruhe == True %}
-                                <p>Restday Verfügbar ✅</p>
-                            {% endif %}
-                            
-                            <div class="attributes">
-                                <div class="attr"><span>💪 Stärke:</span> {{ kraft }}</div>
-                                <div class="attr"><span>🏃 Ausdauer:</span> {{ stats.attr_endurance if stats else 0 }}</div>
-                                <div class="attr"><span>🧠 Spiel-Intelligenz:</span> {{ stats.attr_intelligence if stats else 0 }}</div>
-                            </div>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
                 </div>
             </div>
-
         </main>
         
         <footer>
