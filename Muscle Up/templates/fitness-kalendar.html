@@ -32,6 +32,48 @@
             opacity: 0.8;
         }
         
+        /* Tab-Navigation */
+        .calendar-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-dark);
+        }
+        
+        .calendar-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .calendar-tab.active {
+            opacity: 1;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .calendar-tab:hover {
+            opacity: 1;
+            background-color: rgba(0, 170, 255, 0.1);
+        }
+        
+        /* Tab-Inhalte */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .calendar-container {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -136,7 +178,7 @@
         .calendar-day:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-color: var(--primary);
+            /* Blauer Balken entfernt */
         }
         
         .day-number {
@@ -218,11 +260,11 @@
             flex-shrink: 0;
         }
         
-        .calendar-stats {
+        /* Statistiken Tab */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
         }
         
         .stat-card {
@@ -458,8 +500,17 @@
                 padding: 0.3rem 0.4rem;
             }
             
-            .calendar-stats {
+            .stats-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .calendar-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .calendar-tab {
+                padding: 0.8rem 1.2rem;
+                font-size: 1rem;
             }
         }
         
@@ -518,6 +569,11 @@
             
             .workout-details-title {
                 font-size: 1.2rem;
+            }
+            
+            .calendar-tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
             }
         }
         
@@ -594,73 +650,116 @@
         <main class="content calendar-page">
             <div class="calendar-header">
                 <h1>Fitness Kalender</h1>
-                <p>Verfolge deine Trainingsfortschritte und bleibe motiviert</p>
             </div>
             
-            <div class="calendar-container">
-                <div class="calendar-controls">
-                    <div class="month-nav">
-                        <button class="month-nav-btn" onclick="prevMonth()">←</button>
-                        <div class="current-month" id="currentMonthYear"></div>
-                        <button class="month-nav-btn" onclick="nextMonth()">→</button>
+            <!-- Tab-Navigation -->
+            <div class="calendar-tabs">
+                <button class="calendar-tab active" data-tab="calendar">Kalender</button>
+                <button class="calendar-tab" data-tab="stats">Statistiken</button>
+            </div>
+            
+            <!-- Kalender Tab -->
+            <div class="tab-content active" id="calendar-tab">
+                <div class="calendar-container">
+                    <div class="calendar-controls">
+                        <div class="month-nav">
+                            <button class="month-nav-btn" onclick="prevMonth()">←</button>
+                            <div class="current-month" id="currentMonthYear"></div>
+                            <button class="month-nav-btn" onclick="nextMonth()">→</button>
+                        </div>
+                        
+                        <div class="view-options">
+                            <button class="view-btn active">Monat</button>
+                            <button class="view-btn">Woche</button>
+                        </div>
                     </div>
                     
-                    <div class="view-options">
-                        <button class="view-btn active">Monat</button>
-                        <button class="view-btn">Woche</button>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <div class="weekday-header">Mo</div>
+                        <div class="weekday-header">Di</div>
+                        <div class="weekday-header">Mi</div>
+                        <div class="weekday-header">Do</div>
+                        <div class="weekday-header">Fr</div>
+                        <div class="weekday-header">Sa</div>
+                        <div class="weekday-header">So</div>
+                        
+                        <!-- Calendar days will be generated by JavaScript -->
                     </div>
-                </div>
-                
-                <div class="calendar-grid" id="calendarGrid">
-                    <div class="weekday-header">Mo</div>
-                    <div class="weekday-header">Di</div>
-                    <div class="weekday-header">Mi</div>
-                    <div class="weekday-header">Do</div>
-                    <div class="weekday-header">Fr</div>
-                    <div class="weekday-header">Sa</div>
-                    <div class="weekday-header">So</div>
-                    
-                    <!-- Calendar days will be generated by JavaScript -->
                 </div>
             </div>
             
-            <div class="calendar-stats">
-                <div class="stat-card">
-                    <h3>Monatsstatistik</h3>
-                    <div class="stat-value" id="workoutsThisMonth">0</div>
-                    <div class="stat-label">Workouts diesen Monat</div>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Aktive Serie</h3>
-                    <div class="stat-value" id="currentStreak">0</div>
-                    <div class="stat-label">Tage in Folge</div>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Workout-Verteilung</h3>
-                    <div class="workout-type-stats">
-                        <div class="workout-type-stat">
-                            <div class="workout-type-name">
-                                <span class="workout-icon">💪</span>
-                                <span>Krafttraining</span>
+            <!-- Statistiken Tab -->
+            <div class="tab-content" id="stats-tab">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Monatsstatistik</h3>
+                        <div class="stat-value" id="workoutsThisMonth">0</div>
+                        <div class="stat-label">Workouts diesen Monat</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Aktive Serie</h3>
+                        <div class="stat-value" id="currentStreak">0</div>
+                        <div class="stat-label">Tage in Folge</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Workout-Verteilung</h3>
+                        <div class="workout-type-stats">
+                            <div class="workout-type-stat">
+                                <div class="workout-type-name">
+                                    <span class="workout-icon">💪</span>
+                                    <span>Krafttraining</span>
+                                </div>
+                                <span id="strength-count">0</span>
                             </div>
-                            <span id="strength-count">0</span>
-                        </div>
-                        <div class="workout-type-stat">
-                            <div class="workout-type-name">
-                                <span class="workout-icon">🏃</span>
-                                <span>Cardio</span>
+                            <div class="workout-type-stat">
+                                <div class="workout-type-name">
+                                    <span class="workout-icon">🏃</span>
+                                    <span>Cardio</span>
+                                </div>
+                                <span id="cardio-count">0</span>
                             </div>
-                            <span id="cardio-count">0</span>
-                        </div>
-                        <div class="workout-type-stat">
-                            <div class="workout-type-name">
-                                <span class="workout-icon">🔥</span>
-                                <span>Calisthenics</span>
+                            <div class="workout-type-stat">
+                                <div class="workout-type-name">
+                                    <span class="workout-icon">🔥</span>
+                                    <span>Calisthenics</span>
+                                </div>
+                                <span id="calisthenics-count">0</span>
                             </div>
-                            <span id="calisthenics-count">0</span>
+                            <div class="workout-type-stat">
+                                <div class="workout-type-name">
+                                    <span class="workout-icon">🛌</span>
+                                    <span>Ruhetage</span>
+                                </div>
+                                <span id="restday-count">0</span>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Top Übungen</h3>
+                        <div class="workout-type-stats" id="top-exercises">
+                            <div class="workout-type-stat">
+                                <span>Noch keine Daten</span>
+                                <span>-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Wöchentliches Ziel</h3>
+                        <div class="stat-value" id="weekly-goal">3/5</div>
+                        <div class="stat-label">Trainings erreicht</div>
+                        <div class="xp-bar" style="margin-top: 1rem;">
+                            <div class="xp-progress" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Gesamtleistung</h3>
+                        <div class="stat-value" id="total-workouts">0</div>
+                        <div class="stat-label">Workouts insgesamt</div>
                     </div>
                 </div>
             </div>
@@ -675,6 +774,20 @@
     const workoutsData = {{ workouts | tojson }};
     const headerElement = document.querySelector('header.head');
     let currentYear, currentMonth;
+
+    // Tab-Funktionalität
+    document.querySelectorAll('.calendar-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Tabs deaktivieren
+            document.querySelectorAll('.calendar-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Aktiven Tab aktivieren
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+    });
 
     function generateCalendar(year, month) {
         const grid = document.getElementById('calendarGrid');
@@ -787,6 +900,14 @@
         document.getElementById('strength-count').textContent = workoutTypeCount.strength;
         document.getElementById('cardio-count').textContent = workoutTypeCount.cardio;
         document.getElementById('calisthenics-count').textContent = workoutTypeCount.calistenics;
+        document.getElementById('restday-count').textContent = workoutTypeCount.restday;
+        
+        // Gesamtworkouts berechnen
+        let totalWorkouts = 0;
+        for (const type in workoutTypeCount) {
+            totalWorkouts += workoutTypeCount[type];
+        }
+        document.getElementById('total-workouts').textContent = totalWorkouts;
         
         // Aktive Serie berechnen (vereinfacht)
         const streak = calculateStreak(workoutsData);

@@ -547,7 +547,7 @@
                                     <i>👤</i> Meine Daten
                                 </button>
                                 <button class="profile-nav-btn" data-tab="stats">
-                                    <i>📊</i> Statistiken
+                                    <i>📊</i> Mein Level
                                 </button>
                             </div>
                         </div>
@@ -642,7 +642,7 @@
                         
                         <!-- Statistiken Tab -->
                         <div class="profile-card tab-content" id="stats-tab">
-                            <h2>Meine Statistiken</h2>
+                            <h2>Mein Level</h2>
                             
                             <div class="rank-display">
                                 <img src="{{ url_for('static', filename='ranks/' ~ rank ~ '.jpg') }}" alt="Rang" class="rank-badge">
@@ -728,6 +728,12 @@
     </div>
     
     <script>
+    function toggleMenu() {
+            const menu = document.getElementById("mobileMenu");
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+        }
+
+
     document.addEventListener('DOMContentLoaded', function() {
         // Tab-Funktionalität
         const tabButtons = document.querySelectorAll('.profile-nav-btn');
