@@ -89,7 +89,7 @@
             border: 1px solid var(--accent-dark);
         }
 
-        .editor-container h3{
+        .ech3{
             text-align: center;
             color: var(--secondary);
             text-decoration: underline;
@@ -243,21 +243,11 @@
             <div class="info-container">
                 <p class="text-center">Hier findest du alle wichtigen Updates und Informationen zu Muscle Up.</p>
                 
-                <!-- Flash-Nachrichten anzeigen -->
-                <div class="flash-messages">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="flash-message flash-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                </div>
                 
                 <!-- Admin-Bereich zum Erstellen von Patchnotes -->
                 {% if admin == true %}
                 <section class="editor-container">
-                    <h3>Neue Patchnote erstellen</h3>
+                    <h3 class="ech3">Neue Patchnote erstellen</h3>
                     <form id="patchnote-form" method="POST" action="{{ url_for('info') }}">
                         <div class="form-group">
                             <label for="patchnote-title">Titel</label>
