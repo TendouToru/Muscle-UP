@@ -7,82 +7,661 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Muscle Up | Fitness-Kalender</title>
+    <style>
+        /* Kalender-spezifische Styles */
+        .calendar-page {
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .calendar-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .calendar-header p {
+            color: var(--text);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .calendar-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--glow-effect);
+            border: 1px solid var(--accent-dark);
+            margin-bottom: 2rem;
+        }
+        
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-dark);
+        }
+        
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .month-nav-btn {
+            background: var(--accent-dark);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .month-nav-btn:hover {
+            background: var(--primary);
+            color: var(--background);
+            transform: scale(1.1);
+        }
+        
+        .current-month {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text);
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .view-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: var(--accent-dark);
+            border: none;
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn.active {
+            background: var(--primary);
+            color: var(--background);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .weekday-header {
+            text-align: center;
+            padding: 1rem 0.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            background-color: var(--accent-dark);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-day {
+            background-color: var(--accent-dark);
+            border-radius: 10px;
+            padding: 0.8rem;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .calendar-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .day-number {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-align: right;
+        }
+        
+        .calendar-day.today .day-number {
+            background-color: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+        }
+        
+        .calendar-day.inactive {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .workout-summary {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .workout-item-mini {
+            background-color: var(--card-bg);
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s ease;
+        }
+        
+        .workout-item-mini:hover {
+            transform: scale(1.02);
+        }
+        
+        .workout-item-mini.strength {
+            border-left: 3px solid var(--strength-color);
+        }
+        
+        .workout-item-mini.cardio {
+            border-left: 3px solid var(--cardio-color);
+        }
+        
+        .workout-item-mini.calistenics {
+            border-left: 3px solid var(--calistenics-color);
+        }
+        
+        .workout-item-mini.restday {
+            border-left: 3px solid var(--restday-color);
+            color: var(--restday-color);
+        }
+        
+        .empty-day {
+            color: #777;
+            font-style: italic;
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+        }
+        
+        .workout-icon {
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .calendar-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--glow-effect);
+            border: 1px solid var(--accent-dark);
+        }
+        
+        .stat-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-dark);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .stat-label {
+            text-align: center;
+            color: var(--text);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .workout-type-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .workout-type-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background-color: var(--accent-dark);
+        }
+        
+        .workout-type-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Workout-Details Overlay */
+        .workout-details-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .workout-details-modal {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-dark);
+            position: relative;
+        }
+        
+        .workout-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .workout-details-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background-color: var(--accent-dark);
+            color: var(--primary);
+        }
+        
+        .workout-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .workout-item-full {
+            background-color: var(--accent-dark);
+            padding: 1.2rem;
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        .workout-item-full:hover {
+            transform: translateX(5px);
+        }
+        
+        .workout-item-full.strength {
+            border-left: 5px solid var(--strength-color);
+        }
+        
+        .workout-item-full.cardio {
+            border-left: 5px solid var(--cardio-color);
+        }
+        
+        .workout-item-full.calistenics {
+            border-left: 5px solid var(--calistenics-color);
+        }
+        
+        .workout-item-full.restday {
+            border-left: 5px solid var(--restday-color);
+        }
+        
+        .workout-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .workout-type {
+            font-weight: bold;
+            text-transform: capitalize;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .workout-type.strength { color: var(--strength-color); }
+        .workout-type.cardio { color: var(--cardio-color); }
+        .workout-type.calistenics { color: var(--calistenics-color); }
+        .workout-type.restday { color: var(--restday-color); }
+        
+        .workout-details-text {
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .workout-sets {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .set-item {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .set-item:last-child {
+            border-bottom: none;
+        }
+        
+        .add-workout-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--accent-dark);
+            text-align: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .calendar-controls {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .month-nav {
+                justify-content: center;
+            }
+            
+            .view-options {
+                justify-content: center;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            
+            .calendar-day {
+                min-height: 100px;
+                padding: 0.6rem;
+            }
+            
+            .day-number {
+                font-size: 1rem;
+            }
+            
+            .workout-item-mini {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.4rem;
+            }
+            
+            .calendar-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .calendar-page {
+                padding: 0.5rem;
+            }
+            
+            .calendar-header h1 {
+                font-size: 2rem;
+            }
+            
+            .calendar-container {
+                padding: 1rem;
+            }
+            
+            .weekday-header {
+                padding: 0.5rem 0.2rem;
+                font-size: 0.8rem;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+            }
+            
+            .day-number {
+                font-size: 0.9rem;
+            }
+            
+            .workout-item-mini {
+                display: none;
+            }
+            
+            .workout-icon {
+                display: block;
+                font-size: 1rem;
+                text-align: center;
+                margin-bottom: 0.2rem;
+            }
+            
+            .calendar-day.has-workouts::after {
+                content: "";
+                width: 6px;
+                height: 6px;
+                background-color: var(--primary);
+                border-radius: 50%;
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .workout-details-modal {
+                padding: 1.5rem;
+            }
+            
+            .workout-details-title {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Animationen */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .calendar-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .workout-details-modal {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
         <header class="head">
             <h1 class="headline">Fitness-Kalender</h1>
             <div class="nav-bar">
-                 <!-- Links: Logo -->
                 <h1 class="headline">Muscle Up</h1>
 
-                <!-- Mitte: Navigation (nur Desktop) -->
                 <nav class="nav-top">
                     <a href="{{ url_for('index') }}" class="link">Start</a>
                     <a href="{{ url_for('workout_page') }}" class="link">Training</a>
                 </nav>
 
-        <!-- Rechts: Userbereich / Login -->
-        {% if 'user_id' in session %}
-        <div class="nav-user">
-            <div class="dropdown">
-                <button class="dropbtn">
-                    <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-     alt="Profil" class="profile-pic"
-     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
-                </button>
-                <div class="dropdown-content">
-                    <span class="username">{{ session['username'] }}</span>
+                {% if 'user_id' in session %}
+                <div class="nav-user">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
+                                 alt="Profil" class="profile-pic"
+                                 onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                        </button>
+                        <div class="dropdown-content">
+                            <span class="username">{{ session['username'] }}</span>
+                            <a href="{{ url_for('profile') }}">Mein Profil</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <nav class="nav-top">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                </nav>
+                {% endif %}
+
+                <button class="hamburger" onclick="toggleMenu()">☰</button>
+            </div>
+
+            <nav class="mobile-menu" id="mobileMenu">
+                <a href="{{ url_for('index') }}">Start</a>
+                {% if 'user_id' in session %}
                     <a href="{{ url_for('profile') }}">Mein Profil</a>
+                    <a href="{{ url_for('workout_page') }}">Training</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrieren</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <main class="content calendar-page">
+            <div class="calendar-header">
+                <h1>Fitness Kalender</h1>
+                <p>Verfolge deine Trainingsfortschritte und bleibe motiviert</p>
+            </div>
+            
+            <div class="calendar-container">
+                <div class="calendar-controls">
+                    <div class="month-nav">
+                        <button class="month-nav-btn" onclick="prevMonth()">←</button>
+                        <div class="current-month" id="currentMonthYear"></div>
+                        <button class="month-nav-btn" onclick="nextMonth()">→</button>
+                    </div>
+                    
+                    <div class="view-options">
+                        <button class="view-btn active">Monat</button>
+                        <button class="view-btn">Woche</button>
+                    </div>
+                </div>
+                
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="weekday-header">Mo</div>
+                    <div class="weekday-header">Di</div>
+                    <div class="weekday-header">Mi</div>
+                    <div class="weekday-header">Do</div>
+                    <div class="weekday-header">Fr</div>
+                    <div class="weekday-header">Sa</div>
+                    <div class="weekday-header">So</div>
+                    
+                    <!-- Calendar days will be generated by JavaScript -->
                 </div>
             </div>
-        </div>
-        {% else %}
-        <nav class="nav-top">
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        </nav>
-        {% endif %}
-
-        <!-- Hamburger Button (nur Mobile) -->
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-    </div>
-
-    <!-- Mobile Menü -->
-    <nav class="mobile-menu" id="mobileMenu">
-        <a href="{{ url_for('index') }}">Start</a>
-
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('profile') }}">Mein Profil</a>
-            <a href="{{ url_for('workout_page') }}">Training</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Registrieren</a>
-        {% endif %}
-    </nav>
-</header>
-
-        <main class="content">
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <button class="month-nav-btn" onclick="prevMonth()">
-                        &lsaquo;
-                    </button>
-                    <h2 id="currentMonthYear"></h2>
-                    <button class="month-nav-btn" onclick="nextMonth()">
-                        &rsaquo;
-                    </button>
+            
+            <div class="calendar-stats">
+                <div class="stat-card">
+                    <h3>Monatsstatistik</h3>
+                    <div class="stat-value" id="workoutsThisMonth">0</div>
+                    <div class="stat-label">Workouts diesen Monat</div>
                 </div>
-                <div class="calendar-grid" id="calendarGrid">
-                    <div class="weekday">Mo</div>
-                    <div class="weekday">Di</div>
-                    <div class="weekday">Mi</div>
-                    <div class="weekday">Do</div>
-                    <div class="weekday">Fr</div>
-                    <div class="weekday">Sa</div>
-                    <div class="weekday">So</div>
+                
+                <div class="stat-card">
+                    <h3>Aktive Serie</h3>
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Tage in Folge</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Workout-Verteilung</h3>
+                    <div class="workout-type-stats">
+                        <div class="workout-type-stat">
+                            <div class="workout-type-name">
+                                <span class="workout-icon">💪</span>
+                                <span>Krafttraining</span>
+                            </div>
+                            <span id="strength-count">0</span>
+                        </div>
+                        <div class="workout-type-stat">
+                            <div class="workout-type-name">
+                                <span class="workout-icon">🏃</span>
+                                <span>Cardio</span>
+                            </div>
+                            <span id="cardio-count">0</span>
+                        </div>
+                        <div class="workout-type-stat">
+                            <div class="workout-type-name">
+                                <span class="workout-icon">🔥</span>
+                                <span>Calisthenics</span>
+                            </div>
+                            <span id="calisthenics-count">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -95,6 +674,7 @@
 <script>
     const workoutsData = {{ workouts | tojson }};
     const headerElement = document.querySelector('header.head');
+    let currentYear, currentMonth;
 
     function generateCalendar(year, month) {
         const grid = document.getElementById('calendarGrid');
@@ -111,6 +691,16 @@
 
         const firstDay = new Date(year, month - 1, 1).getDay();
         const daysInMonth = new Date(year, month, 0).getDate();
+        const today = new Date();
+        
+        // Workout-Statistiken zurücksetzen
+        let workoutsThisMonth = 0;
+        const workoutTypeCount = {
+            strength: 0,
+            cardio: 0,
+            calistenics: 0,
+            restday: 0
+        };
 
         // Leere Zellen für den Start des Monats hinzufügen
         const startDayIndex = firstDay === 0 ? 6 : firstDay - 1; // Sonntag als letzter Tag
@@ -123,6 +713,11 @@
         for (let i = 1; i <= daysInMonth; i++) {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('calendar-day');
+            
+            // Heutigen Tag markieren
+            if (i === today.getDate() && month === today.getMonth() + 1 && year === today.getFullYear()) {
+                dayDiv.classList.add('today');
+            }
 
             const dayNumber = document.createElement('div');
             dayNumber.classList.add('day-number');
@@ -137,7 +732,15 @@
             const workoutsForDay = workoutsData[dateString] || [];
             
             if (workoutsForDay.length > 0) {
+                dayDiv.classList.add('has-workouts');
+                workoutsThisMonth += workoutsForDay.length;
+                
                 workoutsForDay.forEach(workout => {
+                    // Workout-Typ zählen für Statistiken
+                    if (workoutTypeCount.hasOwnProperty(workout.type)) {
+                        workoutTypeCount[workout.type]++;
+                    }
+                    
                     const workoutItem = document.createElement('div');
                     workoutItem.classList.add('workout-item-mini', workout.type);
                     
@@ -178,6 +781,29 @@
                 grid.appendChild(dayDiv);
             }
         }
+        
+        // Statistiken aktualisieren
+        document.getElementById('workoutsThisMonth').textContent = workoutsThisMonth;
+        document.getElementById('strength-count').textContent = workoutTypeCount.strength;
+        document.getElementById('cardio-count').textContent = workoutTypeCount.cardio;
+        document.getElementById('calisthenics-count').textContent = workoutTypeCount.calistenics;
+        
+        // Aktive Serie berechnen (vereinfacht)
+        const streak = calculateStreak(workoutsData);
+        document.getElementById('currentStreak').textContent = streak;
+    }
+
+    function calculateStreak(workouts) {
+        // Vereinfachte Streak-Berechnung
+        let streak = 0;
+        const today = new Date();
+        const todayString = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+        
+        if (workouts[todayString] && workouts[todayString].length > 0) {
+            streak = 1;
+        }
+        
+        return streak;
     }
 
     function toggleHeaderVisibility(visible) {
@@ -188,101 +814,97 @@
         }
     }
 
-    // In der showWorkoutDetails Funktion:
-function showWorkoutDetails(date, workouts) {
-    toggleHeaderVisibility(false);
-    const detailsOverlay = document.createElement('div');
-    detailsOverlay.classList.add('workout-details-overlay');
-    
-    const detailsModal = document.createElement('div');
-    detailsModal.classList.add('workout-details-modal');
-    
-    let detailsHtml = `
-    <div class="workout-details-header">
-        <h3 class="workout-details-title">Workouts am ${date}</h3>
-        <button class="close-btn" onclick="hideWorkoutDetails()">&times;</button>
-    </div>
-    <div class="workout-list">`;
-    
-    if (workouts.length > 0) {
-        workouts.forEach(w => {
-            detailsHtml += `
-            <div class="workout-item-full ${w.type}">
-                <div class="workout-item-header">
-                    <span class="workout-type ${w.type}">
-                        ${w.type === 'calistenics' ? '💪 Calisthenics' : 
-                          w.type === 'cardio' ? '🏃 Cardio' : 
-                          w.type === 'strength' ? '🏋️ Krafttraining' :
-                          w.type === 'restday' ? '🛌 Ruhetag' : w.type}
-                    </span>
-                    <form method="post" action="/delete_workout_from_calendar/${w.id}" class="delete-workout-form">
-                        <button type="submit" class="delete-btn-small">Löschen</button>
-                    </form>
-                </div>
-                <div class="workout-details-text">${w.exercise}</div>
-                <ul class="workout-sets">`;
-            
-            if (w.type === 'cardio') {
-                detailsHtml += `<li class="set-item">Dauer: ${w.duration} Min, Distanz: ${w.distance} Km</li>`;
-            } else if (w.sets) {
-                w.sets.forEach(s => {
-                    detailsHtml += `<li class="set-item">${s.reps} Wiederholungen ${s.weight ? ' | ' + s.weight + 'kg' : ''}</li>`;
-                });
-            }
-            
-            detailsHtml += `
-                </ul>
-            </div>`;
+    function showWorkoutDetails(date, workouts) {
+        toggleHeaderVisibility(false);
+        const detailsOverlay = document.createElement('div');
+        detailsOverlay.classList.add('workout-details-overlay');
+        
+        const detailsModal = document.createElement('div');
+        detailsModal.classList.add('workout-details-modal');
+        
+        let detailsHtml = `
+        <div class="workout-details-header">
+            <h3 class="workout-details-title">Workouts am ${date}</h3>
+            <button class="close-btn" onclick="hideWorkoutDetails()">&times;</button>
+        </div>
+        <div class="workout-list">`;
+        
+        if (workouts.length > 0) {
+            workouts.forEach(w => {
+                detailsHtml += `
+                <div class="workout-item-full ${w.type}">
+                    <div class="workout-item-header">
+                        <span class="workout-type ${w.type}">
+                            ${w.type === 'calistenics' ? '💪 Calisthenics' : 
+                              w.type === 'cardio' ? '🏃 Cardio' : 
+                              w.type === 'strength' ? '🏋️ Krafttraining' :
+                              w.type === 'restday' ? '🛌 Ruhetag' : w.type}
+                        </span>
+                        <form method="post" action="/delete_workout_from_calendar/${w.id}" class="delete-workout-form">
+                            <button type="submit" class="delete-btn-small">Löschen</button>
+                        </form>
+                    </div>
+                    <div class="workout-details-text">${w.exercise}</div>
+                    <ul class="workout-sets">`;
+                
+                if (w.type === 'cardio') {
+                    detailsHtml += `<li class="set-item">Dauer: ${w.duration} Min, Distanz: ${w.distance} Km</li>`;
+                } else if (w.sets) {
+                    w.sets.forEach(s => {
+                        detailsHtml += `<li class="set-item">${s.reps} Wiederholungen ${s.weight ? ' | ' + s.weight + 'kg' : ''}</li>`;
+                    });
+                }
+                
+                detailsHtml += `
+                    </ul>
+                </div>`;
+            });
+        } else {
+            detailsHtml += `<div class="empty-workout">Keine Workouts an diesem Tag</div>`;
+        }
+        
+        // Button zum Hinzufügen von Workouts für dieses Datum
+        detailsHtml += `
+        </div>
+        <div class="add-workout-section">
+            <button onclick="addWorkoutForDate('${date}')" class="button">
+                Workout für diesen Tag hinzufügen
+            </button>
+        </div>`;
+        
+        detailsModal.innerHTML = detailsHtml;
+        detailsOverlay.appendChild(detailsModal);
+        document.body.appendChild(detailsOverlay);
+        
+        // Event-Listener für Lösch-Buttons
+        const deleteForms = detailsModal.querySelectorAll('.delete-workout-form');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (confirm('Möchtest du dieses Workout wirklich löschen?')) {
+                    this.submit();
+                }
+            });
         });
-    } else {
-        detailsHtml += `<div class="empty-workout">Keine Workouts an diesem Tag</div>`;
+    }
+
+    function addWorkoutForDate(date) {
+        // Datum in das Format YYYY-MM-DD konvertieren (von DD.MM.YYYY)
+        const parts = date.split('.');
+        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        
+        // Zur Workout-Seite navigieren mit Datum als Parameter
+        window.location.href = `/workout?date=${formattedDate}`;
     }
     
-    // Button zum Hinzufügen von Workouts für dieses Datum
-    detailsHtml += `
-    </div>
-    <div class="add-workout-section">
-        <button onclick="addWorkoutForDate('${date}')" class="button">
-            Workout für diesen Tag hinzufügen
-        </button>
-    </div>`;
-    
-    detailsModal.innerHTML = detailsHtml;
-    detailsOverlay.appendChild(detailsModal);
-    document.body.appendChild(detailsOverlay);
-    
-    // Event-Listener für Lösch-Buttons
-    const deleteForms = detailsModal.querySelectorAll('.delete-workout-form');
-    deleteForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (confirm('Möchtest du dieses Workout wirklich löschen?')) {
-                this.submit();
-            }
-        });
-    });
-}
-
-// Funktion zum Hinzufügen eines Workouts für ein bestimmtes Datum
-function addWorkoutForDate(date) {
-    // Datum in das Format YYYY-MM-DD konvertieren (von DD.MM.YYYY)
-    const parts = date.split('.');
-    const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-    
-    // Zur Workout-Seite navigieren mit Datum als Parameter
-    window.location.href = `/workout?date=${formattedDate}`;
-}
-    
     function hideWorkoutDetails() {
-        toggleHeaderVisibility(true); // Zeigt die Navigationsleiste wieder an
+        toggleHeaderVisibility(true);
         const detailsOverlay = document.querySelector('.workout-details-overlay');
         if (detailsOverlay) {
             detailsOverlay.remove();
         }
     }
 
-    let currentYear, currentMonth;
-    
     function updateDate() {
         const today = new Date();
         currentYear = today.getFullYear();
