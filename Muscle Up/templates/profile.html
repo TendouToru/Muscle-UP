@@ -38,7 +38,6 @@
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 2rem;
-            align-items: start;
         }
         
         .profile-sidebar {
@@ -67,6 +66,11 @@
             margin-bottom: 0.5rem;
         }
         
+        .profile-content > .profile-sidebar > .profile-card:first-child,
+        .profile-content > .profile-main > .profile-card:first-child{
+            min-height: 380px;
+        }
+
         .profile-pic-container {
             display: flex;
             flex-direction: column;
@@ -253,12 +257,12 @@
             box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3);
         }
         
-        .form-group input:disabled,
-        .form-group select:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+
+        .edit-mode .form-group input,
+        .edit-mode .form-group select {
+            border: 0, 0, 0, 4px, gold;
         }
-        
+
         .form-actions {
             display: flex;
             gap: 1rem;
