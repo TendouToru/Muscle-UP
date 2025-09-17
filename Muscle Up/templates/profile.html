@@ -255,8 +255,8 @@
         }
         
 
-        .edit-mode .form-group input,
-        .edit-mode .form-group select {
+        .form-group input:enabled,
+        .form-group select:enabled {
             box-shadow: 0 0 0 4px gold;
         }
 
@@ -570,7 +570,7 @@
                                             {% elif profile.region == 'us' %}USA
                                             {% elif profile.region == 'gb' %}Großbritannien
                                             {% elif profile.region == 'fr' %}Frankreich
-                                            {% else %}Land auswählen{% endif %}
+                                            {% else %}Land auswählen...{% endif %}
                                         </span>
                                     </button>
                                     <input type="hidden" name="region" id="regionInput" value="{{ profile.region or 'de' }}" disabled>
@@ -604,14 +604,14 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="username">Anzeigename</label>
+                                    <label for="username">Anzeigename:</label>
                                     <input type="text" id="username" placeholder="Dein Anzeigename" name="username" value="{{ profile.name or '' }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="gender">Geschlecht</label>
+                                    <label for="gender">Geschlecht:</label>
                                     <select name="gender" id="gender" disabled>
-                                        <option value="">Bitte auswählen</option>
+                                        <option value="">Bitte auswählen...</option>
                                         <option value="male" {% if profile and profile.gender == "male" %}selected{% endif %}>Männlich</option>
                                         <option value="female" {% if profile and profile.gender == "female" %}selected{% endif %}>Weiblich</option>
                                         <option value="divers" {% if profile and profile.gender == "divers" %}selected{% endif %}>Divers</option>
@@ -619,17 +619,17 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="age">Alter</label>
+                                    <label for="age">Alter:</label>
                                     <input type="number" id="age" placeholder="Dein Alter" name="age" value="{{ profile.age }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="bodyweight">Körpergewicht (kg)</label>
+                                    <label for="bodyweight">Körpergewicht (kg):</label>
                                     <input type="number" id="bodyweight" placeholder="Gewicht in kg" step="0.1" name="bodyweight" value="{{ profile.bodyweight or '' }}" disabled>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="height">Größe (cm)</label>
+                                    <label for="height">Größe (cm):</label>
                                     <input type="number" id="height" placeholder="Größe in cm" name="height" value="{{ profile.height or '' }}" disabled>
                                 </div>
                                 
@@ -651,16 +651,16 @@
                             
                             <div class="stats-grid">
                                 <div class="stat-item">
-                                    <div class="stat-value">{{ level }}</div>
                                     <div class="stat-label">Level</div>
+                                    <div class="stat-value">{{ level }}</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">{{ xp_remaining }}</div>
                                     <div class="stat-label">Aktuelle XP</div>
+                                    <div class="stat-value">{{ xp_remaining }}</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">{{ xp_for_next }}</div>
                                     <div class="stat-label">XP bis Level {{ level + 1 }}</div>
+                                    <div class="stat-value">{{ xp_for_next }}</div>
                                 </div>
                             </div>
                             
@@ -696,7 +696,7 @@
                             </div>
                             {% endif %}
                             
-                            <h3 style="margin-top: 1.5rem;">Attribute</h3>
+                            <h3 style="margin-top: 1.5rem; text-align: center; color: var(--primary);">Attribute</h3>
                             <div class="attribute-grid">
                                 <div class="attribute-card">
                                     <div class="attribute-icon">💪</div>
