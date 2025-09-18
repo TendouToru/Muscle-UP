@@ -678,13 +678,12 @@
                                 </div>
                             </div>
 
-                            {% if stats.streak_days ==0 %}
+                            {% if stats.streak_days <= 1 %}
                             <div class="streak-display">
                                 <div class="streak-count">{{ stats.streak_days }}</div>
                                 <div class="streak-label">Tag aktive Serie 🔥</div>
                             </div>
-                            {% endif %}
-                            {% if stats.streak_days > 1 %}
+                            {% elif stats.streak_days > 1 %}
                             <div class="streak-display">
                                 <div class="streak-count">{{ stats.streak_days }}</div>
                                 <div class="streak-label">Tage aktive Serie 🔥</div>
