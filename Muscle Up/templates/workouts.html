@@ -1026,22 +1026,22 @@
                 });
             }
             
-            // AJAX-Anfrage zum Speichern
-            fetch("{{ url_for('save_workout') }}", {
+            // AJAX-Anfrage zum Speichern - KORRIGIERTER ENDPUNKT
+            fetch("{{ url_for('add_workout_for_date') }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    exercise: selectedExercise,
+                    exercise_name: selectedExercise,
                     sets: sets,
                     date: selectedDate,
-                    type: 'classic'
+                    type: "strength"
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (response.ok) {
                     alert('Workout erfolgreich gespeichert!');
                     // Formular zurücksetzen
                     classicForm.style.display = 'none';
@@ -1054,7 +1054,7 @@
                     // Übersicht aktualisieren
                     location.reload();
                 } else {
-                    alert('Fehler beim Speichern: ' + data.message);
+                    alert('Fehler beim Speichern: ' + data.error);
                 }
             })
             .catch(error => {
@@ -1115,22 +1115,22 @@
                 return;
             }
             
-            // AJAX-Anfrage zum Speichern
-            fetch("{{ url_for('save_workout') }}", {
+            // AJAX-Anfrage zum Speichern - KORRIGIERTER ENDPUNKT
+            fetch("{{ url_for('add_workout_for_date') }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    exercise: currentExerciseName,
+                    exercise_name: currentExerciseName,
                     sets: individualSets,
                     date: selectedDate,
-                    type: 'individual'
+                    type: "strength"
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (response.ok) {
                     alert('Übung erfolgreich gespeichert!');
                     // Formular zurücksetzen
                     exerciseContainer.style.display = 'none';
@@ -1141,7 +1141,7 @@
                     // Übersicht aktualisieren
                     location.reload();
                 } else {
-                    alert('Fehler beim Speichern: ' + data.message);
+                    alert('Fehler beim Speichern: ' + data.error);
                 }
             })
             .catch(error => {
@@ -1200,22 +1200,22 @@
                 return;
             }
             
-            // AJAX-Anfrage zum Speichern
-            fetch("{{ url_for('save_workout') }}", {
+            // AJAX-Anfrage zum Speichern - KORRIGIERTER ENDPUNKT
+            fetch("{{ url_for('add_workout_for_date') }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    exercise: calExerciseName,
+                    exercise_name: calExerciseName,
                     sets: calSets,
                     date: selectedDate,
-                    type: 'calisthenics'
+                    type: "calistenics"
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (response.ok) {
                     alert('Übung erfolgreich gespeichert!');
                     // Formular zurücksetzen
                     calExContainer.style.display = 'none';
@@ -1226,7 +1226,7 @@
                     // Übersicht aktualisieren
                     location.reload();
                 } else {
-                    alert('Fehler beim Speichern: ' + data.message);
+                    alert('Fehler beim Speichern: ' + data.error);
                 }
             })
             .catch(error => {
@@ -1257,7 +1257,7 @@
                 const type = this.getAttribute('data-type');
                 const data = {
                     type: 'cardio',
-                    exercise: type,
+                    exercise_type: type,
                     date: selectedDate
                 };
                 
@@ -1266,8 +1266,8 @@
                     data[key] = value;
                 }
                 
-                // AJAX-Anfrage zum Speichern
-                fetch("{{ url_for('save_workout') }}", {
+                // AJAX-Anfrage zum Speichern - KORRIGIERTER ENDPUNKT
+                fetch("{{ url_for('add_workout_for_date') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1276,7 +1276,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
+                    if (response.ok) {
                         alert('Cardio-Training erfolgreich gespeichert!');
                         // Formular zurücksetzen
                         this.reset();
@@ -1287,7 +1287,7 @@
                         // Übersicht aktualisieren
                         location.reload();
                     } else {
-                        alert('Fehler beim Speichern: ' + data.message);
+                        alert('Fehler beim Speichern: ' + data.error);
                     }
                 })
                 .catch(error => {
@@ -1317,7 +1317,7 @@
             workoutDateHeader.textContent = `Training - ${formattedDate}`;
             
             // Seite neu laden, um die Workouts für das ausgewählte Datum anzuzeigen
-            window.location.href = `{{ url_for('workout') }}?date=${selectedDate}`;
+            window.location.href = `{{ url_for('workout_page') }}?date=${selectedDate}`;
         });
     });
 </script>
