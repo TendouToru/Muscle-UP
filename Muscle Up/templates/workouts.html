@@ -116,11 +116,13 @@
         .exercise-icon {
             font-size: 2rem;
             margin-bottom: 0.5rem;
+            color: var(--text);
         }
         
         .exercise-name {
             font-weight: 500;
             font-size: 0.9rem;
+            color: var(--text);
         }
         
         /* Gemeinsames Formular-Design für alle Workout-Typen */
@@ -195,6 +197,7 @@
             flex: 1;
             min-width: 60px;
             background-color: var(--background);
+            color: var(--text);
         }
         
         .remove-set {
@@ -285,19 +288,83 @@
             border: 1px solid var(--accent-dark);
         }
         
-        .cardio-form form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .cardio-form.active {
+            display: block;
         }
         
-        .cardio-form input {
-            padding: 0.8rem;
-            border-radius: 8px;
+        .cardio-dash {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cardio-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
+        }
+        
+        .cardio-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+        
+        .cardio-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        /* Übersicht Tab Styles */
+        .overview {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        @media (min-width: 992px) {
+            .overview {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        #workout-overview, #cardio-overview, #calistenics-overview {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px var(--secondary), 0 4px 15px rgba(0,0,0,0.5);
             border: 1px solid var(--accent-dark);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 1rem;
+        }
+        
+        .completed-exercise {
+            background-color: var(--accent-dark);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .completed-exercise h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        
+        .completed-exercise ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
         }
         
         /* Mobile Optimierungen */
@@ -345,6 +412,10 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            
+            .cardio-dash {
+                grid-template-columns: 1fr;
+            }
         }
         
         @media (min-width: 769px) {
@@ -366,6 +437,45 @@
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Datumsauswahl */
+        .date-selection {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .date-selection label {
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        .date-selection input {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--accent-dark);
+            background-color: var(--background);
+            color: var(--text);
+        }
+        
+        /* Button Styles */
+        .button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        
+        .button:hover {
+            background-color: var(--secondary);
         }
     </style>
 </head>
@@ -815,17 +925,6 @@
             const exercise = exerciseSelect.value;
             if (exercise) {
                 selectExercise(exercise);
-                
-                // Entsprechende Card markieren (für Konsistenz)
-                exerciseCards.forEach(card => {
-                    if (card.getAttribute('data-exercise') === exercise) {
-                        card.classList.add('selected');
-                    } else {
-                        card.classList.remove('selected');
-                    }
-                });
-            } else {
-                resetClassicForm();
             }
         });
         
@@ -841,16 +940,13 @@
             setCount = 1;
             addSet();
             
-            // Zum Formular scrollen (nur auf Mobile relevant)
-            if (window.innerWidth <= 768) {
-                classicForm.scrollIntoView({ behavior: 'smooth' });
-            }
+            // Scroll zum Formular
+            classicForm.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Satz hinzufügen
         function addSet() {
             const setItem = document.createElement('div');
-            setItem.classList.add('set-item');
+            setItem.className = 'set-item';
             setItem.innerHTML = `
                 <span class="set-number">${setCount}</span>
                 <div class="set-inputs">
@@ -859,475 +955,371 @@
                 </div>
                 <button class="remove-set">&times;</button>
             `;
-            setsContainer.appendChild(setItem);
-            setCount++;
             
-            // Event-Listener für Entfernen-Button
-            setItem.querySelector('.remove-set').addEventListener('click', () => {
-                if (setsContainer.children.length > 1) {
+            // Entfernen-Button Event hinzufügen
+            setItem.querySelector('.remove-set').addEventListener('click', function() {
+                if (setCount > 1) {
                     setItem.remove();
                     updateSetNumbers();
+                    setCount--;
                 }
             });
+            
+            setsContainer.appendChild(setItem);
+            setCount++;
         }
         
-        // Satznummern aktualisieren
         function updateSetNumbers() {
-            const setItems = setsContainer.querySelectorAll('.set-item');
-            setItems.forEach((item, index) => {
-                item.querySelector('.set-number').textContent = index + 1;
+            const setNumbers = setsContainer.querySelectorAll('.set-number');
+            setNumbers.forEach((number, index) => {
+                number.textContent = index + 1;
             });
-            setCount = setItems.length + 1;
         }
         
-        // Event-Listener für Satz hinzufügen
         addSetBtn.addEventListener('click', addSet);
         
-        // Workout speichern
-        saveWorkoutBtn.addEventListener('click', async () => {
-            if (!selectedExercise) {
-                alert('Bitte wähle zuerst eine Übung aus.');
-                return;
-            }
-            
-            const sets = [];
-            const setItems = setsContainer.querySelectorAll('.set-item');
-            
-            for (const item of setItems) {
-                const weight = item.querySelector('.set-weight').value;
-                const reps = item.querySelector('.set-reps').value;
-                
-                if (!weight || !reps) {
-                    alert('Bitte fülle alle Felder aus.');
-                    return;
-                }
-                
-                sets.push({
-                    weight: parseFloat(weight),
-                    reps: parseInt(reps)
-                });
-            }
-            
-            // Verwende die vorhandene Route für Krafttraining
-            const data = {
-                exercise_name: selectedExercise,
-                sets: sets,
-                date: selectedDate,
-                type: "strength"
-            };
-            
-            try {
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    alert(`Workout erfolgreich gespeichert! ${result.xp_gained} XP erhalten.`);
-                    loadWorkoutsForDate(selectedDate);
-                    resetClassicForm();
-                    
-                    // Zum Übersicht-Tab wechseln
-                    document.querySelector('[data-tab="overview"]').click();
-                } else {
-                    alert('Fehler: ' + result.error);
-                }
-            } catch (error) {
-                alert('Fehler beim Speichern des Workouts.');
-                console.error(error);
-            }
-        });
-        
-        // Formular zurücksetzen
-        function resetClassicForm() {
-            exerciseCards.forEach(c => c.classList.remove('selected'));
-            exerciseSelect.value = "";
+        cancelWorkoutBtn.addEventListener('click', function() {
             classicForm.style.display = 'none';
             selectedExercise = null;
-            setsContainer.innerHTML = '';
-            setCount = 1;
-            addSet();
-        }
+            exerciseSelect.value = '';
+            document.querySelectorAll('.exercise-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        });
         
-        // Abbrechen-Button
-        cancelWorkoutBtn.addEventListener('click', resetClassicForm);
-        
- 
-            // Rest des bestehenden JavaScript-Codes...
-        const dateInput = document.getElementById('workout-date');
-        const setDateBtn = document.getElementById('set-date-btn');
-        const dateHeader = document.getElementById('workout-date-header');
-        const restdayDateInput = document.getElementById('restday-date');
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Maximal heute erlauben
-        dateInput.max = today;
-        
-        // Header initialisieren
-        updateHeader(selectedDate);
-        
-        // Beim Klick auf den Button das Datum übernehmen
-        setDateBtn.addEventListener('click', function() {
-            const newDate = dateInput.value;
-            if (!newDate) {
-                alert('Bitte wählen Sie ein Datum aus.');
+        saveWorkoutBtn.addEventListener('click', function() {
+            // Validierung
+            const weightInputs = setsContainer.querySelectorAll('.set-weight');
+            const repsInputs = setsContainer.querySelectorAll('.set-reps');
+            
+            let isValid = true;
+            
+            weightInputs.forEach(input => {
+                if (!input.value || input.value <= 0) {
+                    isValid = false;
+                    input.style.borderColor = 'red';
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+            
+            repsInputs.forEach(input => {
+                if (!input.value || input.value <= 0) {
+                    isValid = false;
+                    input.style.borderColor = 'red';
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+            
+            if (!isValid) {
+                alert('Bitte fülle alle Felder mit gültigen Werten aus.');
                 return;
             }
             
-            selectedDate = newDate;
-            if (restdayDateInput) {
-                restdayDateInput.value = newDate;
+            // Daten sammeln
+            const sets = [];
+            for (let i = 0; i < weightInputs.length; i++) {
+                sets.push({
+                    weight: parseFloat(weightInputs[i].value),
+                    reps: parseInt(repsInputs[i].value)
+                });
             }
             
-            updateHeader(selectedDate);
-            loadWorkoutsForDate(selectedDate);
+            // AJAX-Anfrage zum Speichern
+            fetch("{{ url_for('save_workout') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exercise: selectedExercise,
+                    sets: sets,
+                    date: selectedDate,
+                    type: 'classic'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Workout erfolgreich gespeichert!');
+                    // Formular zurücksetzen
+                    classicForm.style.display = 'none';
+                    selectedExercise = null;
+                    exerciseSelect.value = '';
+                    document.querySelectorAll('.exercise-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    // Übersicht aktualisieren
+                    location.reload();
+                } else {
+                    alert('Fehler beim Speichern: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ein Fehler ist aufgetreten.');
+            });
         });
         
-        // Workouts für ein bestimmtes Datum laden
-        function loadWorkoutsForDate(date) {
-            fetch(`/get_workouts_for_date?date=${date}`)
+        // Individuelles Workout - Krafttraining
+        const exerciseForm = document.getElementById('exercise-form');
+        const exerciseContainer = document.getElementById('exercise-container');
+        const currentExercise = document.getElementById('current-exercise');
+        const setForm = document.getElementById('set-form');
+        const setsList = document.getElementById('sets-list');
+        const finishExerciseBtn = document.getElementById('finish-exercise');
+        
+        let currentExerciseName = '';
+        let individualSets = [];
+        
+        exerciseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            currentExerciseName = document.getElementById('exercise-name').value;
+            if (!currentExerciseName) return;
+            
+            currentExercise.textContent = currentExerciseName;
+            exerciseForm.style.display = 'none';
+            exerciseContainer.style.display = 'block';
+            individualSets = [];
+            setsList.innerHTML = '';
+        });
+        
+        setForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const weight = parseFloat(document.getElementById('weight').value);
+            const reps = parseInt(document.getElementById('reps').value);
+            
+            if (!weight || !reps || weight <= 0 || reps <= 0) {
+                alert('Bitte gültige Werte eingeben.');
+                return;
+            }
+            
+            // Set zur Liste hinzufügen
+            individualSets.push({ weight, reps });
+            
+            // Set in der UI anzeigen
+            const setItem = document.createElement('li');
+            setItem.textContent = `Gewicht: ${weight} kg, Wiederholungen: ${reps}`;
+            setsList.appendChild(setItem);
+            
+            // Formular zurücksetzen
+            document.getElementById('weight').value = '';
+            document.getElementById('reps').value = '';
+        });
+        
+        finishExerciseBtn.addEventListener('click', function() {
+            if (individualSets.length === 0) {
+                alert('Bitte füge mindestens einen Satz hinzu.');
+                return;
+            }
+            
+            // AJAX-Anfrage zum Speichern
+            fetch("{{ url_for('save_workout') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exercise: currentExerciseName,
+                    sets: individualSets,
+                    date: selectedDate,
+                    type: 'individual'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Übung erfolgreich gespeichert!');
+                    // Formular zurücksetzen
+                    exerciseContainer.style.display = 'none';
+                    exerciseForm.style.display = 'block';
+                    document.getElementById('exercise-name').value = '';
+                    setsList.innerHTML = '';
+                    
+                    // Übersicht aktualisieren
+                    location.reload();
+                } else {
+                    alert('Fehler beim Speichern: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ein Fehler ist aufgetreten.');
+            });
+        });
+        
+        // Individuelles Workout - Calisthenics
+        const calExForm = document.getElementById('cal-ex-form');
+        const calExContainer = document.getElementById('cal-ex-container');
+        const calCurrentEx = document.getElementById('cal-current-ex');
+        const calSetForm = document.getElementById('cal-set-form');
+        const calSetsList = document.getElementById('cal-sets-list');
+        const calFinishExerciseBtn = document.getElementById('cal-finish-exercise');
+        
+        let calExerciseName = '';
+        let calSets = [];
+        
+        calExForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calExerciseName = document.getElementById('cal-ex-name').value;
+            if (!calExerciseName) return;
+            
+            calCurrentEx.textContent = calExerciseName;
+            calExForm.style.display = 'none';
+            calExContainer.style.display = 'block';
+            calSets = [];
+            calSetsList.innerHTML = '';
+        });
+        
+        calSetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const reps = parseInt(document.getElementById('cal-reps').value);
+            
+            if (!reps || reps <= 0) {
+                alert('Bitte gültige Werte eingeben.');
+                return;
+            }
+            
+            // Set zur Liste hinzufügen
+            calSets.push({ reps });
+            
+            // Set in der UI anzeigen
+            const setItem = document.createElement('li');
+            setItem.textContent = `Wiederholungen: ${reps}`;
+            calSetsList.appendChild(setItem);
+            
+            // Formular zurücksetzen
+            document.getElementById('cal-reps').value = '';
+        });
+        
+        calFinishExerciseBtn.addEventListener('click', function() {
+            if (calSets.length === 0) {
+                alert('Bitte füge mindestens einen Satz hinzu.');
+                return;
+            }
+            
+            // AJAX-Anfrage zum Speichern
+            fetch("{{ url_for('save_workout') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exercise: calExerciseName,
+                    sets: calSets,
+                    date: selectedDate,
+                    type: 'calisthenics'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Übung erfolgreich gespeichert!');
+                    // Formular zurücksetzen
+                    calExContainer.style.display = 'none';
+                    calExForm.style.display = 'block';
+                    document.getElementById('cal-ex-name').value = '';
+                    calSetsList.innerHTML = '';
+                    
+                    // Übersicht aktualisieren
+                    location.reload();
+                } else {
+                    alert('Fehler beim Speichern: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ein Fehler ist aufgetreten.');
+            });
+        });
+        
+        // Cardio Workouts
+        const cardioCards = document.querySelectorAll('.cardio-card');
+        const cardioForms = document.querySelectorAll('.cardio-form > div');
+        
+        cardioCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const target = card.getAttribute('data-target');
+                cardioForms.forEach(form => {
+                    form.style.display = form.id === target ? 'block' : 'none';
+                });
+            });
+        });
+        
+        // Cardio-Formulare abschicken
+        document.querySelectorAll('.cardio-form form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const type = this.getAttribute('data-type');
+                const data = {
+                    type: 'cardio',
+                    exercise: type,
+                    date: selectedDate
+                };
+                
+                // Formulardaten sammeln
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // AJAX-Anfrage zum Speichern
+                fetch("{{ url_for('save_workout') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
                 .then(response => response.json())
                 .then(data => {
-                    updateWorkoutDisplay(data);
+                    if (data.success) {
+                        alert('Cardio-Training erfolgreich gespeichert!');
+                        // Formular zurücksetzen
+                        this.reset();
+                        cardioForms.forEach(form => {
+                            form.style.display = 'none';
+                        });
+                        
+                        // Übersicht aktualisieren
+                        location.reload();
+                    } else {
+                        alert('Fehler beim Speichern: ' + data.message);
+                    }
                 })
                 .catch(error => {
-                    console.error('Fehler beim Laden der Workouts:', error);
+                    console.error('Error:', error);
+                    alert('Ein Fehler ist aufgetreten.');
                 });
-        }
+            });
+        });
         
-        // Anzeige der Workouts aktualisieren
-        function updateWorkoutDisplay(workoutsData) {
-            // Krafttraining-Übungen aktualisieren
-            const completedExercises = document.getElementById('completed-exercises');
-            completedExercises.innerHTML = '';
-            
-            if (workoutsData.strength_workouts && workoutsData.strength_workouts.length > 0) {
-                workoutsData.strength_workouts.forEach(exercise => {
-                    const exerciseEl = document.createElement('div');
-                    exerciseEl.className = 'completed-exercise';
-                    exerciseEl.innerHTML = `
-                        <h4>${exercise.exercise}</h4>
-                        <ul>
-                            ${exercise.sets.map(s => `<li>Gewicht: ${s.weight} kg <br> Wiederholungen: ${s.reps}</li>`).join('')}
-                        </ul>
-                        <form method="post" action="/delete_workout/${exercise.id}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    `;
-                    completedExercises.appendChild(exerciseEl);
-                });
-            } else {
-                completedExercises.innerHTML = '<p>Keine Kraftübungen an diesem Tag</p>';
-            }
-            
-            // Cardio-Übungen aktualisieren
-            const completedCardio = document.getElementById('completed-cardio-exercises');
-            completedCardio.innerHTML = '';
-            
-            if (workoutsData.cardio_workouts && workoutsData.cardio_workouts.length > 0) {
-                workoutsData.cardio_workouts.forEach(workout => {
-                    const workoutEl = document.createElement('div');
-                    workoutEl.className = 'completed-exercise';
-                    workoutEl.innerHTML = `
-                        <h4>${workout.exercise}</h4>
-                        <p>
-                            Dauer: ${workout.duration} min
-                            ${workout.distance && workout.distance > 0 ? `| Strecke: ${workout.distance} km` : ''}
-                        </p>
-                        <form method="post" action="/delete_workout/${workout.id}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    `;
-                    completedCardio.appendChild(workoutEl);
-                });
-            } else {
-                completedCardio.innerHTML = '<p>Keine Cardio-Übungen an diesem Tag</p>';
-            }
-            
-            // Calisthenics-Übungen aktualisieren
-            const completedCalisthenics = document.getElementById('completed-calistenics-exercises');
-            completedCalisthenics.innerHTML = '';
-            
-            if (workoutsData.calisthenics_workouts && workoutsData.calisthenics_workouts.length > 0) {
-                workoutsData.calisthenics_workouts.forEach(exercise => {
-                    const exerciseEl = document.createElement('div');
-                    exerciseEl.className = 'completed-exercise';
-                    exerciseEl.innerHTML = `
-                        <h4>${exercise.exercise}</h4>
-                        <ul>
-                            ${exercise.sets.map(s => `<li>Wiederholungen: ${s.reps}</li>`).join('')}
-                        </ul>
-                        <form method="post" action="/delete_workout/${exercise.id}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    `;
-                    completedCalisthenics.appendChild(exerciseEl);
-                });
-            } else {
-                completedCalisthenics.innerHTML = '<p>Keine Calisthenics-Übungen an diesem Tag</p>';
-            }
-        }
+        // Datumsauswahl
+        const dateInput = document.getElementById('workout-date');
+        const setDateBtn = document.getElementById('set-date-btn');
+        const restdayDateInput = document.getElementById('restday-date');
+        const workoutDateHeader = document.getElementById('workout-date-header');
         
-        // Header mit formatiertem Datum aktualisieren
-        function updateHeader(date) {
-            const formattedDate = new Date(date).toLocaleDateString('de-DE', {
+        setDateBtn.addEventListener('click', function() {
+            selectedDate = dateInput.value;
+            restdayDateInput.value = selectedDate;
+            
+            // Header aktualisieren
+            const formattedDate = new Date(selectedDate).toLocaleDateString('de-DE', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
+            workoutDateHeader.textContent = `Training - ${formattedDate}`;
             
-            dateHeader.textContent = `Training am ${formattedDate}`;
-        }
-        
-        // Initial Workouts laden
-        loadWorkoutsForDate(selectedDate);
-
-        // Rest des bestehenden JavaScript-Codes...
-        const kraftTrainingBtn = document.getElementById('kraft-training-btn');
-        const cardioBtn = document.getElementById('cardio-btn');
-        const calBtn = document.getElementById('calestenics-btn');
-        const kraftTrainingContainer = document.getElementById('kraft-training');
-        const cardioContainer = document.getElementById('cardio');
-        const cardioCards = document.querySelectorAll('.cardio-card');
-        const cardioForms = document.querySelectorAll('.cardio-form');
-        const calContainer = document.getElementById('calestenics');
-
-        kraftTrainingBtn.addEventListener('click', function() {
-            kraftTrainingContainer.style.display = 'flex';
-            cardioContainer.style.display = 'none';
-            calContainer.style.display = 'none';
+            // Seite neu laden, um die Workouts für das ausgewählte Datum anzuzeigen
+            window.location.href = `{{ url_for('workout') }}?date=${selectedDate}`;
         });
-
-        cardioBtn.addEventListener('click', function() {
-            kraftTrainingContainer.style.display = 'none';
-            cardioContainer.style.display = 'block';
-            calContainer.style.display = 'none';
-        });
-
-        calBtn.addEventListener('click', function(){
-            kraftTrainingContainer.style.display = 'none';
-            cardioContainer.style.display = 'none';
-            calContainer.style.display = 'flex';
-        });
-
-        cardioCards.forEach(card => {
-            card.addEventListener('click', function() {
-                const targetId = this.dataset.target;
-                cardioForms.forEach(form => {
-                    form.style.display = 'none';
-                });
-                document.getElementById(targetId).style.display = 'flex';
-            });
-        });
-
-        // Formular-Handling für Krafttraining 
-        const exerciseForm = document.getElementById('exercise-form');
-        const setForm = document.getElementById('set-form');
-        const finishExerciseBtn = document.getElementById('finish-exercise');
-        const exerciseContainer = document.getElementById('exercise-container');
-        const currentExerciseDisplay = document.getElementById('current-exercise');
-        const setsList = document.getElementById('sets-list');
-        let currentSets = [];
-        let currentExerciseName = "";
-
-        exerciseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            currentExerciseName = document.getElementById('exercise-name').value;
-            currentExerciseDisplay.textContent = currentExerciseName;
-            exerciseForm.style.display = 'none';
-            exerciseContainer.style.display = 'block';
-            setsList.innerHTML = '';
-            currentSets = [];
-        });
-
-        setForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const weight = document.getElementById('weight').value;
-            const reps = document.getElementById('reps').value;
-            if (weight && reps) {
-                const set = { weight: parseFloat(weight), reps: parseInt(reps) };
-                currentSets.push(set);
-                const li = document.createElement('li');
-                li.innerHTML = `Gewicht: ${weight} kg | Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
-                setsList.appendChild(li);
-                document.getElementById('weight').value = '';
-                document.getElementById('reps').value = '';
-            }
-        });
-
-        setsList.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-set')) {
-                const li = e.target.closest('li');
-                const index = Array.from(setsList.children).indexOf(li);
-                if (index > -1) {
-                    currentSets.splice(index, 1);
-                    li.remove();
-                }
-            }
-        });
-
-        finishExerciseBtn.addEventListener('click', async function() {
-            if (currentSets.length > 0) {
-                const data = {
-                    exercise_name: currentExerciseName,
-                    sets: currentSets,
-                    date: selectedDate,
-                    type: "strength"
-                };
-                
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    exerciseForm.style.display = 'flex';
-                    exerciseContainer.style.display = 'none';
-                    document.getElementById('exercise-name').value = '';
-                } else {
-                    alert('Fehler: ' + result.error);
-                }
-            }
-        });
-
-        // Formular-Handling für Kardio
-        const cardioFormsArray = Array.from(document.querySelectorAll('.cardio-form form'));
-        cardioFormsArray.forEach(form => {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const workoutType = this.dataset.type;
-                const duration = this.querySelector('input[name="duration"]').value;
-                
-                let data = {
-                    type: "cardio",
-                    date: selectedDate,
-                    exercise_type: workoutType,
-                    duration: parseFloat(duration)
-                };
-
-                if (workoutType === 'Laufen' || workoutType === 'Schwimmen') {
-                    const distance = this.querySelector('input[name="distance"]').value;
-                    if (distance) {
-                        data.distance = parseFloat(distance);
-                    }
-                } else if (workoutType === 'Spielsport') {
-                    const sportart = this.querySelector('input[name="sportart"]').value;
-                    data.sportart = sportart;
-                    data.exercise_name = sportart;
-                } else {
-                    data.exercise_name = workoutType;
-                }
-                
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    this.reset();
-                } else {
-                    alert('Fehler: ' + result.error);
-                }
-            });
-        });
-
-        // Calisthenics Formular-Handling
-        const calExForm = document.getElementById('cal-ex-form');
-        const calSetForm = document.getElementById('cal-set-form');
-        const calFinishExerciseBtn = document.getElementById('cal-finish-exercise');
-        const calExContainer = document.getElementById('cal-ex-container');
-        const calCurrentExDisplay = document.getElementById('cal-current-ex');
-        const calSetsList = document.getElementById('cal-sets-list');
-        let calCurrentSets = [];
-        let calCurrentExerciseName = "";
-
-        calExForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            calCurrentExerciseName = document.getElementById('cal-ex-name').value;
-            calCurrentExDisplay.textContent = calCurrentExerciseName;
-            calExForm.style.display = 'none';
-            calExContainer.style.display = 'block';
-            calSetsList.innerHTML = '';
-            calCurrentSets = [];
-        });
-
-        calSetForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const reps = document.getElementById('cal-reps').value;
-            if (reps) {
-                const set = { reps: parseInt(reps) };
-                calCurrentSets.push(set);
-                const li = document.createElement('li');
-                li.innerHTML = `Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
-                calSetsList.appendChild(li);
-                document.getElementById('cal-reps').value = '';
-            }
-        });
-
-        calSetsList.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-set')) {
-                const li = e.target.closest('li');
-                const index = Array.from(calSetsList.children).indexOf(li);
-                if (index > -1) {
-                    calCurrentSets.splice(index, 1);
-                    li.remove();
-                }
-            }
-        });
-
-        calFinishExerciseBtn.addEventListener('click', async function() {
-            if (calCurrentSets.length > 0) {
-                const data = {
-                    exercise_name: calCurrentExerciseName,
-                    sets: calCurrentSets,
-                    date: selectedDate,
-                    type: "calistenics"
-                };
-                
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    calExForm.style.display = 'flex';
-                    calExContainer.style.display = 'none';
-                    document.getElementById('cal-ex-name').value = '';
-                } else {
-                    alert('Fehler: ' + result.error);
-                }
-            }
-        });
-    }); 
-
-    function toggleMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('active');
-    }
+    });
 </script>
 </body>
 </html>
