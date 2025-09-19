@@ -936,7 +936,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Globale Variablen
     let selectedDate = "{{ today }}";
     let setCount = 1;
@@ -1091,12 +1091,13 @@
         }
         
         const payload = {
+            type: 'strength',
             exercise_name: selectedExercise,
             sets: sets,
             date: selectedDate
         };
         console.log('Sending Strength payload:', payload);
-        sendWorkout('/workout', payload, 'classic-error');
+        sendWorkout('/add_workout_for_date', payload, 'classic-error');
     });
     
     // Strength Individuell
@@ -1144,12 +1145,13 @@
         }
         const name = currentEx.textContent;
         const payload = {
+            type: 'strength',
             exercise_name: name,
             sets: individualSets,
             date: selectedDate
         };
         console.log('Sending Strength payload:', payload);
-        sendWorkout('/workout', payload, 'strength-error');
+        sendWorkout('/add_workout_for_date', payload, 'strength-error');
     });
     
     // Calisthenics Individuell
@@ -1196,12 +1198,13 @@
         }
         const name = calCurrentEx.textContent;
         const payload = {
+            type: 'calistenics',
             exercise_name: name,
             sets: calSets,
             date: selectedDate
         };
         console.log('Sending Calisthenics payload:', payload);
-        sendWorkout('/cal-workouts', payload, 'calisthenics-error');
+        sendWorkout('/add_workout_for_date', payload, 'calisthenics-error');
     });
     
     // Cardio
@@ -1224,12 +1227,12 @@
             for (let [k, v] of formData.entries()) {
                 if (k === 'duration') data[k] = parseInt(v);
                 else if (k === 'distance') data[k] = parseFloat(v);
-                else if (k === 'sportart') data[k] = v;
+                else if (k === 'sportart') data.exercise_name = v;
             }
             data.date = selectedDate;
             
             console.log('Sending Cardio payload:', data);
-            sendWorkout('/add_cardio_workout', data, 'cardio-error');
+            sendWorkout('/add_workout_for_date', data, 'cardio-error');
         });
     });
     
@@ -1308,7 +1311,6 @@
         const formatted = date.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         header.textContent = `Training - ${formatted}`;
         console.log('Date changed to:', selectedDate);
-        // Dynamisch Workouts laden statt Seite neu zu laden
         fetchWorkouts(selectedDate);
     });
     
