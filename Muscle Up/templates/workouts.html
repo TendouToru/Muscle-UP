@@ -1132,7 +1132,7 @@
         e.preventDefault();
         const weight = parseFloat(document.getElementById('weight').value);
         const reps = parseInt(document.getElementById('reps').value);
-        if (isNaN(weight) || weight <= 0 || isNaN(reps) || reps < 1) {
+        if (isNaN(weight) || weight <= 0 || isNaN(rep) || rep < 1) {
             showError('strength-error', 'Gültige Werte eingeben.');
             return;
         }
@@ -1307,11 +1307,12 @@
     const header = document.getElementById('workout-date-header');
     
     setDateBtn.addEventListener('click', () => {
-        selectedDate = dateInput.value;
-        if (!selectedDate) {
+        const newDate = dateInput.value;
+        if (!newDate) {
             showError('classic-error', 'Bitte ein Datum auswählen.');
             return;
         }
+        selectedDate = newDate;
         restdayDate.value = selectedDate;
         const date = new Date(selectedDate);
         const formatted = date.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -1441,6 +1442,7 @@
     restdayDate.value = selectedDate;
     
     // Initial Workouts laden
+    console.log('Initial selectedDate:', selectedDate);
     fetchWorkouts(selectedDate);
     
     // Hamburger Menu
