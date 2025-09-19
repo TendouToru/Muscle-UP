@@ -7,261 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
     <title>Muscle Up | Training</title>
-    <style>
-        /* Workout-spezifische Styles */
-        .workout-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--accent-dark);
-            flex-wrap: wrap;
-        }
-        
-        .workout-tab {
-            padding: 1rem 1.5rem;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .workout-tab.active {
-            opacity: 1;
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-        
-        .workout-tab:hover {
-            opacity: 1;
-            background-color: rgba(0, 170, 255, 0.1);
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-            width: 100%;
-        }
-        
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .exercise-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            width: 100%;
-            max-width: 800px;
-            margin: 1rem 0;
-        }
-        
-        .exercise-card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100px;
-        }
-        
-        .exercise-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .exercise-card.selected {
-            border-color: var(--primary);
-            background-color: rgba(0, 229, 255, 0.1);
-        }
-        
-        .exercise-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .exercise-name {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        .workout-form {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 500px;
-            margin: 1rem 0;
-            box-shadow: var(--glow-effect);
-            border: 1px solid var(--accent-dark);
-        }
-        
-        .form-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 1px solid var(--accent-dark);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 1rem;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3);
-        }
-        
-        .set-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            background-color: var(--accent-dark);
-            border-radius: 6px;
-        }
-        
-        .set-number {
-            font-weight: bold;
-            min-width: 30px;
-            color: var(--primary);
-        }
-        
-        .set-inputs {
-            display: flex;
-            gap: 0.5rem;
-            flex: 1;
-        }
-        
-        .set-inputs input {
-            flex: 1;
-            min-width: 60px;
-        }
-        
-        .remove-set {
-            background: none;
-            border: none;
-            color: var(--error);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .remove-set:hover {
-            background-color: rgba(205, 7, 27, 0.1);
-        }
-        
-        .add-set-btn {
-            width: 100%;
-            margin-top: 1rem;
-            padding: 0.8rem;
-            background-color: var(--accent-dark);
-            border: none;
-            border-radius: 8px;
-            color: var(--text);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .add-set-btn:hover {
-            background-color: var(--secondary);
-            color: var(--background);
-        }
-        
-        .workout-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        /* Mobile Optimierungen */
-        @media (max-width: 768px) {
-            .workout-tabs {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .workout-tab {
-                text-align: center;
-                padding: 0.8rem;
-            }
-            
-            .exercise-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-            }
-            
-            .exercise-card {
-                padding: 0.8rem;
-                min-height: 80px;
-            }
-            
-            .exercise-icon {
-                font-size: 1.5rem;
-            }
-            
-            .workout-form {
-                padding: 1rem;
-            }
-            
-            .set-inputs {
-                flex-direction: column;
-            }
-            
-            .workout-actions {
-                flex-direction: column;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .exercise-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Animationen */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </head>
 <body>
 <div class="wrapper">
@@ -322,12 +67,11 @@
             <input type="date" id="workout-date" name="workout-date" value="{{ today }}">
             <button id="set-date-btn" class="button">Datum übernehmen</button>
         </div>
-        
-        <!-- Tab-Navigation -->
-        <div class="workout-tabs">
-            <button class="workout-tab active" data-tab="individual">Individuell</button>
-            <button class="workout-tab" data-tab="classic">Klassik</button>
-            <button class="workout-tab" data-tab="overview">Übersicht</button>
+
+        <div id="btn-row">
+            <button id="kraft-training-btn">Kraft Training</button>
+            <button id="cardio-btn">Cardio</button>
+            <button id="calestenics-btn">Calistenics</button>
         </div>
         
         {% if ruhe == True %}
@@ -336,211 +80,138 @@
                 <button type="submit" id="rest-btn" class="button">Restday</button>
             </form>
         {% endif %}
-        
-        <!-- Individueller Tab -->
-        <div class="tab-content active" id="individual-tab">
-            <div id="btn-row">
-                <button id="kraft-training-btn">Kraft Training</button>
-                <button id="cardio-btn">Cardio</button>
-                <button id="calestenics-btn">Calistenics</button>
-            </div>
-            
-            <div id="calestenics" class="container">
-                <h3 class="container-header">Körper Training</h3>
-                <form id="cal-ex-form" class="form-login">
-                    <input type="text" id="cal-ex-name" placeholder="Übung eingeben" required>
-                    <button type="submit" class="button">Übung starten</button>
-                </form>
-                
-        
-                <div id="cal-ex-container" style="display:none;">
-                    <h2 id="cal-current-ex"></h2>
-                    <form id="cal-set-form">
-                        <input type="number" id="cal-reps" placeholder="Wiederholungen" required>
-                        <button type="submit" class="button">Satz hinzufügen</button>
-                    </form>
-                    <ul id="cal-sets-list"></ul>
-                    <button id="cal-finish-exercise" class="button">Übung beenden</button>
-                </div>
-            </div>
-            
-            <div id="cardio" class="container">
-                <h3 class="container-header">Cardio Training:</h3>
-                <section class="cardio-dash">
-                    <div class="cardio-card" data-target="laufen-form">Laufen</div>
-                    <div class="cardio-card" data-target="schwimmen-form">Schwimmen</div>
-                    <div class="cardio-card" data-target="spielsport-form">Spielsport</div>
-                </section>
 
-                <div id="laufen-form" class="cardio-form">
-                    <h4 class="cardio-header">Laufen</h4>
-                    <form data-type="Laufen">
-                        <input type="number" placeholder="Strecke (km)" name="distance" required>
-                        <input type="number" placeholder="Dauer (min)" name="duration" required>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-                <div id="schwimmen-form" class="cardio-form">
-                    <h4 class="cardio-header">Schwimmen</h4>
-                    <form data-type="Schwimmen">
-                        <input type="number" placeholder="Strecke (km)" name="distance" required>
-                        <input type="number" placeholder="Dauer (min)" name="duration" required>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-                <div id="spielsport-form" class="cardio-form">
-                    <h4 class="cardio-header">Spielsport</h4>
-                    <form data-type="Spielsport">
-                        <input type="text" placeholder="Sportart" name="sportart" required>
-                        <input type="number" placeholder="Dauer (min)" name="duration" required>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-            </div>
-
-        
-            <div id="kraft-training" class="container">
-                <h3 class="container-header">Kraft Training:</h3>
-                <form id="exercise-form" class="form-login">
-                    <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
-                    <button type="submit" class="button">Übung starten</button>
+        <div id="calestenics" class="container">
+            <h3 class="container-header">Körper Training</h3>
+            <form id="cal-ex-form" class="form-login">
+                <input type="text" id="cal-ex-name" placeholder="Übung eingeben" required>
+                <button type="submit" class="button">Übung starten</button>
+            </form>
+            
+    
+            <div id="cal-ex-container" style="display:none;">
+                <h2 id="cal-current-ex"></h2>
+                <form id="cal-set-form">
+                    <input type="number" id="cal-reps" placeholder="Wiederholungen" required>
+                    <button type="submit" class="button">Satz hinzufügen</button>
                 </form>
-                
-        
-                <div id="exercise-container" style="display:none;">
-                    <h2 id="current-exercise"></h2>
-                    <form id="set-form">
-                        <input type="number" id="weight" placeholder="Gewicht (kg)" required>
-                        <input type="number" id="reps" placeholder="Wiederholungen" required>
-                        <button type="submit" class="button">Satz hinzufügen</button>
-                    </form>
-                    <ul id="sets-list"></ul>
-                    <button id="finish-exercise" class="button">Übung beenden</button>
-                </div>
+                <ul id="cal-sets-list"></ul>
+                <button id="cal-finish-exercise" class="button">Übung beenden</button>
             </div>
         </div>
         
-        <!-- Klassik Tab -->
-        <div class="tab-content" id="classic-tab">
-            <h3 class="container-header">Klassische Übungen</h3>
-            
-            <div class="exercise-grid" id="classic-exercises">
-                <div class="exercise-card" data-exercise="Bankdrücken">
-                    <div class="exercise-icon">🏋️</div>
-                    <div class="exercise-name">Bankdrücken</div>
-                </div>
-                <div class="exercise-card" data-exercise="Kniebeugen">
-                    <div class="exercise-icon">🦵</div>
-                    <div class="exercise-name">Kniebeugen</div>
-                </div>
-                <div class="exercise-card" data-exercise="Kreuzheben">
-                    <div class="exercise-icon">⬆️</div>
-                    <div class="exercise-name">Kreuzheben</div>
-                </div>
-                <div class="exercise-card" data-exercise="Schulterdrücken">
-                    <div class="exercise-icon">💪</div>
-                    <div class="exercise-name">Schulterdrücken</div>
-                </div>
-                <div class="exercise-card" data-exercise="Klimmzüge">
-                    <div class="exercise-icon">🧗</div>
-                    <div class="exercise-name">Klimmzüge</div>
-                </div>
-                <div class="exercise-card" data-exercise="Bizepscurls">
-                    <div class="exercise-icon">💪</div>
-                    <div class="exercise-name">Bizepscurls</div>
-                </div>
-                <div class="exercise-card" data-exercise="Dips">
-                    <div class="exercise-icon">🔽</div>
-                    <div class="exercise-name">Dips</div>
-                </div>
-                <div class="exercise-card" data-exercise="Laufband">
-                    <div class="exercise-icon">🏃</div>
-                    <div class="exercise-name">Laufband</div>
-                </div>
+        <div id="cardio" class="container">
+            <h3 class="container-header">Cardio Training:</h3>
+            <section class="cardio-dash">
+                <div class="cardio-card" data-target="laufen-form">Laufen</div>
+                <div class="cardio-card" data-target="schwimmen-form">Schwimmen</div>
+                <div class="cardio-card" data-target="spielsport-form">Spielsport</div>
+            </section>
+
+            <div id="laufen-form" class="cardio-form">
+                <h4 class="cardio-header">Laufen</h4>
+                <form data-type="Laufen">
+                    <input type="number" placeholder="Strecke (km)" name="distance" required>
+                    <input type="number" placeholder="Dauer (min)" name="duration" required>
+                    <button type="submit" class="button">Speichern</button>
+                </form>
             </div>
-            
-            <div class="workout-form" id="classic-form" style="display: none;">
-                <h3 class="form-header" id="selected-exercise-name">Übung</h3>
-                
-                <div id="sets-container">
-                    <div class="set-item">
-                        <span class="set-number">1</span>
-                        <div class="set-inputs">
-                            <input type="number" placeholder="Gewicht (kg)" class="set-weight">
-                            <input type="number" placeholder="Wiederholungen" class="set-reps">
-                        </div>
-                        <button class="remove-set">&times;</button>
-                    </div>
-                </div>
-                
-                <button class="add-set-btn" id="add-set">+ Satz hinzufügen</button>
-                
-                <div class="workout-actions">
-                    <button class="button" id="save-classic-workout">Workout speichern</button>
-                    <button class="button" id="cancel-classic-workout" style="background-color: var(--accent-dark);">Abbrechen</button>
-                </div>
+            <div id="schwimmen-form" class="cardio-form">
+                <h4 class="cardio-header">Schwimmen</h4>
+                <form data-type="Schwimmen">
+                    <input type="number" placeholder="Strecke (km)" name="distance" required>
+                    <input type="number" placeholder="Dauer (min)" name="duration" required>
+                    <button type="submit" class="button">Speichern</button>
+                </form>
+            </div>
+            <div id="spielsport-form" class="cardio-form">
+                <h4 class="cardio-header">Spielsport</h4>
+                <form data-type="Spielsport">
+                    <input type="text" placeholder="Sportart" name="sportart" required>
+                    <input type="number" placeholder="Dauer (min)" name="duration" required>
+                    <button type="submit" class="button">Speichern</button>
+                </form>
             </div>
         </div>
-        
-        <!-- Übersicht Tab -->
-        <div class="tab-content" id="overview-tab">
-            <div class="overview">    
-                <div id="workout-overview">
-                    <h3>Kraft-<br>Übungen:</h3>
-                    <div id="completed-exercises">
-                        {% for exercise in today_workouts %}
-                        <div class="completed-exercise">
-                            <h4>{{ exercise.exercise }}</h4>
-                            <ul>
-                                {% for s in exercise.sets %}
-                                <li>Gewicht: {{ s.weight }} kg <br> Wiederholungen: {{ s.reps }}</li>
-                                {% endfor %}
-                            </ul>
-                            <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
-                                <button type="submit" class="button">Löschen</button>
-                            </form>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
 
-                <div id="cardio-overview">
-                    <h3>Cardio-<br>Übungen:</h3>
-                    <div id="completed-cardio-exercises">
-                        {% for workout in today_cardio_workouts %}
-                        <div class="completed-exercise">
-                            <h4>{{ workout.exercise }}</h4>
-                            <p>
-                                Dauer: {{ workout.duration }} min
-                                {% if workout.distance and workout.distance > 0 %}
-                                    | Strecke: {{ workout.distance }} km
-                                {% endif %}
-                            </p>
-                            <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
-                                <button type="submit" class="button">Löschen</button>
-                            </form>
-                        </div>
-                        {% endfor %}
+    
+        <div id="kraft-training" class="container">
+            <h3 class="container-header">Kraft Training:</h3>
+            <form id="exercise-form" class="form-login">
+                <input type="text" id="exercise-name" placeholder="Übung eingeben" required>
+                <button type="submit" class="button">Übung starten</button>
+            </form>
+            
+    
+            <div id="exercise-container" style="display:none;">
+                <h2 id="current-exercise"></h2>
+                <form id="set-form">
+                    <input type="number" id="weight" placeholder="Gewicht (kg)" required>
+                    <input type="number" id="reps" placeholder="Wiederholungen" required>
+                    <button type="submit" class="button">Satz hinzufügen</button>
+                </form>
+                <ul id="sets-list"></ul>
+                <button id="finish-exercise" class="button">Übung beenden</button>
+            </div>
+        </div>
+       
+        <!-- Im Overview-Bereich -->    
+        <div class="overview">    
+            <div id="workout-overview">
+                <h3>Kraft-<br>Übungen:</h3>
+                <div id="completed-exercises">
+                    {% for exercise in today_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ exercise.exercise }}</h4>
+                        <ul>
+                            {% for s in exercise.sets %}
+                            <li>Gewicht: {{ s.weight }} kg <br> Wiederholungen: {{ s.reps }}</li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
                     </div>
+                    {% endfor %}
                 </div>
+            </div>
 
-                <div id="calistenics-overview">
-                    <h3>Calisthenics-<br>Übungen:</h3>
-                    <div id="completed-calistenics-exercises">
-                        {% for exercise in today_calistenics_workouts %}
-                        <div class="completed-exercise">
-                            <h4>{{ exercise.exercise }}</h4>
-                            <ul>
-                                {% for s in exercise.sets %}
-                                <li>Wiederholungen: {{ s.reps }} </li>
-                                {% endfor %}
-                            </ul>
-                            <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
-                                <button type="submit" class="button">Löschen</button>
-                            </form>
-                        </div>
-                        {% endfor %}
+            <div id="cardio-overview">
+                <h3>Cardio-<br>Übungen:</h3>
+                <div id="completed-cardio-exercises">
+                    {% for workout in today_cardio_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ workout.exercise }}</h4>
+                        <p>
+                            Dauer: {{ workout.duration }} min
+                            {% if workout.distance and workout.distance > 0 %}
+                                | Strecke: {{ workout.distance }} km
+                            {% endif %}
+                        </p>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
                     </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="calistenics-overview">
+                <h3>Calisthenics-<br>Übungen:</h3>
+                <div id="completed-calistenics-exercises">
+                    {% for exercise in today_calistenics_workouts %}
+                    <div class="completed-exercise">
+                        <h4>{{ exercise.exercise }}</h4>
+                        <ul>
+                            {% for s in exercise.sets %}
+                            <li>Wiederholungen: {{ s.reps }} </li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}">
+                            <button type="submit" class="button">Löschen</button>
+                        </form>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -556,165 +227,6 @@
     let selectedDate = "{{ today }}";
     
     document.addEventListener('DOMContentLoaded', function() {
-        // Tab-Funktionalität
-        const tabButtons = document.querySelectorAll('.workout-tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Aktiven Tab-Button markieren
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Richtigen Tab-Inhalt anzeigen
-                const tabId = button.getAttribute('data-tab');
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-tab`) {
-                        content.classList.add('active');
-                    }
-                });
-            });
-        });
-        
-        // Klassische Übungen Auswahl
-        const exerciseCards = document.querySelectorAll('.exercise-card');
-        const classicForm = document.getElementById('classic-form');
-        const selectedExerciseName = document.getElementById('selected-exercise-name');
-        const setsContainer = document.getElementById('sets-container');
-        const addSetBtn = document.getElementById('add-set');
-        const saveWorkoutBtn = document.getElementById('save-classic-workout');
-        const cancelWorkoutBtn = document.getElementById('cancel-classic-workout');
-        
-        let selectedExercise = null;
-        let setCount = 1;
-        
-        exerciseCards.forEach(card => {
-            card.addEventListener('click', () => {
-                // Auswahl zurücksetzen
-                exerciseCards.forEach(c => c.classList.remove('selected'));
-                
-                // Neue Auswahl markieren
-                card.classList.add('selected');
-                selectedExercise = card.getAttribute('data-exercise');
-                selectedExerciseName.textContent = selectedExercise;
-                
-                // Formular anzeigen
-                classicForm.style.display = 'block';
-                
-                // Sets zurücksetzen
-                setsContainer.innerHTML = '';
-                setCount = 1;
-                addSet();
-            });
-        });
-        
-        // Satz hinzufügen
-        function addSet() {
-            const setItem = document.createElement('div');
-            setItem.classList.add('set-item');
-            setItem.innerHTML = `
-                <span class="set-number">${setCount}</span>
-                <div class="set-inputs">
-                    <input type="number" placeholder="Gewicht (kg)" class="set-weight">
-                    <input type="number" placeholder="Wiederholungen" class="set-reps">
-                </div>
-                <button class="remove-set">&times;</button>
-            `;
-            setsContainer.appendChild(setItem);
-            setCount++;
-            
-            // Event-Listener für Entfernen-Button
-            setItem.querySelector('.remove-set').addEventListener('click', () => {
-                if (setsContainer.children.length > 1) {
-                    setItem.remove();
-                    updateSetNumbers();
-                }
-            });
-        }
-        
-        // Satznummern aktualisieren
-        function updateSetNumbers() {
-            const setItems = setsContainer.querySelectorAll('.set-item');
-            setItems.forEach((item, index) => {
-                item.querySelector('.set-number').textContent = index + 1;
-            });
-            setCount = setItems.length + 1;
-        }
-        
-        // Event-Listener für Satz hinzufügen
-        addSetBtn.addEventListener('click', addSet);
-        
-        // Workout speichern
-        saveWorkoutBtn.addEventListener('click', async () => {
-            if (!selectedExercise) {
-                alert('Bitte wähle zuerst eine Übung aus.');
-                return;
-            }
-            
-            const sets = [];
-            const setItems = setsContainer.querySelectorAll('.set-item');
-            
-            for (const item of setItems) {
-                const weight = item.querySelector('.set-weight').value;
-                const reps = item.querySelector('.set-reps').value;
-                
-                if (!weight || !reps) {
-                    alert('Bitte fülle alle Felder aus.');
-                    return;
-                }
-                
-                sets.push({
-                    weight: parseFloat(weight),
-                    reps: parseInt(reps)
-                });
-            }
-            
-            const data = {
-                exercise_name: selectedExercise,
-                sets: sets,
-                date: selectedDate,
-                type: "strength"
-            };
-            
-            try {
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    alert('Workout erfolgreich gespeichert!');
-                    loadWorkoutsForDate(selectedDate);
-                    resetClassicForm();
-                } else {
-                    alert('Fehler: ' + result.error);
-                }
-            } catch (error) {
-                alert('Fehler beim Speichern des Workouts.');
-                console.error(error);
-            }
-        });
-        
-        // Formular zurücksetzen
-        function resetClassicForm() {
-            exerciseCards.forEach(c => c.classList.remove('selected'));
-            classicForm.style.display = 'none';
-            selectedExercise = null;
-            setsContainer.innerHTML = '';
-            setCount = 1;
-            addSet();
-        }
-        
-        // Abbrechen-Button
-        cancelWorkoutBtn.addEventListener('click', resetClassicForm);
-        
-        // Rest des bestehenden JavaScript-Codes...
         const dateInput = document.getElementById('workout-date');
         const setDateBtn = document.getElementById('set-date-btn');
         const dateHeader = document.getElementById('workout-date-header');
@@ -738,6 +250,7 @@
             selectedDate = newDate;
             if (restdayDateInput) {
                 restdayDateInput.value = newDate;
+                location.reload(true);
             }
             
             updateHeader(selectedDate);
