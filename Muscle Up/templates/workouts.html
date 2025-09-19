@@ -936,12 +936,18 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     // Globale Variablen
-    let selectedDate = "{{ today }}";
+    let selectedDate = getQueryParam('date') || "{{ today }}";
     let setCount = 1;
     let individualSets = [];
     let calSets = [];
+
+    // Helferfunktion: Query-Parameter aus URL lesen
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
 
     // Tab Switching
     const tabButtons = document.querySelectorAll('.workout-tab');
@@ -1250,7 +1256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Restday response status:', res.status);
             if (res.ok || res.redirected) {
                 alert('Ruhetag eingetragen!');
-                fetchWorkouts(selectedDate);
+                window.location.href = `/workout?date=${selectedDate}`;
             } else {
                 return res.json().then(data => {
                     throw new Error(data.error || 'Fehler beim Eintragen des Ruhetags.');
@@ -1280,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Delete response status:', res.status);
                 if (res.ok || res.redirected) {
                     alert('Workout gelöscht!');
-                    fetchWorkouts(selectedDate);
+                    window.location.href = `/workout?date=${selectedDate}`;
                 } else {
                     return res.json().then(data => {
                         throw new Error(data.error || 'Fehler beim Löschen.');
@@ -1311,7 +1317,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formatted = date.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         header.textContent = `Training - ${formatted}`;
         console.log('Date changed to:', selectedDate);
-        fetchWorkouts(selectedDate);
+        console.log('Reloading page with URL:', `/workout?date=${selectedDate}`);
+        window.location.href = `/workout?date=${selectedDate}`;
     });
     
     // Helferfunktion zum Abrufen von Workouts
@@ -1407,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(({ res, data }) => {
             if (res.ok) {
                 alert(`Workout gespeichert! XP: ${data.xp_gained || 'unbekannt'}`);
-                fetchWorkouts(selectedDate);
+                window.location.href = `/workout?date=${selectedDate}`;
             } else {
                 showError(errorElementId, data.error || `Fehler ${res.status}`);
             }
@@ -1430,6 +1437,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const initDate = new Date(selectedDate);
     const initFormatted = initDate.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     header.textContent = `Training - ${initFormatted}`;
+    dateInput.value = selectedDate;
+    restdayDate.value = selectedDate;
     
     // Initial Workouts laden
     fetchWorkouts(selectedDate);
