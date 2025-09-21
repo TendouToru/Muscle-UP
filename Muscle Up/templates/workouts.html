@@ -738,7 +738,7 @@
             <div id="workout-type-selection">
                 <button id="workout-type-btn" data-type="strength">Kraft Training</button>
                 <button id="workout-type-btn" data-type="cardio">Cardio</button>
-                <button id="workout-type-btn" data-type="calistenics">Calistenics</button>
+                <button id="workout-type-btn" data-type="calisthenics">Calistenics</button>
             </div>
             
             
@@ -940,21 +940,19 @@
 </div>
 
 <script>
-    
-    document.addEventListener('DOMContentLoaded', function() {
-
+ document.addEventListener('DOMContentLoaded', function () {
     // Globale Variable für das ausgewählte Datum
     let selectedDate = "{{ today }}";
-    
+
     // Tab Switching
     const tabButtons = document.querySelectorAll('.workout-tab');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            
+
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === `${button.getAttribute('data-tab')}-tab`) {
@@ -964,75 +962,63 @@
         });
     });
 
-        // Datumsauswahl
-        const dateInput = document.getElementById('workout-date');
-        const setDateBtn = document.getElementById('set-date-btn');
-        const dateHeader = document.getElementById('workout-date-header');
-        const restdayDateInput = document.getElementById('restday-date');
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Maximal heute erlauben
-        dateInput.max = today;
-        
-        // Header initialisieren
-        updateHeader(selectedDate);
-        
-        // Beim Klick auf den Button das Datum übernehmen
-        setDateBtn.addEventListener('click', function() {
-            const newDate = dateInput.value;
-            if (!newDate) {
-                alert('Bitte wählen Sie ein Datum aus.');
-                return;
-            }
-            
-            selectedDate = newDate;
-            if (restdayDateInput) {
-                restdayDateInput.value = newDate;
-                location.reload(true);
-            }
-            
-            updateHeader(selectedDate);
-            loadWorkoutsForDate(selectedDate);
-        });
-        
-        // Workouts für ein bestimmtes Datum laden
-        function loadWorkoutsForDate(date) {
-            fetch(`/get_workouts_for_date?date=${date}`)
-                .then(response => response.json())
-                .then(data => {
-                    updateWorkoutDisplay(data);
-                })
-                .catch(error => {
-                    console.error('Fehler beim Laden der Workouts:', error);
-                });
+    // Datumsauswahl
+    const dateInput = document.getElementById('workout-date');
+    const setDateBtn = document.getElementById('set-date-btn');
+    const dateHeader = document.getElementById('workout-date-header');
+    const restdayDateInput = document.getElementById('restday-date');
+    const today = new Date().toISOString().split('T')[0];
+
+    // Maximal heute erlauben
+    dateInput.max = today;
+
+    // Header initialisieren
+    updateHeader(selectedDate);
+
+    // Beim Klick auf den Button das Datum übernehmen
+    setDateBtn.addEventListener('click', function () {
+        console.log('Set Date Button clicked');
+        const newDate = dateInput.value;
+        if (!newDate) {
+            alert('Bitte wählen Sie ein Datum aus.');
+            return;
         }
-        
-        // Anzeige der Workouts aktualisieren
-        function updateWorkoutDisplay(workoutsData) {
-            // Krafttraining-Übungen aktualisieren
-            const completedExercises = document.getElementById('completed-exercises');
-            completedExercises.innerHTML = '';
-            
-            if (workoutsData.strength_workouts && workoutsData.strength_workouts.length > 0) {
-                workoutsData.strength_workouts.forEach(exercise => {
-                    const exerciseEl = document.createElement('div');
-                    exerciseEl.className = 'completed-exercise';
-                    exerciseEl.innerHTML = `
-                        <h4>${exercise.exercise}</h4>
-                        <ul>
-                            ${exercise.sets.map(s => `<li>Gewicht: ${s.weight} kg <br> Wiederholungen: ${s.reps}</li>`).join('')}
-                        </ul>
-                        <form method="post" action="/delete_workout/${exercise.id}">
-                            <button type="submit" class="button">Löschen</button>
-                        </form>
-                    `;
-                    completedExercises.appendChild(exerciseEl);
-                });
-            } else {
-                completedExercises.innerHTML = '<p>Keine Kraftübungen an diesem Tag</p>';
-            }
-            
-  // Krafttraining
+
+        selectedDate = newDate;
+        if (restdayDateInput) {
+            restdayDateInput.value = newDate;
+        }
+        updateHeader(selectedDate);
+        loadWorkoutsForDate(selectedDate);
+        // Kein location.reload(), da dies die Seite unnötig neu lädt
+    });
+
+    // Header aktualisieren
+    function updateHeader(date) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        dateHeader.textContent = `Training am ${new Date(date).toLocaleDateString('de-DE', options)}`;
+    }
+
+    // Workouts für ein bestimmtes Datum laden
+    async function loadWorkoutsForDate(date) {
+        try {
+            const response = await fetch(`/get_workouts_for_date?date=${date}`);
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            const data = await response.json();
+            updateWorkoutDisplay(data);
+        } catch (error) {
+            console.error('Fehler beim Laden der Workouts:', error);
+            showError('classic-error', 'Fehler beim Laden der Workouts.');
+        }
+    }
+
+    // Anzeige der Workouts aktualisieren
+    function updateWorkoutDisplay(workoutsData) {
+        const completedStrength = document.getElementById('completed-strength');
+        const completedCardio = document.getElementById('completed-cardio');
+        const completedCalisthenics = document.getElementById('completed-calistenics');
+
+        // Krafttraining
         completedStrength.innerHTML = workoutsData.strength_workouts && workoutsData.strength_workouts.length > 0
             ? workoutsData.strength_workouts.map(exercise => `
                 <div class="completed-exercise">
@@ -1046,7 +1032,7 @@
                 </div>
             `).join('')
             : '<p class="text-center" style="color: var(--text);">Keine Krafttrainings heute.</p>';
-        
+
         // Cardio
         completedCardio.innerHTML = workoutsData.cardio_workouts && workoutsData.cardio_workouts.length > 0
             ? workoutsData.cardio_workouts.map(workout => `
@@ -1059,7 +1045,7 @@
                 </div>
             `).join('')
             : '<p class="text-center" style="color: var(--text);">Kein Cardio heute.</p>';
-        
+
         // Calisthenics
         completedCalisthenics.innerHTML = workoutsData.calisthenics_workouts && workoutsData.calisthenics_workouts.length > 0
             ? workoutsData.calisthenics_workouts.map(exercise => `
@@ -1075,7 +1061,7 @@
             `).join('')
             : '<p class="text-center" style="color: var(--text);">Kein Calisthenics heute.</p>';
     }
-    
+
     // Fehleranzeige
     function showError(elementId, message) {
         const errorEl = document.getElementById(elementId);
@@ -1098,6 +1084,7 @@
 
     exerciseCards.forEach(card => {
         card.addEventListener('click', () => {
+            console.log('Exercise card clicked:', card.getAttribute('data-exercise'));
             exerciseCards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectExercise(card.getAttribute('data-exercise'));
@@ -1106,6 +1093,7 @@
 
     exerciseSelect.addEventListener('change', () => {
         const exercise = exerciseSelect.value;
+        console.log('Exercise select changed:', exercise);
         if (exercise) {
             exerciseCards.forEach(c => c.classList.remove('selected'));
             selectExercise(exercise);
@@ -1133,8 +1121,9 @@
             </div>
             <button class="remove-set" type="button">&times;</button>
         `;
-        
+
         setItem.querySelector('.remove-set').addEventListener('click', () => {
+            console.log('Remove set clicked');
             const index = Array.from(setsContainer.children).indexOf(setItem);
             if (index > -1) {
                 currentSets.splice(index, 1);
@@ -1142,7 +1131,7 @@
                 updateSetNumbers();
             }
         });
-        
+
         setsContainer.appendChild(setItem);
         currentSets.push({ weight: null, reps: null });
         updateSetNumbers();
@@ -1153,9 +1142,13 @@
         numbers.forEach((num, idx) => num.textContent = idx + 1);
     }
 
-    addSetBtn.addEventListener('click', addSet);
+    addSetBtn.addEventListener('click', () => {
+        console.log('Add set button clicked');
+        addSet();
+    });
 
     cancelClassicBtn.addEventListener('click', () => {
+        console.log('Cancel classic button clicked');
         classicForm.style.display = 'none';
         currentExerciseName = '';
         currentSets = [];
@@ -1165,6 +1158,7 @@
     });
 
     saveClassicBtn.addEventListener('click', async () => {
+        console.log('Save classic workout button clicked');
         const weights = setsContainer.querySelectorAll('.set-weight');
         const reps = setsContainer.querySelectorAll('.set-reps');
         currentSets = [];
@@ -1198,50 +1192,55 @@
 
         console.log('Sending Classic Strength payload:', data);
 
-        const response = await fetch('/add_workout_for_date', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+        try {
+            const response = await fetch('/add_workout_for_date', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
 
-        const result = await response.json();
-
-        if (response.ok) {
-            loadWorkoutsForDate(selectedDate);
-            classicForm.style.display = 'none';
-            exerciseSelect.value = '';
-            exerciseCards.forEach(c => c.classList.remove('selected'));
-            setsContainer.innerHTML = '';
-            currentExerciseName = '';
-            currentSets = [];
-            alert('Workout gespeichert!');
-        } else {
-            showError('classic-error', result.error || 'Fehler beim Speichern.');
+            if (response.ok) {
+                loadWorkoutsForDate(selectedDate);
+                classicForm.style.display = 'none';
+                exerciseSelect.value = '';
+                exerciseCards.forEach(c => c.classList.remove('selected'));
+                setsContainer.innerHTML = '';
+                currentExerciseName = '';
+                currentSets = [];
+                alert('Workout gespeichert!');
+            } else {
+                showError('classic-error', result.error || 'Fehler beim Speichern.');
+            }
+        } catch (error) {
+            console.error('Fehler beim Speichern:', error);
+            showError('classic-error', 'Netzwerkfehler beim Speichern.');
         }
     });
 
     // Workout-Typ-Auswahl (Individuell)
-    const workoutTypeBtns = document.querySelectorAll('#workout-type-btn');
+    const workoutTypeBtns = document.querySelectorAll('.workout-type-btn'); // Klassenbasierte Auswahl
     const strengthForm = document.getElementById('strength-form');
     const cardioForm = document.getElementById('cardio-form');
     const calisthenicsForm = document.getElementById('calisthenics-form');
 
     workoutTypeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            console.log('Workout type button clicked:', btn.getAttribute('data-type'));
             workoutTypeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
             strengthForm.style.display = 'none';
             cardioForm.style.display = 'none';
             calisthenicsForm.style.display = 'none';
-            
+
             const type = btn.getAttribute('data-type');
             if (type === 'strength') {
                 strengthForm.style.display = 'block';
             } else if (type === 'cardio') {
                 cardioForm.style.display = 'block';
                 document.querySelectorAll('.cardio-subform').forEach(form => form.classList.remove('active'));
-            } else if (type === 'calistenics') {
+            } else if (type === 'calisthenics') { // Korrigierte Schreibweise
                 calisthenicsForm.style.display = 'block';
             }
         });
@@ -1257,8 +1256,9 @@
     let individualSets = [];
     let individualExerciseName = '';
 
-    exerciseForm.addEventListener('submit', function(e) {
+    exerciseForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        console.log('Exercise form submitted');
         individualExerciseName = document.getElementById('exercise-name').value.trim();
         if (!individualExerciseName) {
             showError('strength-error', 'Übungsname erforderlich.');
@@ -1271,8 +1271,9 @@
         individualSets = [];
     });
 
-    setForm.addEventListener('submit', function(e) {
+    setForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        console.log('Set form submitted');
         const weight = parseFloat(document.getElementById('weight').value);
         const reps = parseInt(document.getElementById('reps').value);
         if (isNaN(weight) || weight <= 0 || isNaN(reps) || reps < 1) {
@@ -1288,8 +1289,9 @@
         document.getElementById('strength-error').style.display = 'none';
     });
 
-    setsList.addEventListener('click', function(e) {
+    setsList.addEventListener('click', function (e) {
         if (e.target.classList.contains('delete-set')) {
+            console.log('Delete set clicked');
             const li = e.target.closest('li');
             const index = Array.from(setsList.children).indexOf(li);
             if (index > -1) {
@@ -1299,7 +1301,8 @@
         }
     });
 
-    finishExerciseBtn.addEventListener('click', async function() {
+    finishExerciseBtn.addEventListener('click', async function () {
+        console.log('Finish exercise button clicked');
         if (individualSets.length === 0) {
             showError('strength-error', 'Mindestens ein Satz erforderlich.');
             return;
@@ -1310,26 +1313,30 @@
             date: selectedDate,
             type: "strength"
         };
-        
+
         console.log('Sending Individual Strength payload:', data);
 
-        const response = await fetch('/add_workout_for_date', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            loadWorkoutsForDate(selectedDate);
-            exerciseForm.style.display = 'block';
-            exerciseContainer.style.display = 'none';
-            document.getElementById('exercise-name').value = '';
-            individualSets = [];
-            alert('Workout gespeichert!');
-        } else {
-            showError('strength-error', result.error || 'Fehler beim Speichern.');
+        try {
+            const response = await fetch('/add_workout_for_date', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                loadWorkoutsForDate(selectedDate);
+                exerciseForm.style.display = 'block';
+                exerciseContainer.style.display = 'none';
+                document.getElementById('exercise-name').value = '';
+                individualSets = [];
+                alert('Workout gespeichert!');
+            } else {
+                showError('strength-error', result.error || 'Fehler beim Speichern.');
+            }
+        } catch (error) {
+            console.error('Fehler beim Speichern:', error);
+            showError('strength-error', 'Netzwerkfehler beim Speichern.');
         }
     });
 
@@ -1337,6 +1344,7 @@
     const cardioCards = document.querySelectorAll('.cardio-card');
     cardioCards.forEach(card => {
         card.addEventListener('click', () => {
+            console.log('Cardio card clicked:', card.getAttribute('data-target'));
             const target = card.getAttribute('data-target');
             document.querySelectorAll('.cardio-subform').forEach(f => f.classList.remove('active'));
             document.getElementById(target).classList.add('active');
@@ -1344,15 +1352,16 @@
     });
 
     document.querySelectorAll('#cardio-form form').forEach(form => {
-        form.addEventListener('submit', async function(e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
+            console.log('Cardio form submitted');
             const workoutType = this.getAttribute('data-type');
             const duration = parseFloat(this.querySelector('input[name="duration"]').value);
             if (isNaN(duration) || duration < 1) {
                 showError('cardio-error', 'Gültige Dauer eingeben.');
                 return;
             }
-            
+
             let data = {
                 type: "cardio",
                 date: selectedDate,
@@ -1378,21 +1387,25 @@
 
             console.log('Sending Cardio payload:', data);
 
-            const response = await fetch('/add_workout_for_date', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            try {
+                const response = await fetch('/add_workout_for_date', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
 
-            const result = await response.json();
-
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                this.reset();
-                document.querySelectorAll('.cardio-subform').forEach(f => f.classList.remove('active'));
-                alert('Workout gespeichert!');
-            } else {
-                showError('cardio-error', result.error || 'Fehler beim Speichern.');
+                if (response.ok) {
+                    loadWorkoutsForDate(selectedDate);
+                    this.reset();
+                    document.querySelectorAll('.cardio-subform').forEach(f => f.classList.remove('active'));
+                    alert('Workout gespeichert!');
+                } else {
+                    showError('cardio-error', result.error || 'Fehler beim Speichern.');
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                showError('cardio-error', 'Netzwerkfehler beim Speichern.');
             }
         });
     });
@@ -1407,8 +1420,9 @@
     let calCurrentSets = [];
     let calCurrentExerciseName = '';
 
-    calExForm.addEventListener('submit', function(e) {
+    calExForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        console.log('Calisthenics form submitted');
         calCurrentExerciseName = document.getElementById('cal-ex-name').value.trim();
         if (!calCurrentExerciseName) {
             showError('calisthenics-error', 'Übungsname erforderlich.');
@@ -1421,8 +1435,9 @@
         calCurrentSets = [];
     });
 
-    calSetForm.addEventListener('submit', function(e) {
+    calSetForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        console.log('Calisthenics set form submitted');
         const reps = parseInt(document.getElementById('cal-reps').value);
         if (isNaN(reps) || reps < 1) {
             showError('calisthenics-error', 'Gültige Wiederholungen eingeben.');
@@ -1436,8 +1451,9 @@
         document.getElementById('calisthenics-error').style.display = 'none';
     });
 
-    calSetsList.addEventListener('click', function(e) {
+    calSetsList.addEventListener('click', function (e) {
         if (e.target.classList.contains('delete-set')) {
+            console.log('Delete calisthenics set clicked');
             const li = e.target.closest('li');
             const index = Array.from(calSetsList.children).indexOf(li);
             if (index > -1) {
@@ -1447,7 +1463,8 @@
         }
     });
 
-    calFinishExerciseBtn.addEventListener('click', async function() {
+    calFinishExerciseBtn.addEventListener('click', async function () {
+        console.log('Finish calisthenics exercise button clicked');
         if (calCurrentSets.length === 0) {
             showError('calisthenics-error', 'Mindestens ein Satz erforderlich.');
             return;
@@ -1456,74 +1473,88 @@
             exercise_name: calCurrentExerciseName,
             sets: calCurrentSets,
             date: selectedDate,
-            type: "calistenics"
+            type: "calisthenics" // Korrigierte Schreibweise
         };
-        
+
         console.log('Sending Calisthenics payload:', data);
 
-        const response = await fetch('/add_workout_for_date', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            loadWorkoutsForDate(selectedDate);
-            calExForm.style.display = 'block';
-            calExContainer.style.display = 'none';
-            document.getElementById('cal-ex-name').value = '';
-            calCurrentSets = [];
-            alert('Workout gespeichert!');
-        } else {
-            showError('calisthenics-error', result.error || 'Fehler beim Speichern.');
+        try {
+            const response = await fetch('/add_workout_for_date', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                loadWorkoutsForDate(selectedDate);
+                calExForm.style.display = 'block';
+                calExContainer.style.display = 'none';
+                document.getElementById('cal-ex-name').value = '';
+                calCurrentSets = [];
+                alert('Workout gespeichert!');
+            } else {
+                showError('calisthenics-error', result.error || 'Fehler beim Speichern.');
+            }
+        } catch (error) {
+            console.error('Fehler beim Speichern:', error);
+            showError('calisthenics-error', 'Netzwerkfehler beim Speichern.');
         }
     });
 
     // Restday
     const restdayForm = document.querySelector('form[action="{{ url_for('post_restday') }}"]');
     if (restdayForm) {
-        restdayForm.addEventListener('submit', async function(e) {
+        restdayForm.addEventListener('submit', async function (e) {
             e.preventDefault();
+            console.log('Restday form submitted');
             const formData = new FormData(this);
             console.log('Sending Restday form data:', Object.fromEntries(formData));
-            const response = await fetch('/restday', {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                alert('Ruhetag eingetragen!');
-            } else {
-                showError('classic-error', result.error || 'Fehler beim Eintragen des Ruhetags.');
+
+            try {
+                const response = await fetch('/restday', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    loadWorkoutsForDate(selectedDate);
+                    alert('Ruhetag eingetragen!');
+                } else {
+                    showError('classic-error', result.error || 'Fehler beim Eintragen des Ruhetags.');
+                }
+            } catch (error) {
+                console.error('Fehler beim Eintragen des Ruhetags:', error);
+                showError('classic-error', 'Netzwerkfehler beim Eintragen des Ruhetags.');
             }
         });
     }
 
-    // Delete Workouts
-    document.addEventListener('click', function(e) {
+    // Delete Workouts (Event-Delegation für dynamische Buttons)
+    document.querySelector('.overview').addEventListener('click', async function (e) {
         if (e.target.classList.contains('delete-btn')) {
             e.preventDefault();
+            console.log('Delete button clicked');
             if (!confirm('Workout löschen?')) return;
             const form = e.target.closest('form');
-            const response = await fetch(form.action, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin'
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                alert('Workout gelöscht!');
-            } else {
-                showError('classic-error', result.error || 'Fehler beim Löschen.');
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    loadWorkoutsForDate(selectedDate);
+                    alert('Workout gelöscht!');
+                } else {
+                    showError('classic-error', result.error || 'Fehler beim Löschen.');
+                }
+            } catch (error) {
+                console.error('Fehler beim Löschen:', error);
+                showError('classic-error', 'Netzwerkfehler beim Löschen.');
             }
         }
     });
@@ -1533,9 +1564,13 @@
 
     // Hamburger Menu
     function toggleMenu() {
+        console.log('Hamburger menu toggled');
         const mobileMenu = document.getElementById('mobileMenu');
         mobileMenu.classList.toggle('active');
     }
+
+    // Hamburger Menu Event-Listener
+    document.querySelector('.hamburger').addEventListener('click', toggleMenu);
 });
 </script>
 </body>
