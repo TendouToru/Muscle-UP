@@ -1,15 +1,21 @@
-
 :root {
     --background: #1e1e2f;
-    --primary: #00e5ff; /* Helles, leuchtendes Cyan */
-    --secondary: #00aaff; /* Etwas dunkleres Blau */
+    --primary: #00e5ff;
+    --secondary: #00aaff;
     --contrast: gold;
     --text: #ecf0f1;
     --success: #4caf50;
+    --error: #cd071b;
     --card-bg: #2c2c3f;
     --accent-dark: #3a3a55;
-    --glow-effect: 0 0 10px var(--primary); /* Neuer "Glow"-Effekt */
+    --glow-effect: 0 0 10px var(--primary);
+    --calistenics-color: #4CAF50;
+    --cardio-color: #FF6B6B;
+    --strength-color: #00aaff;
+    --restday-color: #9b59b6;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Navigation */
 nav {
