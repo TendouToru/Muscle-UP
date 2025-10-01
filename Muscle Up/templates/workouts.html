@@ -2,1576 +2,685 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
-    <title>Muscle Up | Training</title>
+    <title>Training</title>
     <style>
-        /* Konsistente Workout-spezifische Styles - passt zu globalem CSS */
-        .workout-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--accent-dark);
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        .workout-tab {
-            padding: 1rem 1.5rem;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-            border-bottom: 3px solid transparent;
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .workout-tab.active {
-            opacity: 1;
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-            background-color: var(--card-bg);
-        }
-        
-        .workout-tab:hover {
-            opacity: 1;
-            background-color: rgba(0, 170, 255, 0.1);
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-            width: 100%;
-        }
-        
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        /* Exercise Grid - konsistent mit Cards */
-        .exercise-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            width: 100%;
-            max-width: 800px;
-            margin: 1rem 0;
-        }
-        
-        .exercise-dropdown {
-            display: none;
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 1rem;
-        }
-        
-        .exercise-dropdown select {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--accent-dark);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 1rem;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1em;
-        }
-        
-        .exercise-card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100px;
-            box-shadow: var(--box-shadow);
-        }
-        
-        .exercise-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary);
-            box-shadow: var(--glow-effect);
-        }
-        
-        .exercise-card.selected {
-            border-color: var(--primary);
-            background-color: rgba(0, 229, 255, 0.1);
-        }
-        
-        .exercise-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-        }
-        
-        .exercise-name {
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: var(--text);
-        }
-        
-        /* Einheitliches Form-Design für alle Tabs */
-        .workout-form-container {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 500px;
-            margin: 1rem 0;
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--accent-dark);
-            animation: slideIn 0.5s ease;
-        }
-        
-        .form-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 1px solid var(--accent-dark);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3);
-        }
-        
-        .set-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            padding: 0.8rem;
-            background-color: var(--accent-dark);
-            border-radius: 8px;
-        }
-        
-        .set-number {
-            font-weight: bold;
-            min-width: 30px;
-            color: var(--primary);
-        }
-        
-        .set-inputs {
-            display: flex;
-            gap: 0.5rem;
-            flex: 1;
-        }
-        
-        .set-inputs input {
-            flex: 1;
-            min-width: 60px;
-            background-color: var(--background);
-            color: var(--text);
-        }
-        
-        .remove-set {
-            background: none;
-            border: none;
-            color: var(--error);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-        
-        .remove-set:hover {
-            background-color: rgba(205, 7, 27, 0.1);
-        }
-        
-        .add-set-btn {
-            width: 100%;
-            margin-top: 1rem;
-            padding: 0.8rem;
-            background-color: var(--accent-dark);
-            border: none;
-            border-radius: 8px;
-            color: var(--text);
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: 500;
-        }
-        
-        .add-set-btn:hover {
-            background-color: var(--secondary);
-            color: var(--background);
-        }
-        
-        .workout-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        /* Individuell: Workout-Type Selection */
-        #workout-type-selection {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        #workout-type-btn {
-            padding: 0.8rem 1.5rem;
-            background-color: var(--card-bg);
-            border: 2px solid var(--accent-dark);
-            border-radius: 8px;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            box-shadow: var(--box-shadow);
-            min-width: 120px;
-        }
-        
-        #workout-type-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: var(--glow-effect);
-        }
-        
-        #workout-type-btn.active {
-            border-color: var(--primary);
-            background-color: rgba(0, 229, 255, 0.1);
-        }
-        
-        /* Cardio-spezifisch - konsistent mit Cards */
-        .cardio-dash {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            width: 100%;
-        }
-        
-        .cardio-card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80px;
-            box-shadow: var(--box-shadow);
-            color: var(--secondary);
-            font-weight: bold;
-        }
-        
-        .cardio-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary);
-            box-shadow: var(--glow-effect);
-            color: var(--primary);
-        }
-        
-        .cardio-subform {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .cardio-subform.active {
-            display: block;
-        }
-        
-        .cardio-header {
-            text-align: center;
-            margin-bottom: 1rem;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-        
-        /* Übersicht - Grid-Layout */
-        .overview {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 1000px;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @media (min-width: 992px) {
-            .overview {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        .overview-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--accent-dark);
-            border-left: 4px solid var(--strength-color);
-        }
-        
-        .overview-card.cardio {
-            border-left-color: var(--cardio-color);
-        }
-        
-        .overview-card.calistenics {
-            border-left-color: var(--calistenics-color);
-        }
-        
-        .overview-header {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-        
-        .completed-exercise {
-            background-color: var(--accent-dark);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .completed-exercise h4 {
-            margin: 0 0 0.5rem 0;
-            color: var(--primary);
-        }
-        
-        .completed-exercise ul {
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
-            color: var(--text);
-        }
-        
-        .completed-exercise li {
-            margin-bottom: 0.25rem;
-        }
-        
-        .delete-btn {
-            background-color: var(--error);
-            color: var(--text);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background-color 0.3s;
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-        
-        .delete-btn:hover {
-            background-color: #a70215;
-        }
-        
-        /* Datumsauswahl - konsistent */
-        .date-selection {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            background-color: var(--card-bg);
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: var(--box-shadow);
-            width: 100%;
-            max-width: 500px;
-        }
-        
-        .date-selection label {
-            color: var(--text);
-            font-weight: 500;
-        }
-        
-        .date-selection input {
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--accent-dark);
-            background-color: var(--background);
-            color: var(--text);
-            min-width: 200px;
-        }
-        
-        #set-date-btn {
-            padding: 0.8rem 1.5rem;
-            white-space: nowrap;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-            color: var(--text);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        #set-date-btn:hover {
-            background: var(--secondary);
-            color: var(--background);
-            transform: translateY(-2px);
-            box-shadow: var(--glow-effect);
-        }
-        
-        /* Restday Button */
-        #rest-btn {
-            background-color: var(--success);
-            border-color: var(--success);
-            font-size: large;
-            width: 100%;
-            max-width: 300px;
-            margin: 1rem auto;
-            display: block;
-        }
-        
-        /* Mobile Anpassungen */
-        @media (max-width: 768px) {
-            .workout-tabs {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .workout-tab {
-                text-align: center;
-                padding: 0.8rem;
-            }
-            
-            .exercise-grid {
-                display: none;
-            }
-            
-            .exercise-dropdown {
-                display: block;
-            }
-            
-            .exercise-card {
-                padding: 0.8rem;
-                min-height: 80px;
-            }
-            
-            .exercise-icon {
-                font-size: 1.5rem;
-            }
-            
-            .workout-form-container {
-                padding: 1rem;
-            }
-            
-            .set-inputs {
-                flex-direction: column;
-            }
-            
-            .workout-actions {
-                flex-direction: column;
-            }
-            
-            .workout-type-selection {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .cardio-dash {
-                grid-template-columns: 1fr;
-            }
-            
-            .overview {
-                grid-template-columns: 1fr;
-            }
-            
-            .date-selection {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .exercise-dropdown {
-                display: none;
-            }
-            
-            .exercise-grid {
-                display: grid;
-            }
-        }
-        
-        /* Animationen - aus globalem CSS übernommen */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Utility - Error States */
-        .error {
-            color: var(--error);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-        
-        .success {
-            color: var(--success);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
+:root {
+    --background: #1e1e2f;
+    --primary: #00e5ff;
+    --secondary: #00aaff;
+    --contrast: gold;
+    --text: #ecf0f1;
+    --success: #4caf50;
+    --error: #cd071b;
+    --card-bg: #2c2c3f;
+    --accent-dark: #3a3a55;
+    --glow-effect: 0 0 10px var(--primary);
+    --calistenics-color: #4CAF50;
+    --cardio-color: #FF6B6B;
+    --strength-color: #00aaff;
+    --restday-color: #9b59b6;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Grundlayout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Kopfzeile */
+header.head {
+    background-color: var(--background);
+    border-bottom: 2px solid var(--primary);
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+header.head .headline {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+/* Hauptinhalt */
+main.content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Footer */
+footer {
+    background-color: var(--card-bg);
+    color: var(--text);
+    text-align: center;
+    padding: 1rem;
+    border-top: 2px solid var(--primary);
+}
+
+/* Buttons */
+.button {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary);
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.button:hover {
+    background: var(--secondary);
+    color: var(--background);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 200, 0.4);
+}
+
+#rest-btn {
+    background-color: var(--success);
+    border-color: var(--success);
+    font-size: large;
+    width: 400px;
+}
+
+/* Löschen-Button */
+.delete-btn {
+    background-color: var(--secondary);
+    color: var(--background);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: var(--error);
+    color: var(--text);
+}
+
+.delete-set {
+    margin-left: 5px;
+}
+
+#btn-row {
+    max-width: 400px;
+    background-color: var(--accent-dark);
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+#cardio-btn, #kraft-training-btn, #calestenics-btn {
+    color: var(--secondary);
+    background-color: var(--card-bg);
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    margin: 0;
+}
+
+#cardio-btn:hover, #kraft-training-btn:hover, #calestenics-btn:hover {
+    background-color: var(--accent-dark);
+    color: var(--primary);
+}
+
+#saveBtn, #uploadBtn {
+    border-color: var(--success);
+    background-color: var(--success);
+}
+
+/* Formulare */
+.form-workout {
+    display: flex;
+    background-color: var(--card-bg);
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    padding: 15px;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 15px var(--secondary),
+        0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid var(--accent-dark);
+}
+
+.form-workout input, .form-workout select {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--accent-dark);
+    color: var(--text);
+}
+
+/* Navigation */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(13, 13, 30, 0.8);
+    border-bottom: 1px solid var(--secondary);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-top {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.nav-top a {
+    text-decoration: none;
+    color: var(--secondary);
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: color 0.3s;
+}
+
+.nav-top a:hover {
+    background-color: var(--secondary);
+    color: var(--accent-dark);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background-color: var(--card-bg);
+    min-width: 150px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--primary);
+    color: var(--accent-dark);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.username {
+    color: var(--secondary);
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.hamburger {
+    display: none;
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: var(--secondary);
+    cursor: pointer;
+}
+
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    background: var(--card-bg);
+    padding: 1rem;
+    gap: 10px;
+}
+
+.mobile-menu a {
+    text-decoration: none;
+    color: var(--secondary);
+    border-bottom: 1px solid var(--accent-dark);
+    padding: 8px;
+    border-radius: 5px;
+    transition: color 0.3s;
+}
+
+.mobile-menu a:hover {
+    background: var(--primary);
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .nav-top, .nav-user {
+        display: none !important;
+    }
+
+    .mobile-menu.active {
+        display: flex;
+    }
+
+    .hamburger {
+        display: block;
+    }
+}
+
+/* Workout-spezifische Styles */
+.workout-form-container {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 2rem;
+}
+
+.set-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.set-row input {
+    flex: 1;
+    min-width: 60px;
+}
+
+.exercise-group {
+    background-color: var(--accent-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.exercise-group h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.recent-workouts {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 600px;
+}
+
+.workout-item {
+    background-color: var(--accent-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid transparent;
+}
+
+.workout-item.strength { border-left-color: var(--strength-color); }
+.workout-item.cardio { border-left-color: var(--cardio-color); }
+.workout-item.calistenics { border-left-color: var(--calistenics-color); }
+.workout-item.restday { border-left-color: var(--restday-color); }
+
+.workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.workout-type-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.workout-type-badge.strength { background-color: var(--strength-color); color: white; }
+.workout-type-badge.cardio { background-color: var(--cardio-color); color: white; }
+.workout-type-badge.calistenics { background-color: var(--calistenics-color); color: white; }
+.workout-type-badge.restday { background-color: var(--restday-color); color: white; }
+
+.workout-exercise {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+}
+
+.workout-details {
+    font-size: 0.9rem;
+    color: #aaa;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--accent-dark);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const workoutForm = document.getElementById('workout-form');
+            const exerciseList = document.getElementById('exercise-list');
+            const typeButtons = document.querySelectorAll('#cardio-btn, #kraft-training-btn, #calestenics-btn, #rest-btn');
+            const saveBtn = document.getElementById('saveBtn');
+            let workoutType = '';
+            let exercises = [];
+
+            // Hamburger Menu
+            const hamburger = document.querySelector('.hamburger');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            hamburger.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+            });
+
+            // Workout-Typ auswählen
+            typeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    typeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    workoutType = button.id.replace('-btn', '');
+                    updateFormVisibility();
+                });
+            });
+
+            // Formular basierend auf Workout-Typ anzeigen
+            function updateFormVisibility() {
+                const restForm = document.getElementById('rest-form');
+                const exerciseForm = document.getElementById('exercise-form');
+                if (workoutType === 'rest') {
+                    restForm.style.display = 'block';
+                    exerciseForm.style.display = 'none';
+                } else {
+                    restForm.style.display = 'none';
+                    exerciseForm.style.display = 'block';
+                }
+            }
+
+            // Übung hinzufügen
+            document.getElementById('add-exercise').addEventListener('click', () => {
+                const exerciseName = document.getElementById('exercise-name').value;
+                if (!exerciseName) {
+                    alert('Bitte gib einen Übungsnamen ein.');
+                    return;
+                }
+
+                const exercise = {
+                    name: exerciseName,
+                    sets: []
+                };
+
+                // Sätze hinzufügen (Standard: 3 Sätze)
+                for (let i = 0; i < 3; i++) {
+                    exercise.sets.push({ reps: '', weight: '' });
+                }
+
+                exercises.push(exercise);
+                document.getElementById('exercise-name').value = '';
+                renderExercises();
+            });
+
+            // Übungen rendern
+            function renderExercises() {
+                exerciseList.innerHTML = '';
+                exercises.forEach((exercise, exIndex) => {
+                    const exerciseDiv = document.createElement('div');
+                    exerciseDiv.classList.add('exercise-group');
+                    exerciseDiv.innerHTML = `
+                        <h3>${exercise.name}</h3>
+                        <div id="sets-${exIndex}">
+                            ${exercise.sets.map((set, setIndex) => `
+                                <div class="set-row">
+                                    <input type="number" placeholder="Wdh" value="${set.reps}" data-ex="${exIndex}" data-set="${setIndex}" class="reps">
+                                    <input type="number" placeholder="Gewicht (kg)" value="${set.weight}" data-ex="${exIndex}" data-set="${setIndex}" class="weight">
+                                    <button class="delete-btn delete-set" data-ex="${exIndex}" data-set="${setIndex}">Löschen</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="button add-set" data-ex="${exIndex}">Satz hinzufügen</button>
+                        <button class="delete-btn" data-ex="${exIndex}">Übung löschen</button>
+                    `;
+                    exerciseList.appendChild(exerciseDiv);
+                });
+
+                // Event-Listener für Satz- und Übungs-Lösch-Buttons
+                document.querySelectorAll('.delete-set').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const exIndex = btn.dataset.ex;
+                        const setIndex = btn.dataset.set;
+                        exercises[exIndex].sets.splice(setIndex, 1);
+                        renderExercises();
+                    });
+                });
+
+                document.querySelectorAll('.delete-btn:not(.delete-set)').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const exIndex = btn.dataset.ex;
+                        exercises.splice(exIndex, 1);
+                        renderExercises();
+                    });
+                });
+
+                document.querySelectorAll('.add-set').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const exIndex = btn.dataset.ex;
+                        exercises[exIndex].sets.push({ reps: '', weight: '' });
+                        renderExercises();
+                    });
+                });
+
+                // Event-Listener für Eingabefelder
+                document.querySelectorAll('.reps, .weight').forEach(input => {
+                    input.addEventListener('input', () => {
+                        const exIndex = input.dataset.ex;
+                        const setIndex = input.dataset.set;
+                        const field = input.classList.contains('reps') ? 'reps' : 'weight';
+                        exercises[exIndex].sets[setIndex][field] = input.value;
+                    });
+                });
+            }
+
+            // Workout speichern
+            saveBtn.addEventListener('click', async () => {
+                if (!workoutType) {
+                    alert('Bitte wähle einen Workout-Typ aus.');
+                    return;
+                }
+
+                const workoutData = {
+                    type: workoutType,
+                    exercises: workoutType === 'rest' ? [] : exercises,
+                    date: new Date().toISOString().split('T')[0]
+                };
+
+                try {
+                    const response = await fetch('/save_workout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(workoutData)
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Workout gespeichert!');
+                        exercises = [];
+                        renderExercises();
+                        window.location.reload(); // Seite neu laden, um aktuelle Workouts anzuzeigen
+                    } else {
+                        alert('Fehler beim Speichern: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Fehler: ' + error.message);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-<div class="wrapper">
-    <header class="head">
-        <h1 class="headline" id="workout-date-header">Training</h1>
-        <div class="nav-bar">
+    <div class="wrapper">
+        <header class="head">
             <h1 class="headline">Muscle Up</h1>
-
-            <nav class="nav-top">
-                <a href="{{ url_for('index') }}" class="link">Start</a>
-                <a href="{{ url_for('fitness_kalendar') }}" class="link">Fitness Kalender</a>
-            </nav>
-
+        </header>
+        <nav class="nav-bar">
+            <div class="nav-top">
+                <a href="{{ url_for('index') }}">Start</a>
+                <a href="{{ url_for('workout_page') }}">Training</a>
+                <a href="{{ url_for('info') }}">Info & Updates</a>
+            </div>
             {% if 'user_id' in session %}
             <div class="nav-user">
                 <div class="dropdown">
                     <button class="dropbtn">
-                        <img src="{{ current_user_profile.profile_pic_url if current_user_profile else url_for('static', filename='profile_pics/default.png') }}" 
-     alt="Profil" class="profile-pic"
-     onerror="this.src='{{ url_for('static', filename='profile_pics/default.png') }}'">
+                        <img src="{{ url_for('static', filename='profile_pics/' + session['profile_pic'] if session.get('profile_pic') else 'profile_pics/default.png') }}" alt="Profilbild" width="40" height="40">
+                        <span class="username">{{ session['username'] }}</span>
                     </button>
                     <div class="dropdown-content">
-                        <span class="username">{{ session['username'] }}</span>
                         <a href="{{ url_for('profile') }}">Mein Profil</a>
-                        <a href="{{ url_for('shop') }}">Shop</a>
                         <a href="{{ url_for('logout') }}">Logout</a>
                     </div>
                 </div>
             </div>
             {% else %}
-            <nav class="nav-top">
+            <div class="nav-top">
                 <a href="{{ url_for('login') }}">Login</a>
                 <a href="{{ url_for('register') }}">Registrieren</a>
-            </nav>
+            </div>
             {% endif %}
-
-            <button class="hamburger" onclick="toggleMenu()">☰</button>
-        </div>
-
-        <nav class="mobile-menu" id="mobileMenu">
+            <button class="hamburger">☰</button>
+        </nav>
+        <nav class="mobile-menu">
             <a href="{{ url_for('index') }}">Start</a>
-
+            <a href="{{ url_for('workout_page') }}">Training</a>
+            <a href="{{ url_for('info') }}">Info & Updates</a>
             {% if 'user_id' in session %}
                 <a href="{{ url_for('profile') }}">Mein Profil</a>
-                <a href="{{ url_for('fitness_kalendar') }}">Fitness Kalender</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}
                 <a href="{{ url_for('login') }}">Login</a>
                 <a href="{{ url_for('register') }}">Registrieren</a>
             {% endif %}
         </nav>
-    </header>
-
-     <main class="content">
-        <!-- Datumsauswahl -->
-        <div class="date-selection">
-            <label for="workout-date">Datum auswählen:</label>
-            <input type="date" id="workout-date" name="workout-date" value="{{ today }}">
-            <button id="set-date-btn" class="button">Datum übernehmen</button>
-        </div>
-
-        {% if ruhe == True %}
-            <form method="post" action="{{ url_for('post_restday') }}">
-                <input type="hidden" name="selected_date" id="restday-date" value="{{ today }}">
-                <button type="submit" id="rest-btn" class="button">Restday</button>
-            </form>
-        {% endif %}
-
-        <!-- Tab-Navigation -->
-        <div class="workout-tabs">
-            <button class="workout-tab active" data-tab="classic">Klassik</button>
-            <button class="workout-tab" data-tab="individual">Individuell</button>
-            <button class="workout-tab" data-tab="overview">Übersicht</button>
-        </div>
-
-
-         <!-- Klassik Tab -->
-        <div class="tab-content active" id="classic-tab">
-            <h3 class="container-header">Klassische Übungen</h3>
-            
-            <!-- Mobile Dropdown -->
-            <div class="exercise-dropdown">
-                <select id="exercise-select">
-                    <option value="">Wähle eine Übung aus</option>
-                    <option value="Bankdrücken">🏋️ Bankdrücken</option>
-                    <option value="Kniebeugen">🦵 Kniebeugen</option>
-                    <option value="Kreuzheben">⬆️ Kreuzheben</option>
-                    <option value="Schulterdrücken">💪 Schulterdrücken</option>
-                    <option value="Klimmzüge">🧗 Klimmzüge</option>
-                    <option value="Bizepscurls">💪 Bizepscurls</option>
-                    <option value="Dips">🔽 Dips</option>
-                    <option value="Beinpresse">🦵 Beinpresse</option>
-                    <option value="Rudern">🚣 Rudern</option>
-                    <option value="Butterfly">🦋 Butterfly</option>
-                    <option value="Latziehen">👇 Latziehen</option>
-                    <option value="Beinbeuger">🦵 Beinbeuger</option>
-                </select>
+        <main class="content">
+            <h2>Neues Workout</h2>
+            <div id="btn-row">
+                <button id="kraft-training-btn">Krafttraining</button>
+                <button id="cardio-btn">Cardio</button>
+                <button id="calestenics-btn">Calisthenics</button>
+                <button id="rest-btn">Ruhetag</button>
             </div>
-            
-            <!-- Desktop Grid -->
-            <div class="exercise-grid" id="classic-exercises">
-                <div class="exercise-card" data-exercise="Bankdrücken">
-                    <div class="exercise-icon">🏋️</div>
-                    <div class="exercise-name">Bankdrücken</div>
-                </div>
-                <div class="exercise-card" data-exercise="Kniebeugen">
-                    <div class="exercise-icon">🦵</div>
-                    <div class="exercise-name">Kniebeugen</div>
-                </div>
-                <div class="exercise-card" data-exercise="Kreuzheben">
-                    <div class="exercise-icon">⬆️</div>
-                    <div class="exercise-name">Kreuzheben</div>
-                </div>
-                <div class="exercise-card" data-exercise="Schulterdrücken">
-                    <div class="exercise-icon">💪</div>
-                    <div class="exercise-name">Schulterdrücken</div>
-                </div>
-                <div class="exercise-card" data-exercise="Klimmzüge">
-                    <div class="exercise-icon">🧗</div>
-                    <div class="exercise-name">Klimmzüge</div>
-                </div>
-                <div class="exercise-card" data-exercise="Bizepscurls">
-                    <div class="exercise-icon">💪</div>
-                    <div class="exercise-name">Bizepscurls</div>
-                </div>
-                <div class="exercise-card" data-exercise="Dips">
-                    <div class="exercise-icon">🔽</div>
-                    <div class="exercise-name">Dips</div>
-                </div>
-                <div class="exercise-card" data-exercise="Beinpresse">
-                    <div class="exercise-icon">🦵</div>
-                    <div class="exercise-name">Beinpresse</div>
-                </div>
-                <div class="exercise-card" data-exercise="Rudern">
-                    <div class="exercise-icon">🚣</div>
-                    <div class="exercise-name">Rudern</div>
-                </div>
-                <div class="exercise-card" data-exercise="Butterfly">
-                    <div class="exercise-icon">🦋</div>
-                    <div class="exercise-name">Butterfly</div>
-                </div>
-                <div class="exercise-card" data-exercise="Latziehen">
-                    <div class="exercise-icon">👇</div>
-                    <div class="exercise-name">Latziehen</div>
-                </div>
-                <div class="exercise-card" data-exercise="Beinbeuger">
-                    <div class="exercise-icon">🦵</div>
-                    <div class="exercise-name">Beinbeuger</div>
-                </div>
-            </div>
-            
-            <!-- Klassik Form -->
-            <div class="workout-form-container" id="classic-form" style="display: none;">
-                <h3 class="form-header" id="selected-exercise-name">Übung auswählen</h3>
-                <div id="sets-container"></div>
-                <button class="add-set-btn" id="add-set">+ Satz hinzufügen</button>
-                <div class="workout-actions">
-                    <button class="button" id="save-classic-workout">Workout speichern</button>
-                    <button class="button" id="cancel-classic-workout" style="background-color: var(--accent-dark);">Abbrechen</button>
-                </div>
-                <div id="classic-error" class="error" style="display: none;"></div>
-            </div>
-        </div>
-
-        <!-- Individuell Tab -->
-        <div class="tab-content" id="individual-tab">
-            <h3 class="container-header">Individuelle Workouts</h3>
-
-            <div id="workout-type-selection">
-                <button id="workout-type-btn" data-type="strength">Kraft Training</button>
-                <button id="workout-type-btn" data-type="cardio">Cardio</button>
-                <button id="workout-type-btn" data-type="calisthenics">Calistenics</button>
-            </div>
-            
-            
-            <!-- Cardio Form -->
-            <div class="workout-form-container" id="cardio-form" style="display: none;">
-                <h3 class="form-header">Cardio Training</h3>
-                <section class="cardio-dash">
-                    <div class="cardio-card" data-target="laufen">
-                        🏃 Laufen
+            <div class="workout-form-container">
+                <form id="workout-form" class="form-workout">
+                    <div id="exercise-form" style="display: none;">
+                        <label for="exercise-name">Übung:</label>
+                        <input type="text" id="exercise-name" placeholder="z.B. Bankdrücken">
+                        <button type="button" id="add-exercise" class="button">Übung hinzufügen</button>
+                        <div id="exercise-list"></div>
                     </div>
-                    <div class="cardio-card" data-target="schwimmen">
-                        🏊 Schwimmen
+                    <div id="rest-form" style="display: none;">
+                        <p>Ruhetag ausgewählt. Keine weiteren Eingaben erforderlich.</p>
                     </div>
-                    <div class="cardio-card" data-target="spielsport">
-                        ⚽ Spielsport
-                    </div>
-                </section>
-                
-                <div id="laufen" class="cardio-subform">
-                    <h4 class="cardio-header">Laufen</h4>
-                    <form data-type="Laufen">
-                        <div class="form-group">
-                            <label for="laufen-distance">Strecke (km):</label>
-                            <input type="number" id="laufen-distance" name="distance" min="0" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="laufen-duration">Dauer (min):</label>
-                            <input type="number" id="laufen-duration" name="duration" min="1" required>
-                        </div>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-                
-                <div id="schwimmen" class="cardio-subform">
-                    <h4 class="cardio-header">Schwimmen</h4>
-                    <form data-type="Schwimmen">
-                        <div class="form-group">
-                            <label for="schwimmen-distance">Strecke (km):</label>
-                            <input type="number" id="schwimmen-distance" name="distance" min="0" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="schwimmen-duration">Dauer (min):</label>
-                            <input type="number" id="schwimmen-duration" name="duration" min="1" required>
-                        </div>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-                
-                <div id="spielsport" class="cardio-subform">
-                    <h4 class="cardio-header">Spielsport</h4>
-                    <form data-type="Spielsport">
-                        <div class="form-group">
-                            <label for="spielsport-art">Sportart:</label>
-                            <input type="text" id="spielsport-art" name="sportart" placeholder="z.B. Fußball" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="spielsport-duration">Dauer (min):</label>
-                            <input type="number" id="spielsport-duration" name="duration" min="1" required>
-                        </div>
-                        <button type="submit" class="button">Speichern</button>
-                    </form>
-                </div>
-                <div id="cardio-error" class="error" style="display: none;"></div>
-            </div>
-
-        
-            <!-- Strength Form -->
-            <div class="workout-form-container" id="strength-form">
-                <h3 class="form-header">Krafttraining</h3>
-                <form id="exercise-form">
-                    <div class="form-group">
-                        <label for="exercise-name">Übungsname:</label>
-                        <input type="text" id="exercise-name" placeholder="z.B. Kreuzheben" required>
-                    </div>
-                    <button type="submit" class="button">Übung starten</button>
+                    <button type="button" id="saveBtn" class="button">Workout speichern</button>
                 </form>
-                <div id="exercise-container" style="display: none;">
-                    <h4 class="form-header" id="current-exercise"></h4>
-                    <form id="set-form">
-                        <div class="form-group">
-                            <label for="weight">Gewicht (kg):</label>
-                            <input type="number" id="weight" placeholder="Gewicht (kg)" min="0" step="0.5" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reps">Wiederholungen:</label>
-                            <input type="number" id="reps" placeholder="Wiederholungen" min="1" required>
-                        </div>
-                        <button type="submit" class="button">Satz hinzufügen</button>
-                    </form>
-                    <ul id="sets-list"></ul>
-                    <button id="finish-exercise" class="button">Übung beenden</button>
-                </div>
-                <div id="strength-error" class="error" style="display: none;"></div>
-            </div>  
-        
-            <!-- Calisthenics Form -->
-            <div class="workout-form-container" id="calisthenics-form" style="display: none;">
-                <h3 class="form-header">Calisthenics</h3>
-                <form id="cal-ex-form">
-                    <div class="form-group">
-                        <label for="cal-ex-name">Übungsname:</label>
-                        <input type="text" id="cal-ex-name" placeholder="z.B. Liegestütze" required>
-                    </div>
-                    <button type="submit" class="button">Übung starten</button>
-                </form>
-                <div id="cal-ex-container" style="display: none;">
-                    <h4 class="form-header" id="cal-current-ex"></h4>
-                    <form id="cal-set-form">
-                        <div class="form-group">
-                            <label for="cal-reps">Wiederholungen:</label>
-                            <input type="number" id="cal-reps" placeholder="Wiederholungen" min="1" required>
-                        </div>
-                        <button type="submit" class="button">Satz hinzufügen</button>
-                    </form>
-                    <ul id="cal-sets-list"></ul>
-                    <button id="cal-finish-exercise" class="button">Übung beenden</button>
-                </div>
-                <div id="calisthenics-error" class="error" style="display: none;"></div>
             </div>
-        </div>
-        
-        <!-- Übersicht Tab -->
-        <div class="tab-content" id="overview-tab">
-            <h3 class="container-header">Heutige Workouts</h3>
-            <div class="overview">
-                <div class="overview-card">
-                    <h3 class="overview-header">Krafttraining</h3>
-                    <div id="completed-strength">
-                        {% if today_workouts %}
-                            {% for exercise in today_workouts %}
-                            <div class="completed-exercise">
-                                <h4>{{ exercise.exercise }}</h4>
-                                <ul>
-                                    {% for s in exercise.sets %}
-                                    <li>Gewicht: {{ s.weight|round(1) }} kg | Wiederholungen: {{ s.reps }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}" style="display: inline;">
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                                </form>
-                            </div>
+            <section class="recent-workouts">
+                <h3>Letzte Workouts</h3>
+                {% if recent_workouts %}
+                <div class="workout-list">
+                    {% for workout in recent_workouts %}
+                    <div class="workout-item {{ workout.type }}">
+                        <div class="workout-header">
+                            <span class="workout-date">{{ workout.date.strftime('%d.%m.%Y') }}</span>
+                            <span class="workout-type-badge {{ workout.type }}">{{ workout.type|capitalize }}</span>
+                        </div>
+                        {% if workout.exercises %}
+                        {% for exercise in workout.exercises %}
+                        <div class="workout-exercise">{{ exercise.name }}</div>
+                        <div class="workout-details">
+                            {% for set in exercise.sets %}
+                            <span>Satz {{ loop.index }}: {{ set.reps }} Wdh, {{ set.weight }} kg</span>
                             {% endfor %}
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <p class="text-center" style="color: var(--text);">Keine Krafttrainings heute.</p>
+                        <div class="workout-details">Ruhetag</div>
                         {% endif %}
                     </div>
+                    {% endfor %}
                 </div>
-                
-                <div class="overview-card cardio">
-                    <h3 class="overview-header">Cardio</h3>
-                    <div id="completed-cardio">
-                        {% if today_cardio_workouts %}
-                            {% for workout in today_cardio_workouts %}
-                            <div class="completed-exercise">
-                                <h4>{{ workout.exercise }}</h4>
-                                <p>Dauer: {{ workout.duration }} min{% if workout.distance and workout.distance > 0 %} | Strecke: {{ workout.distance|round(2) }} km{% endif %}</p>
-                                <form method="post" action="{{ url_for('delete_workout', workout_id=workout.id) }}" style="display: inline;">
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                                </form>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-center" style="color: var(--text);">Kein Cardio heute.</p>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="overview-card calistenics">
-                    <h3 class="overview-header">Calisthenics</h3>
-                    <div id="completed-calistenics">
-                        {% if today_calistenics_workouts %}
-                            {% for exercise in today_calistenics_workouts %}
-                            <div class="completed-exercise">
-                                <h4>{{ exercise.exercise }}</h4>
-                                <ul>
-                                    {% for s in exercise.sets %}
-                                    <li>Wiederholungen: {{ s.reps }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <form method="post" action="{{ url_for('delete_workout', workout_id=exercise.id) }}" style="display: inline;">
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                                </form>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-center" style="color: var(--text);">Kein Calisthenics heute.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-    </main>
-
-    <footer>
-        &copy; 2025 Muscle Up. Alle Rechte vorbehalten.
-    </footer>
-</div>
-
-<script>
- document.addEventListener('DOMContentLoaded', function () {
-    // Globale Variable für das ausgewählte Datum
-    let selectedDate = "{{ today }}";
-
-    // Tab Switching
-    const tabButtons = document.querySelectorAll('.workout-tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === `${button.getAttribute('data-tab')}-tab`) {
-                    content.classList.add('active');
-                }
-            });
-        });
-    });
-
-    // Datumsauswahl
-    const dateInput = document.getElementById('workout-date');
-    const setDateBtn = document.getElementById('set-date-btn');
-    const dateHeader = document.getElementById('workout-date-header');
-    const restdayDateInput = document.getElementById('restday-date');
-    const today = new Date().toISOString().split('T')[0];
-
-    // Maximal heute erlauben
-    dateInput.max = today;
-
-    // Header initialisieren
-    updateHeader(selectedDate);
-
-    // Beim Klick auf den Button das Datum übernehmen
-    setDateBtn.addEventListener('click', function () {
-        console.log('Set Date Button clicked');
-        const newDate = dateInput.value;
-        if (!newDate) {
-            alert('Bitte wählen Sie ein Datum aus.');
-            return;
-        }
-
-        selectedDate = newDate;
-        if (restdayDateInput) {
-            restdayDateInput.value = newDate;
-        }
-        updateHeader(selectedDate);
-        loadWorkoutsForDate(selectedDate);
-        // Kein location.reload(), da dies die Seite unnötig neu lädt
-    });
-
-    // Header aktualisieren
-    function updateHeader(date) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        dateHeader.textContent = `Training am ${new Date(date).toLocaleDateString('de-DE', options)}`;
-    }
-
-    // Workouts für ein bestimmtes Datum laden
-    async function loadWorkoutsForDate(date) {
-        try {
-            const response = await fetch(`/get_workouts_for_date?date=${date}`);
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-            const data = await response.json();
-            updateWorkoutDisplay(data);
-        } catch (error) {
-            console.error('Fehler beim Laden der Workouts:', error);
-            showError('classic-error', 'Fehler beim Laden der Workouts.');
-        }
-    }
-
-    // Anzeige der Workouts aktualisieren
-    function updateWorkoutDisplay(workoutsData) {
-        const completedStrength = document.getElementById('completed-strength');
-        const completedCardio = document.getElementById('completed-cardio');
-        const completedCalisthenics = document.getElementById('completed-calistenics');
-
-        // Krafttraining
-        completedStrength.innerHTML = workoutsData.strength_workouts && workoutsData.strength_workouts.length > 0
-            ? workoutsData.strength_workouts.map(exercise => `
-                <div class="completed-exercise">
-                    <h4>${exercise.exercise}</h4>
-                    <ul>
-                        ${exercise.sets.map(s => `<li>Gewicht: ${s.weight} kg | Wiederholungen: ${s.reps}</li>`).join('')}
-                    </ul>
-                    <form method="post" action="/delete_workout/${exercise.id}">
-                        <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                    </form>
-                </div>
-            `).join('')
-            : '<p class="text-center" style="color: var(--text);">Keine Krafttrainings heute.</p>';
-
-        // Cardio
-        completedCardio.innerHTML = workoutsData.cardio_workouts && workoutsData.cardio_workouts.length > 0
-            ? workoutsData.cardio_workouts.map(workout => `
-                <div class="completed-exercise">
-                    <h4>${workout.exercise}</h4>
-                    <p>Dauer: ${workout.duration} min${workout.distance && workout.distance > 0 ? ` | Strecke: ${workout.distance} km` : ''}</p>
-                    <form method="post" action="/delete_workout/${workout.id}">
-                        <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                    </form>
-                </div>
-            `).join('')
-            : '<p class="text-center" style="color: var(--text);">Kein Cardio heute.</p>';
-
-        // Calisthenics
-        completedCalisthenics.innerHTML = workoutsData.calisthenics_workouts && workoutsData.calisthenics_workouts.length > 0
-            ? workoutsData.calisthenics_workouts.map(exercise => `
-                <div class="completed-exercise">
-                    <h4>${exercise.exercise}</h4>
-                    <ul>
-                        ${exercise.sets.map(s => `<li>Wiederholungen: ${s.reps}</li>`).join('')}
-                    </ul>
-                    <form method="post" action="/delete_workout/${exercise.id}">
-                        <button type="submit" class="delete-btn" onclick="return confirm('Workout löschen?')">Löschen</button>
-                    </form>
-                </div>
-            `).join('')
-            : '<p class="text-center" style="color: var(--text);">Kein Calisthenics heute.</p>';
-    }
-
-    // Fehleranzeige
-    function showError(elementId, message) {
-        const errorEl = document.getElementById(elementId);
-        errorEl.textContent = message;
-        errorEl.style.display = 'block';
-        setTimeout(() => { errorEl.style.display = 'none'; }, 5000);
-    }
-
-    // Klassik: Übungsauswahl und Sätze
-    const exerciseCards = document.querySelectorAll('.exercise-card');
-    const exerciseSelect = document.getElementById('exercise-select');
-    const classicForm = document.getElementById('classic-form');
-    const selectedExerciseName = document.getElementById('selected-exercise-name');
-    const setsContainer = document.getElementById('sets-container');
-    const addSetBtn = document.getElementById('add-set');
-    const saveClassicBtn = document.getElementById('save-classic-workout');
-    const cancelClassicBtn = document.getElementById('cancel-classic-workout');
-    let currentSets = [];
-    let currentExerciseName = '';
-
-    exerciseCards.forEach(card => {
-        card.addEventListener('click', () => {
-            console.log('Exercise card clicked:', card.getAttribute('data-exercise'));
-            exerciseCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectExercise(card.getAttribute('data-exercise'));
-        });
-    });
-
-    exerciseSelect.addEventListener('change', () => {
-        const exercise = exerciseSelect.value;
-        console.log('Exercise select changed:', exercise);
-        if (exercise) {
-            exerciseCards.forEach(c => c.classList.remove('selected'));
-            selectExercise(exercise);
-        }
-    });
-
-    function selectExercise(exercise) {
-        currentExerciseName = exercise;
-        selectedExerciseName.textContent = exercise;
-        classicForm.style.display = 'block';
-        setsContainer.innerHTML = '';
-        currentSets = [];
-        addSet();
-        classicForm.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function addSet() {
-        const setItem = document.createElement('div');
-        setItem.className = 'set-item';
-        setItem.innerHTML = `
-            <span class="set-number">${currentSets.length + 1}</span>
-            <div class="set-inputs">
-                <input type="number" placeholder="Gewicht (kg)" class="set-weight" min="0" step="0.5" required>
-                <input type="number" placeholder="Wiederholungen" class="set-reps" min="1" required>
-            </div>
-            <button class="remove-set" type="button">&times;</button>
-        `;
-
-        setItem.querySelector('.remove-set').addEventListener('click', () => {
-            console.log('Remove set clicked');
-            const index = Array.from(setsContainer.children).indexOf(setItem);
-            if (index > -1) {
-                currentSets.splice(index, 1);
-                setItem.remove();
-                updateSetNumbers();
-            }
-        });
-
-        setsContainer.appendChild(setItem);
-        currentSets.push({ weight: null, reps: null });
-        updateSetNumbers();
-    }
-
-    function updateSetNumbers() {
-        const numbers = setsContainer.querySelectorAll('.set-number');
-        numbers.forEach((num, idx) => num.textContent = idx + 1);
-    }
-
-    addSetBtn.addEventListener('click', () => {
-        console.log('Add set button clicked');
-        addSet();
-    });
-
-    cancelClassicBtn.addEventListener('click', () => {
-        console.log('Cancel classic button clicked');
-        classicForm.style.display = 'none';
-        currentExerciseName = '';
-        currentSets = [];
-        exerciseSelect.value = '';
-        exerciseCards.forEach(c => c.classList.remove('selected'));
-        setsContainer.innerHTML = '';
-    });
-
-    saveClassicBtn.addEventListener('click', async () => {
-        console.log('Save classic workout button clicked');
-        const weights = setsContainer.querySelectorAll('.set-weight');
-        const reps = setsContainer.querySelectorAll('.set-reps');
-        currentSets = [];
-        let valid = true;
-
-        weights.forEach((w, i) => {
-            const weight = parseFloat(w.value);
-            const rep = parseInt(reps[i].value);
-            if (isNaN(weight) || weight <= 0 || isNaN(rep) || rep < 1) {
-                valid = false;
-                w.style.borderColor = 'var(--error)';
-                reps[i].style.borderColor = 'var(--error)';
-            } else {
-                currentSets.push({ weight, reps: rep });
-                w.style.borderColor = '';
-                reps[i].style.borderColor = '';
-            }
-        });
-
-        if (!valid || !currentExerciseName || currentSets.length === 0) {
-            showError('classic-error', 'Alle Felder müssen gültig ausgefüllt sein.');
-            return;
-        }
-
-        const data = {
-            exercise_name: currentExerciseName,
-            sets: currentSets,
-            date: selectedDate,
-            type: "strength"
-        };
-
-        console.log('Sending Classic Strength payload:', data);
-
-        try {
-            const response = await fetch('/add_workout_for_date', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                classicForm.style.display = 'none';
-                exerciseSelect.value = '';
-                exerciseCards.forEach(c => c.classList.remove('selected'));
-                setsContainer.innerHTML = '';
-                currentExerciseName = '';
-                currentSets = [];
-                alert('Workout gespeichert!');
-            } else {
-                showError('classic-error', result.error || 'Fehler beim Speichern.');
-            }
-        } catch (error) {
-            console.error('Fehler beim Speichern:', error);
-            showError('classic-error', 'Netzwerkfehler beim Speichern.');
-        }
-    });
-
-    // Workout-Typ-Auswahl (Individuell)
-    const workoutTypeBtns = document.querySelectorAll('#workout-type-btn'); 
-    const strengthForm = document.getElementById('strength-form');
-    const cardioForm = document.getElementById('cardio-form');
-    const calisthenicsForm = document.getElementById('calisthenics-form');
-
-    workoutTypeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            console.log('Workout type button clicked:', btn.getAttribute('data-type'));
-            workoutTypeBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            strengthForm.style.display = 'none';
-            cardioForm.style.display = 'none';
-            calisthenicsForm.style.display = 'none';
-
-            const type = btn.getAttribute('data-type');
-            if (type === 'strength') {
-                strengthForm.style.display = 'block';
-            } else if (type === 'cardio') {
-                cardioForm.style.display = 'block';
-                document.querySelectorAll('.cardio-subform').forEach(form => form.classList.remove('active'));
-            } else if (type === 'calisthenics') { // Korrigierte Schreibweise
-                calisthenicsForm.style.display = 'block';
-            }
-        });
-    });
-
-    // Strength Individuell
-    const exerciseForm = document.getElementById('exercise-form');
-    const setForm = document.getElementById('set-form');
-    const finishExerciseBtn = document.getElementById('finish-exercise');
-    const exerciseContainer = document.getElementById('exercise-container');
-    const currentExerciseDisplay = document.getElementById('current-exercise');
-    const setsList = document.getElementById('sets-list');
-    let individualSets = [];
-    let individualExerciseName = '';
-
-    exerciseForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        console.log('Exercise form submitted');
-        individualExerciseName = document.getElementById('exercise-name').value.trim();
-        if (!individualExerciseName) {
-            showError('strength-error', 'Übungsname erforderlich.');
-            return;
-        }
-        currentExerciseDisplay.textContent = individualExerciseName;
-        exerciseForm.style.display = 'none';
-        exerciseContainer.style.display = 'block';
-        setsList.innerHTML = '';
-        individualSets = [];
-    });
-
-    setForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        console.log('Set form submitted');
-        const weight = parseFloat(document.getElementById('weight').value);
-        const reps = parseInt(document.getElementById('reps').value);
-        if (isNaN(weight) || weight <= 0 || isNaN(reps) || reps < 1) {
-            showError('strength-error', 'Gültige Werte eingeben.');
-            return;
-        }
-        individualSets.push({ weight, reps });
-        const li = document.createElement('li');
-        li.innerHTML = `Gewicht: ${weight} kg | Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
-        setsList.appendChild(li);
-        document.getElementById('weight').value = '';
-        document.getElementById('reps').value = '';
-        document.getElementById('strength-error').style.display = 'none';
-    });
-
-    setsList.addEventListener('click', function (e) {
-        if (e.target.classList.contains('delete-set')) {
-            console.log('Delete set clicked');
-            const li = e.target.closest('li');
-            const index = Array.from(setsList.children).indexOf(li);
-            if (index > -1) {
-                individualSets.splice(index, 1);
-                li.remove();
-            }
-        }
-    });
-
-    finishExerciseBtn.addEventListener('click', async function () {
-        console.log('Finish exercise button clicked');
-        if (individualSets.length === 0) {
-            showError('strength-error', 'Mindestens ein Satz erforderlich.');
-            return;
-        }
-        const data = {
-            exercise_name: individualExerciseName,
-            sets: individualSets,
-            date: selectedDate,
-            type: "strength"
-        };
-
-        console.log('Sending Individual Strength payload:', data);
-
-        try {
-            const response = await fetch('/add_workout_for_date', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                exerciseForm.style.display = 'block';
-                exerciseContainer.style.display = 'none';
-                document.getElementById('exercise-name').value = '';
-                individualSets = [];
-                alert('Workout gespeichert!');
-            } else {
-                showError('strength-error', result.error || 'Fehler beim Speichern.');
-            }
-        } catch (error) {
-            console.error('Fehler beim Speichern:', error);
-            showError('strength-error', 'Netzwerkfehler beim Speichern.');
-        }
-    });
-
-    // Cardio
-    const cardioCards = document.querySelectorAll('.cardio-card');
-    cardioCards.forEach(card => {
-        card.addEventListener('click', () => {
-            console.log('Cardio card clicked:', card.getAttribute('data-target'));
-            const target = card.getAttribute('data-target');
-            document.querySelectorAll('.cardio-subform').forEach(f => f.classList.remove('active'));
-            document.getElementById(target).classList.add('active');
-        });
-    });
-
-    document.querySelectorAll('#cardio-form form').forEach(form => {
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            console.log('Cardio form submitted');
-            const workoutType = this.getAttribute('data-type');
-            const duration = parseFloat(this.querySelector('input[name="duration"]').value);
-            if (isNaN(duration) || duration < 1) {
-                showError('cardio-error', 'Gültige Dauer eingeben.');
-                return;
-            }
-
-            let data = {
-                type: "cardio",
-                date: selectedDate,
-                duration: duration
-            };
-
-            if (workoutType === 'Laufen' || workoutType === 'Schwimmen') {
-                const distance = parseFloat(this.querySelector('input[name="distance"]').value);
-                if (isNaN(distance) || distance <= 0) {
-                    showError('cardio-error', 'Gültige Strecke eingeben.');
-                    return;
-                }
-                data.distance = distance;
-                data.exercise_name = workoutType;
-            } else if (workoutType === 'Spielsport') {
-                const sportart = this.querySelector('input[name="sportart"]').value.trim();
-                if (!sportart) {
-                    showError('cardio-error', 'Sportart erforderlich.');
-                    return;
-                }
-                data.exercise_name = sportart;
-            }
-
-            console.log('Sending Cardio payload:', data);
-
-            try {
-                const response = await fetch('/add_workout_for_date', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    this.reset();
-                    document.querySelectorAll('.cardio-subform').forEach(f => f.classList.remove('active'));
-                    alert('Workout gespeichert!');
-                } else {
-                    showError('cardio-error', result.error || 'Fehler beim Speichern.');
-                }
-            } catch (error) {
-                console.error('Fehler beim Speichern:', error);
-                showError('cardio-error', 'Netzwerkfehler beim Speichern.');
-            }
-        });
-    });
-
-    // Calisthenics
-    const calExForm = document.getElementById('cal-ex-form');
-    const calSetForm = document.getElementById('cal-set-form');
-    const calFinishExerciseBtn = document.getElementById('cal-finish-exercise');
-    const calExContainer = document.getElementById('cal-ex-container');
-    const calCurrentExDisplay = document.getElementById('cal-current-ex');
-    const calSetsList = document.getElementById('cal-sets-list');
-    let calCurrentSets = [];
-    let calCurrentExerciseName = '';
-
-    calExForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        console.log('Calisthenics form submitted');
-        calCurrentExerciseName = document.getElementById('cal-ex-name').value.trim();
-        if (!calCurrentExerciseName) {
-            showError('calisthenics-error', 'Übungsname erforderlich.');
-            return;
-        }
-        calCurrentExDisplay.textContent = calCurrentExerciseName;
-        calExForm.style.display = 'none';
-        calExContainer.style.display = 'block';
-        calSetsList.innerHTML = '';
-        calCurrentSets = [];
-    });
-
-    calSetForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        console.log('Calisthenics set form submitted');
-        const reps = parseInt(document.getElementById('cal-reps').value);
-        if (isNaN(reps) || reps < 1) {
-            showError('calisthenics-error', 'Gültige Wiederholungen eingeben.');
-            return;
-        }
-        calCurrentSets.push({ reps });
-        const li = document.createElement('li');
-        li.innerHTML = `Wiederholungen: ${reps} <button class="delete-set">Löschen</button>`;
-        calSetsList.appendChild(li);
-        document.getElementById('cal-reps').value = '';
-        document.getElementById('calisthenics-error').style.display = 'none';
-    });
-
-    calSetsList.addEventListener('click', function (e) {
-        if (e.target.classList.contains('delete-set')) {
-            console.log('Delete calisthenics set clicked');
-            const li = e.target.closest('li');
-            const index = Array.from(calSetsList.children).indexOf(li);
-            if (index > -1) {
-                calCurrentSets.splice(index, 1);
-                li.remove();
-            }
-        }
-    });
-
-    calFinishExerciseBtn.addEventListener('click', async function () {
-        console.log('Finish calisthenics exercise button clicked');
-        if (calCurrentSets.length === 0) {
-            showError('calisthenics-error', 'Mindestens ein Satz erforderlich.');
-            return;
-        }
-        const data = {
-            exercise_name: calCurrentExerciseName,
-            sets: calCurrentSets,
-            date: selectedDate,
-            type: "calisthenics" // Korrigierte Schreibweise
-        };
-
-        console.log('Sending Calisthenics payload:', data);
-
-        try {
-            const response = await fetch('/add_workout_for_date', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-
-            if (response.ok) {
-                loadWorkoutsForDate(selectedDate);
-                calExForm.style.display = 'block';
-                calExContainer.style.display = 'none';
-                document.getElementById('cal-ex-name').value = '';
-                calCurrentSets = [];
-                alert('Workout gespeichert!');
-            } else {
-                showError('calisthenics-error', result.error || 'Fehler beim Speichern.');
-            }
-        } catch (error) {
-            console.error('Fehler beim Speichern:', error);
-            showError('calisthenics-error', 'Netzwerkfehler beim Speichern.');
-        }
-    });
-
-    // Restday
-    const restdayForm = document.querySelector('form[action="{{ url_for('post_restday') }}"]');
-    if (restdayForm) {
-        restdayForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            console.log('Restday form submitted');
-            const formData = new FormData(this);
-            console.log('Sending Restday form data:', Object.fromEntries(formData));
-
-            try {
-                const response = await fetch('/restday', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'same-origin'
-                });
-                const result = await response.json();
-
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    alert('Ruhetag eingetragen!');
-                } else {
-                    showError('classic-error', result.error || 'Fehler beim Eintragen des Ruhetags.');
-                }
-            } catch (error) {
-                console.error('Fehler beim Eintragen des Ruhetags:', error);
-                showError('classic-error', 'Netzwerkfehler beim Eintragen des Ruhetags.');
-            }
-        });
-    }
-
-    // Delete Workouts (Event-Delegation für dynamische Buttons)
-    document.querySelector('.overview').addEventListener('click', async function (e) {
-        if (e.target.classList.contains('delete-btn')) {
-            e.preventDefault();
-            console.log('Delete button clicked');
-            if (!confirm('Workout löschen?')) return;
-            const form = e.target.closest('form');
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin'
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    loadWorkoutsForDate(selectedDate);
-                    alert('Workout gelöscht!');
-                } else {
-                    showError('classic-error', result.error || 'Fehler beim Löschen.');
-                }
-            } catch (error) {
-                console.error('Fehler beim Löschen:', error);
-                showError('classic-error', 'Netzwerkfehler beim Löschen.');
-            }
-        }
-    });
-
-    // Initial Workouts laden
-    loadWorkoutsForDate(selectedDate);
-
-    // Hamburger Menu
-    function toggleMenu() {
-        console.log('Hamburger menu toggled');
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('active');
-    }
-
-    // Hamburger Menu Event-Listener
-    document.querySelector('.hamburger').addEventListener('click', toggleMenu);
-});
-</script>
+                {% else %}
+                <p class="no-workouts">Keine Workouts vorhanden.</p>
+                {% endif %}
+            </section>
+        </main>
+        <footer>
+            © 2025 Muscle Up. Alle Rechte vorbehalten.
+        </footer>
+    </div>
 </body>
 </html>
